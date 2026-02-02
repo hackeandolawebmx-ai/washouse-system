@@ -355,7 +355,7 @@ export default function NewOrderWizard({ isOpen, onClose }) {
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 p-6 overflow-y-auto">
+                <div className={`flex-1 p-6 ${step === 2 ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}>
                     {step === 1 && renderCustomerStep()}
                     {step === 2 && renderServicesStep()}
                     {step === 3 && renderPaymentStep()}
