@@ -102,12 +102,12 @@ export default function NewOrderWizard({ isOpen, onClose }) {
     };
 
     const renderServicesStep = () => (
-        <div className="space-y-6 h-full flex flex-col">
+        <div className="space-y-6 flex-1 min-h-0 flex flex-col">
             <h3 className="text-xl font-bold flex items-center gap-2"><ShoppingBag /> Agregar Servicios</h3>
 
-            <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 overflow-hidden">
+            <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-2 gap-6 overflow-hidden">
                 {/* Catalog */}
-                <div className="overflow-y-auto pr-2 space-y-2">
+                <div className="overflow-y-auto pr-2 space-y-2 h-full">
                     {SERVICES_CATALOG.map(service => (
                         <button
                             key={service.id}
@@ -131,53 +131,55 @@ export default function NewOrderWizard({ isOpen, onClose }) {
                 {/* Current Order List */}
                 <div className="bg-gray-50 rounded-xl p-4 flex flex-col h-full overflow-hidden">
                     <h4 className="font-bold text-gray-600 mb-4">Resumen de Orden</h4>
-                    {items.length === 0 && (
-                        <div className="text-center text-gray-400 py-10">Agrega servicios del menú</div>
-                    )}
-                    {items.map((item, idx) => (
-                        <div key={idx} className="bg-white p-3 rounded-lg shadow-sm flex items-center justify-between gap-3">
-                            <div className="flex-1">
-                                <div className="font-medium">{item.name}</div>
-                                <div className="text-sm text-gray-500">
-                                    {item.type === 'weight'
-                                        ? item.quantity <= item.baseKg
-                                            ? `Base ${formatCurrency(item.basePrice)}`
-                                            : `Base ${formatCurrency(item.basePrice)} + ${(item.quantity - item.baseKg).toFixed(2)}kg extra`
-                                        : `${formatCurrency(item.basePrice)} x ${item.quantity}`
-                                    }
+                    <div className="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+                        {items.length === 0 && (
+                            <div className="text-center text-gray-400 py-10">Agrega servicios del menú</div>
+                        )}
+                        {items.map((item, idx) => (
+                            <div key={idx} className="bg-white p-3 rounded-lg shadow-sm flex items-center justify-between gap-3">
+                                <div className="flex-1">
+                                    <div className="font-medium">{item.name}</div>
+                                    <div className="text-sm text-gray-500">
+                                        {item.type === 'weight'
+                                            ? item.quantity <= item.baseKg
+                                                ? `Base ${formatCurrency(item.basePrice)}`
+                                                : `Base ${formatCurrency(item.basePrice)} + ${(item.quantity - item.baseKg).toFixed(2)}kg extra`
+                                            : `${formatCurrency(item.basePrice)} x ${item.quantity}`
+                                        }
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div className="flex items-center gap-2">
-                                <div className="flex items-center bg-gray-100 rounded-lg p-1">
-                                    {item.type === 'unit' ? (
-                                        <>
-                                            <button onClick={() => updateQuantity(idx, item.quantity - 1)} className="w-8 h-8 flex items-center justify-center font-bold hover:bg-white rounded">-</button>
-                                            <span className="w-8 text-center font-bold">{item.quantity}</span>
-                                            <button onClick={() => updateQuantity(idx, item.quantity + 1)} className="w-8 h-8 flex items-center justify-center font-bold hover:bg-white rounded">+</button>
-                                        </>
-                                    ) : (
-                                        <div className="relative">
-                                            <input
-                                                type="number"
-                                                step="0.1"
-                                                min="0"
-                                                value={item.quantity}
-                                                onChange={(e) => updateQuantity(idx, e.target.value)}
-                                                className="w-20 text-center font-bold bg-transparent outline-none border-b-2 border-gray-300 focus:border-washouse-blue"
-                                            />
-                                            <span className="text-xs text-gray-500 absolute right-0 -bottom-3">kg</span>
-                                        </div>
-                                    )}
+                                <div className="flex items-center gap-2">
+                                    <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                                        {item.type === 'unit' ? (
+                                            <>
+                                                <button onClick={() => updateQuantity(idx, item.quantity - 1)} className="w-8 h-8 flex items-center justify-center font-bold hover:bg-white rounded">-</button>
+                                                <span className="w-8 text-center font-bold">{item.quantity}</span>
+                                                <button onClick={() => updateQuantity(idx, item.quantity + 1)} className="w-8 h-8 flex items-center justify-center font-bold hover:bg-white rounded">+</button>
+                                            </>
+                                        ) : (
+                                            <div className="relative">
+                                                <input
+                                                    type="number"
+                                                    step="0.1"
+                                                    min="0"
+                                                    value={item.quantity}
+                                                    onChange={(e) => updateQuantity(idx, e.target.value)}
+                                                    className="w-20 text-center font-bold bg-transparent outline-none border-b-2 border-gray-300 focus:border-washouse-blue"
+                                                />
+                                                <span className="text-xs text-gray-500 absolute right-0 -bottom-3">kg</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="font-bold text-washouse-blue w-20 text-right">
+                                        {formatCurrency(calculateItemTotal(item))}
+                                    </div>
                                 </div>
-                                <div className="font-bold text-washouse-blue w-20 text-right">
-                                    {formatCurrency(calculateItemTotal(item))}
-                                </div>
-                            </div>
 
-                            <button onClick={() => removeItem(idx)} className="text-red-400 hover:text-red-500"><X size={18} /></button>
-                        </div>
-                    ))}
+                                <button onClick={() => removeItem(idx)} className="text-red-400 hover:text-red-500"><X size={18} /></button>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>
