@@ -8,7 +8,8 @@ import OrderDetailsModal from '../components/ui/OrderDetailsModal';
 import InventoryModal from '../components/ui/InventoryModal';
 import ExpenseModal from '../components/ui/ExpenseModal'; // Added
 import ViewToggle from '../components/ui/ViewToggle';
-import { Package, Wallet } from 'lucide-react'; // Added Wallet
+import { SERVICES_CATALOG, PRODUCTS_CATALOG } from '../data/catalog';
+import { Package, Wallet, Power } from 'lucide-react'; // Added Wallet, Power
 import { useStorage } from '../context/StorageContext';
 import { printTicket } from '../utils/printTicket';
 
@@ -61,9 +62,25 @@ export default function HostDashboard() {
     const handleCreateOrder = (orderData) => {
         setIsOrderModalOpen(false);
 
+        // Transform items object to Array for storage/display consistency
+        const itemsArray = Object.entries(orderData.items).map(([id, qty]) => {
+            // Find in catalogs to get name/price
+            const service = SERVICES_CATALOG.find(s => s.id === id);
+            const product = PRODUCTS_CATALOG.find(p => p.id === id);
+            const item = service || product;
+            return {
+                id,
+                name: item ? item.name : id,
+                price: item ? item.price : 0,
+                quantity: qty,
+                type: item ? item.type : 'unit'
+            };
+        });
+
         // Register Sale
         const newSale = addSale({
             ...orderData,
+            items: itemsArray, // Searchable/Reportable
             machineId: selectedMachineId || 'counter',
             status: 'completed'
         }, currentBranch);
@@ -74,7 +91,7 @@ export default function HostDashboard() {
         });
 
         // Print Ticket
-        printTicket(newSale);
+        printTicket({ ...newSale, items: itemsArray });
 
         if (selectedMachineId) {
             const hasWash = orderData.items['wash_basic'] || orderData.items['duvet_s'] || orderData.items['duvet_l'];
@@ -86,7 +103,7 @@ export default function HostDashboard() {
                 clientName: orderData.customer.name,
                 total: orderData.total,
                 paymentMethod: orderData.paymentMethod,
-                items: orderData.items,
+                items: itemsArray, // Save as Array
                 startDate: new Date().toISOString()
             });
 
@@ -113,15 +130,28 @@ export default function HostDashboard() {
 
     const selectedMachine = machines.find(m => m.id === selectedMachineId);
 
-    const handleSaveExpense = (data) => {
-        const { user } = useAuth(); // Safe access locally if needed, but we have user from hook usually
+    // Map Machine State to Order Structure for Modal
+    const machineOrder = selectedMachine ? {
+        id: `M-${selectedMachine.id}`,
+        createdAt: selectedMachine.startDate, // Map startDate to createdAt
+        customerName: selectedMachine.clientName || 'Cliente Anónimo',
+        customerPhone: '', // Not stored in machine currently
+        status: selectedMachine.status === 'running' ? 'WASHING' : 'COMPLETED', // Map status
+        items: selectedMachine.items || [], // Should be array now
+        totalAmount: selectedMachine.total,
+        advancePayment: selectedMachine.total, // Machines are usually paid upfront
+        balanceDue: 0,
+        branchId: selectedMachine.branchId
+    } : null;
 
-        // We'll trust StorageContext default 'Host' if user is missing, or pass specific name
+    const handleSaveExpense = (data) => {
+        const { user } = useAuth();
+
         addExpense({
             ...data,
             branchId: currentBranch,
             shiftId: JSON.parse(localStorage.getItem('washouse_active_shift'))?.id
-        }, user?.name || 'Host'); // Using 'Host' string or actual user name if available in scope
+        }, user?.name || 'Host');
         alert('Gasto registrado exitosamente');
     };
 
@@ -184,10 +214,22 @@ export default function HostDashboard() {
                 title={`Detalles: ${selectedMachine?.name}`}
             >
                 <OrderDetailsModal
-                    machine={selectedMachine}
-                    onFinish={handleFinishCycle}
+                    order={machineOrder} // Pass mapped object
+                    onFinish={() => handleFinishCycle(selectedMachineId)} // Pass ID
                     onClose={() => setIsDetailsModalOpen(false)}
                 />
+
+                {/* Quick Finish Button for Machines */}
+                {selectedMachine?.status === 'running' && (
+                    <div className="p-4 border-t flex justify-center">
+                        <Button
+                            variant="danger"
+                            onClick={() => handleFinishCycle(selectedMachine.id)}
+                        >
+                            <Power className="w-4 h-4 mr-2" /> Forzar Terminado
+                        </Button>
+                    </div>
+                )}
             </Modal>
 
             {/* Inventory Modal */}

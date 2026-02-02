@@ -39,7 +39,7 @@ export default function OrderDetailsModal({ order, isOpen, onClose }) {
                     <div>
                         <h3 className="font-bold text-gray-700 mb-3 flex items-center gap-2"><Package size={18} /> Detalle de Servicios</h3>
                         <div className="space-y-2">
-                            {order.items.map((item, i) => (
+                            {(Array.isArray(order.items) ? order.items : []).map((item, i) => (
                                 <div key={i} className="flex justify-between text-sm border-b pb-2 last:border-0">
                                     <span>{item.quantity} x {item.name}</span>
                                     <span className="font-medium">{formatCurrency(item.price * item.quantity)}</span>
