@@ -257,22 +257,8 @@ export function StorageProvider({ children }) {
         return { added: addedCount, updated: updatedCount };
     };
 
-    // Inject placeholder branches if they don't exist
-    useEffect(() => {
-        const PLACEHOLDERS = [
-            { name: 'Sucursal Centro', address: 'Av. Juárez 100, Centro, Monterrey' },
-            { name: 'Sucursal San Jeronimo', address: 'Anillo Periférico 200, San Jerónimo, Monterrey' },
-            { name: 'Sucursal Cumbres', address: 'Paseo de los Leones 300, Cumbres, Monterrey' }
-        ];
+    // Placeholder injection removed to prevent unwanted branches
 
-        PLACEHOLDERS.forEach(pb => {
-            const id = pb.name.toLowerCase().replace(/\s+/g, '_');
-            // Check if branch already exists (by ID)
-            if (!branches.some(b => b.id === id)) {
-                addBranch(pb);
-            }
-        });
-    }, []); // Run once on mount
 
     const addBranch = (branchData) => {
         const newBranch = { ...branchData, id: branchData.name.toLowerCase().replace(/\s+/g, '_') };

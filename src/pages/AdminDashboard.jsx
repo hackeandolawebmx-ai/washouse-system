@@ -141,17 +141,46 @@ export default function AdminDashboard() {
 
     // Calculate metrics
     const metrics = useMemo(() => {
-        if (!filteredSales.length) return { revenue: 0, count: 0, avg: 0 };
+        if (!filteredSales.length) return { revenue: 0, count: 0, avg: 0, responseTime: '0h' };
 
         const totalRevenue = filteredSales.reduce((acc, sale) => acc + (sale.total || 0), 0);
         const avgTicket = totalRevenue / filteredSales.length;
 
+        // Calculate Average Response Time
+        const completedOrders = filteredOrders.filter(o => o.status === 'COMPLETED' || o.status === 'DELIVERED');
+        let totalTimeMs = 0;
+        let countedOrders = 0;
+
+        completedOrders.forEach(order => {
+            const start = new Date(order.createdAt).getTime();
+            // Find when it was completed
+            const completionEvent = order.statusHistory?.find(h => h.status === 'COMPLETED' || h.status === 'DELIVERED');
+
+            if (completionEvent && start) {
+                const end = new Date(completionEvent.timestamp).getTime();
+                const diff = end - start;
+                if (diff > 0) {
+                    totalTimeMs += diff;
+                    countedOrders++;
+                }
+            }
+        });
+
+        let responseTimeStr = 'N/A';
+        if (countedOrders > 0) {
+            const avgMs = totalTimeMs / countedOrders;
+            const hours = Math.floor(avgMs / (1000 * 60 * 60));
+            const minutes = Math.floor((avgMs % (1000 * 60 * 60)) / (1000 * 60));
+            responseTimeStr = `${hours}h ${minutes}m`;
+        }
+
         return {
             revenue: totalRevenue,
             count: filteredSales.length,
-            avg: avgTicket
+            avg: avgTicket,
+            responseTime: responseTimeStr
         };
-    }, [filteredSales]);
+    }, [filteredSales, filteredOrders]);
 
     // Prepare chart data (Last 7 days)
     const chartData = useMemo(() => {
@@ -191,6 +220,7 @@ export default function AdminDashboard() {
                             change="--%"
                             changeType="neutral"
                             icon={DollarSign}
+                            description="Suma total de todas las ventas registradas en el periodo seleccionado."
                         />
                         <KpiCard
                             title="Ventas Totales"
@@ -198,6 +228,7 @@ export default function AdminDashboard() {
                             change="--%"
                             changeType="positive"
                             icon={Activity}
+                            description="Número total de transacciones completadas (órdenes y ventas directas)."
                         />
                         <KpiCard
                             title="Ticket Promedio"
@@ -205,13 +236,15 @@ export default function AdminDashboard() {
                             change="--%"
                             changeType="positive"
                             icon={Percent}
+                            description="Promedio de ingreso por venta (Total Ingresos / Total Ventas)."
                         />
                         <KpiCard
                             title="Tiempo Respuesta"
-                            value="4.2h"
-                            change="Sim"
+                            value={metrics.responseTime}
+                            change="Promedio"
                             changeType="neutral"
                             icon={Clock}
+                            description="Tiempo promedio entre la recepción de la orden y su finalización."
                         />
                     </div>
 

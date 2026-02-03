@@ -1,7 +1,7 @@
 import StatusBadge from './StatusBadge';
 import Button from './Button';
 import Tooltip from './Tooltip';
-import { Timer, Power, Droplets, Wind } from 'lucide-react';
+import { Timer, Power, Droplets, Wind, RotateCcw } from 'lucide-react';
 
 export default function MachineCard({ id, name, type, status, timeLeft, onAction, variant = 'default', ...props }) {
     const isAvailable = status === 'available';
@@ -110,8 +110,17 @@ export default function MachineCard({ id, name, type, status, timeLeft, onAction
                 disabled={status === 'maintenance'}
                 className="w-full justify-center flex items-center"
             >
-                <Power className="w-4 h-4 mr-2" />
-                {isAvailable ? 'Iniciar' : 'Ver Detalles'}
+                {status === 'finished' ? (
+                    <>
+                        <RotateCcw className="w-4 h-4 mr-2" />
+                        Liberar
+                    </>
+                ) : (
+                    <>
+                        <Power className="w-4 h-4 mr-2" />
+                        {isAvailable ? 'Iniciar' : 'Ver Detalles'}
+                    </>
+                )}
             </Button>
         </div>
     );

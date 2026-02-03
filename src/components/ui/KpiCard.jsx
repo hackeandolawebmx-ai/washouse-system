@@ -1,7 +1,8 @@
-import { ArrowUp, ArrowDown, Minus } from 'lucide-react';
+import { ArrowUp, ArrowDown, Minus, Info } from 'lucide-react';
 import Skeleton from './Skeleton';
+import Tooltip from './Tooltip';
 
-export default function KpiCard({ title, value, change, changeType = 'neutral', icon: Icon, loading }) {
+export default function KpiCard({ title, value, change, changeType = 'neutral', icon: Icon, loading, description }) {
     const changeColors = {
         positive: 'text-green-600',
         negative: 'text-red-600',
@@ -32,10 +33,17 @@ export default function KpiCard({ title, value, change, changeType = 'neutral', 
     }
 
     return (
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 transition-all hover:shadow-md">
             <div className="flex justify-between items-start mb-4">
                 <div>
-                    <p className="text-sm font-medium text-gray-500 mb-1">{title}</p>
+                    <div className="flex items-center gap-2 mb-1">
+                        <p className="text-sm font-medium text-gray-500">{title}</p>
+                        {description && (
+                            <Tooltip content={description} position="top">
+                                <Info size={14} className="text-gray-400 hover:text-washouse-blue cursor-help" />
+                            </Tooltip>
+                        )}
+                    </div>
                     <h3 className="text-2xl font-bold text-washouse-navy">{value}</h3>
                 </div>
                 {Icon && <div className="p-2 bg-blue-50 rounded-lg text-washouse-blue"><Icon size={20} /></div>}
