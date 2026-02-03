@@ -130,6 +130,26 @@ export default function HostDashboard() {
 
     const selectedMachine = machines.find(m => m.id === selectedMachineId);
 
+    // Helper to normalize items (Legacy Object -> Array)
+    const getNormalizedItems = (items) => {
+        if (!items) return [];
+        if (Array.isArray(items)) return items;
+
+        // Convert Object { id: qty } to Array [ { id, quantity, ... } ]
+        return Object.entries(items).map(([id, qty]) => {
+            const service = SERVICES_CATALOG.find(s => s.id === id);
+            const product = PRODUCTS_CATALOG.find(p => p.id === id);
+            const item = service || product;
+            return {
+                id,
+                name: item ? item.name : id,
+                price: item ? item.price : 0,
+                quantity: qty,
+                type: item ? item.type : 'unit'
+            };
+        });
+    };
+
     // Map Machine State to Order Structure for Modal
     const machineOrder = selectedMachine ? {
         id: `M-${selectedMachine.id}`,
@@ -137,7 +157,7 @@ export default function HostDashboard() {
         customerName: selectedMachine.clientName || 'Cliente Anónimo',
         customerPhone: '', // Not stored in machine currently
         status: selectedMachine.status === 'running' ? 'WASHING' : 'COMPLETED', // Map status
-        items: selectedMachine.items || [], // Should be array now
+        items: getNormalizedItems(selectedMachine.items), // Normalize items
         totalAmount: selectedMachine.total,
         advancePayment: selectedMachine.total, // Machines are usually paid upfront
         balanceDue: 0,
