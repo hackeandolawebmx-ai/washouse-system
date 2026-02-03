@@ -1,13 +1,15 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { PRODUCTS_CATALOG } from '../data/catalog';
+import initialDB from '../data/initialState.json';
 
 const StorageContext = createContext();
 
-const INITIAL_BRANCHES = [
+// Use data from Exported DB as clean baseline
+const INITIAL_BRANCHES = initialDB.branches || [
     { id: 'main', name: 'Sucursal Principal', address: 'Calle Principal 123' }
 ];
 
-const INITIAL_MACHINES = [
+const INITIAL_MACHINES = initialDB.machines || [
     { id: 1, name: 'Lavadora 01', type: 'lavadora', status: 'available', timeLeft: 0, branchId: 'main' },
     { id: 2, name: 'Lavadora 02', type: 'lavadora', status: 'available', timeLeft: 0, branchId: 'main' },
     { id: 3, name: 'Lavadora 03', type: 'lavadora', status: 'available', timeLeft: 0, branchId: 'main' },
@@ -50,7 +52,7 @@ export function StorageProvider({ children }) {
     const [sales, setSales] = useState(() => {
         try {
             const saved = localStorage.getItem('washouse_sales');
-            return saved ? JSON.parse(saved) : [];
+            return saved ? JSON.parse(saved) : (initialDB.sales || []);
         } catch (e) {
             console.error('Error parsing sales from storage', e);
             return [];
@@ -60,7 +62,7 @@ export function StorageProvider({ children }) {
     const [shifts, setShifts] = useState(() => {
         try {
             const saved = localStorage.getItem('washouse_shifts');
-            return saved ? JSON.parse(saved) : [];
+            return saved ? JSON.parse(saved) : (initialDB.shifts || []);
         } catch (e) {
             console.error('Error parsing shifts from storage', e);
             return [];
@@ -70,7 +72,7 @@ export function StorageProvider({ children }) {
     const [activityLogs, setActivityLogs] = useState(() => {
         try {
             const saved = localStorage.getItem('washouse_logs');
-            return saved ? JSON.parse(saved) : [];
+            return saved ? JSON.parse(saved) : (initialDB.activityLogs || []);
         } catch (e) {
             console.error('Error parsing logs from storage', e);
             return [];
@@ -88,8 +90,8 @@ export function StorageProvider({ children }) {
             console.error('Error parsing inventory from storage', e);
         }
 
-        // Init from catalog for Main branch
-        return PRODUCTS_CATALOG.map(p => ({ ...p, branchId: 'main' }));
+        // Init from DB or Catalog
+        return initialDB.inventory || PRODUCTS_CATALOG.map(p => ({ ...p, branchId: 'main' }));
     });
 
     // Save to LocalStorage whenever state changes

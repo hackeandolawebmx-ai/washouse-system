@@ -30,12 +30,13 @@ import {
     Trash2,
     PackagePlus,
     ClipboardList,
-    Percent
+    Percent,
+    Database
 } from 'lucide-react'; // Add icons
 import { formatCurrency } from '../utils/formatCurrency';
 
 export default function AdminDashboard() {
-    const { sales, shifts, inventory, orders, activityLogs, branches, addProduct, updateProduct, deleteProduct, importInventory, addBranch, updateBranch, deleteBranch, loadStandardInventory, deviceBranchId, setDeviceBranch, expenses } = useStorage();
+    const { sales, shifts, inventory, orders, activityLogs, branches, machines, addProduct, updateProduct, deleteProduct, importInventory, addBranch, updateBranch, deleteBranch, loadStandardInventory, deviceBranchId, setDeviceBranch, expenses } = useStorage();
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
     const [isBranchModalOpen, setIsBranchModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
@@ -341,7 +342,44 @@ export default function AdminDashboard() {
                                     onClick={handleExport}
                                     className="flex items-center gap-2 bg-white text-gray-600 border border-gray-200 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
                                 >
-                                    <Download size={16} /> Exportar
+                                    <Download size={16} /> Exportar CSV
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        try {
+                                            console.log("Exporting DB...");
+                                            const dbState = {
+                                                branches,
+                                                machines,
+                                                inventory,
+                                                sales,
+                                                shifts,
+                                                orders,
+                                                activityLogs,
+                                                expenses,
+                                                timestamp: new Date().toISOString()
+                                            };
+                                            const jsonString = JSON.stringify(dbState, null, 2);
+                                            const blob = new Blob([jsonString], { type: "application/json" });
+                                            const url = URL.createObjectURL(blob);
+
+                                            const downloadAnchorNode = document.createElement('a');
+                                            downloadAnchorNode.setAttribute("href", url);
+                                            downloadAnchorNode.setAttribute("download", "initialState.json");
+                                            document.body.appendChild(downloadAnchorNode);
+                                            downloadAnchorNode.click();
+                                            downloadAnchorNode.remove();
+                                            URL.revokeObjectURL(url);
+                                            console.log("Export initiated");
+                                        } catch (e) {
+                                            console.error("Export failed:", e);
+                                            alert("Error al exportar: " + e.message);
+                                        }
+                                    }}
+                                    className="flex items-center gap-2 bg-purple-50 text-purple-700 border border-purple-200 px-4 py-2 rounded-lg hover:bg-purple-100 transition-colors text-sm font-medium"
+                                    title="Descargar base de datos actual para guardar en Git"
+                                >
+                                    <Database size={16} /> Guardar BD
                                 </button>
                                 <button
                                     onClick={() => {
