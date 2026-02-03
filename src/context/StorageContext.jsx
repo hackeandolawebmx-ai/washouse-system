@@ -122,7 +122,7 @@ export function StorageProvider({ children }) {
     const [orders, setOrders] = useState(() => {
         try {
             const saved = localStorage.getItem('washouse_orders');
-            return saved ? JSON.parse(saved) : [];
+            return saved ? JSON.parse(saved) : (initialDB.orders || []);
         } catch (e) {
             console.error('Error parsing orders from storage', e);
             return [];
@@ -136,7 +136,7 @@ export function StorageProvider({ children }) {
     const [expenses, setExpenses] = useState(() => {
         try {
             const saved = localStorage.getItem('washouse_expenses');
-            return saved ? JSON.parse(saved) : [];
+            return saved ? JSON.parse(saved) : (initialDB.expenses || []);
         } catch (e) {
             console.error('Error parsing expenses from storage', e);
             return [];
