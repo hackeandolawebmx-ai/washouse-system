@@ -9,13 +9,15 @@ const INITIAL_BRANCHES = initialDB.branches || [
     { id: 'main', name: 'Sucursal Principal', address: 'Calle Principal 123' }
 ];
 
-const INITIAL_MACHINES = initialDB.machines || [
-    { id: 1, name: 'Lavadora 01', type: 'lavadora', status: 'available', timeLeft: 0, branchId: 'main' },
-    { id: 2, name: 'Lavadora 02', type: 'lavadora', status: 'available', timeLeft: 0, branchId: 'main' },
-    { id: 3, name: 'Lavadora 03', type: 'lavadora', status: 'available', timeLeft: 0, branchId: 'main' },
-    { id: 4, name: 'Secadora 01', type: 'secadora', status: 'available', timeLeft: 0, branchId: 'main' },
-    { id: 5, name: 'Secadora 02', type: 'secadora', status: 'maintenance', timeLeft: 0, branchId: 'main' },
-    { id: 6, name: 'Secadora 03', type: 'secadora', status: 'available', timeLeft: 0, branchId: 'main' },
+const INITIAL_MACHINES = initialDB.machines || [];
+
+const DEFAULT_BRANCH_MACHINES = [
+    { name: 'Lavadora 01', type: 'lavadora', status: 'available', timeLeft: 0 },
+    { name: 'Lavadora 02', type: 'lavadora', status: 'available', timeLeft: 0 },
+    { name: 'Lavadora 03', type: 'lavadora', status: 'available', timeLeft: 0 },
+    { name: 'Secadora 01', type: 'secadora', status: 'available', timeLeft: 0 },
+    { name: 'Secadora 02', type: 'secadora', status: 'available', timeLeft: 0 },
+    { name: 'Secadora 03', type: 'secadora', status: 'available', timeLeft: 0 },
 ];
 
 export function StorageProvider({ children }) {
@@ -267,7 +269,8 @@ export function StorageProvider({ children }) {
         setBranches(prev => [...prev, newBranch]);
 
         // Initialize default machines for this branch
-        const newMachines = INITIAL_MACHINES.map((m, index) => ({
+        // Initialize default machines for this branch
+        const newMachines = DEFAULT_BRANCH_MACHINES.map((m, index) => ({
             ...m,
             // Use a more robust unique ID generation: Timestamp + BranchIndex + MachineIndex + Random
             id: Date.now() + index + Math.floor(Math.random() * 1000),
