@@ -2,18 +2,18 @@ import { Banknote, CreditCard, ArrowLeftRight } from 'lucide-react';
 
 export const SERVICES_CATALOG = [
     // Lavado
-    { id: 'wash_basic', name: 'Carga Lavado (5kg)', price: 90, category: 'service', type: 'weight', baseKg: 5, extraPrice: 15, icon: '🧼' },
-    { id: 'wash_dry', name: 'Lavado + Secado (5kg)', price: 150, category: 'service', type: 'weight', baseKg: 5, extraPrice: 20, icon: '🧺' },
-    { id: 'wash_dry_iron', name: 'Lavado + Secado + Planchado', price: 220, category: 'service', type: 'weight', baseKg: 5, extraPrice: 25, icon: '👔' },
+    { id: 'wash_basic', name: 'Carga Lavado (5kg)', price: 90, category: 'wash', type: 'weight', baseKg: 5, extraPrice: 15, icon: '🧼' },
+    { id: 'wash_dry', name: 'Lavado + Secado (5kg)', price: 150, category: 'wash', type: 'weight', baseKg: 5, extraPrice: 20, icon: '🧺' },
+    { id: 'wash_dry_iron', name: 'Lavado + Secado + Planchado', price: 220, category: 'wash', type: 'weight', baseKg: 5, extraPrice: 25, icon: '👔' },
 
     // Especiales
-    { id: 'duvet_s', name: 'Edredón Ind/Mat', price: 150, category: 'service', type: 'unit', icon: '🛏️' },
-    { id: 'duvet_l', name: 'Edredón King', price: 200, category: 'service', type: 'unit', icon: '👑' },
-    { id: 'sneakers', name: 'Tenis (Par)', price: 120, category: 'service', type: 'unit', icon: '👟' },
+    { id: 'duvet_s', name: 'Edredón Ind/Mat', price: 150, category: 'special', type: 'unit', icon: '🛏️' },
+    { id: 'duvet_l', name: 'Edredón King', price: 200, category: 'special', type: 'unit', icon: '👑' },
+    { id: 'sneakers', name: 'Tenis (Par)', price: 120, category: 'special', type: 'unit', icon: '👟' },
 
     // Planchado
-    { id: 'iron_dozen', name: 'Docena Planchado', price: 120, category: 'service', type: 'unit', icon: '♨️' },
-    { id: 'iron_piece', name: 'Pieza Planchado', price: 15, category: 'service', type: 'unit', icon: '👕' },
+    { id: 'iron_dozen', name: 'Docena Planchado', price: 120, category: 'iron', type: 'unit', icon: '♨️' },
+    { id: 'iron_piece', name: 'Pieza Planchado', price: 15, category: 'iron', type: 'unit', icon: '👕' },
 ];
 
 export const SERVICE_LEVELS = [

@@ -3,27 +3,43 @@ import { useAuth } from '../context/AuthContext';
 import MachineCard from '../components/ui/MachineCard';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
-import NewOrderForm from '../components/NewOrderForm';
+import NewOrderWizard from '../components/services/NewOrderWizard'; // Replaced NewOrderForm
 import OrderDetailsModal from '../components/ui/OrderDetailsModal';
 import InventoryModal from '../components/ui/InventoryModal';
-import ExpenseModal from '../components/ui/ExpenseModal'; // Added
+import ExpenseModal from '../components/ui/ExpenseModal';
 import ViewToggle from '../components/ui/ViewToggle';
 import { SERVICES_CATALOG, PRODUCTS_CATALOG } from '../data/catalog';
-import { Package, Wallet, Power } from 'lucide-react'; // Added Wallet, Power
+import { Package, Wallet, Power, Store } from 'lucide-react';
 import { useStorage } from '../context/StorageContext';
 import { printTicket } from '../utils/printTicket';
+import { motion } from 'framer-motion';
+
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.1
+        }
+    }
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+};
 
 export default function HostDashboard() {
     const { machines, updateMachine, addSale, updateInventoryStock, branches, deviceBranchId, addExpense } = useStorage();
 
-    // Use device branch or fallback to main (though it should be set)
+    // Use device branch or fallback to main
     const currentBranch = deviceBranchId || 'main';
     const currentBranchName = branches.find(b => b.id === currentBranch)?.name || 'Sucursal Desconocida';
 
     const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [isInventoryModalOpen, setIsInventoryModalOpen] = useState(false);
-    const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false); // Added
+    const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
     const [selectedMachineId, setSelectedMachineId] = useState(null);
     const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'compact'
 
@@ -62,9 +78,7 @@ export default function HostDashboard() {
     const handleCreateOrder = (orderData) => {
         setIsOrderModalOpen(false);
 
-        // Transform items object to Array for storage/display consistency
         const itemsArray = Object.entries(orderData.items).map(([id, qty]) => {
-            // Find in catalogs to get name/price
             const service = SERVICES_CATALOG.find(s => s.id === id);
             const product = PRODUCTS_CATALOG.find(p => p.id === id);
             const item = service || product;
@@ -80,7 +94,7 @@ export default function HostDashboard() {
         // Register Sale
         const newSale = addSale({
             ...orderData,
-            items: itemsArray, // Searchable/Reportable
+            items: itemsArray,
             machineId: selectedMachineId || 'counter',
             status: 'completed'
         }, currentBranch);
@@ -95,7 +109,7 @@ export default function HostDashboard() {
 
         if (selectedMachineId) {
             const hasWash = orderData.items['wash_basic'] || orderData.items['duvet_s'] || orderData.items['duvet_l'];
-            const time = hasWash ? 45 : 30; // Simplified timing logic
+            const time = hasWash ? 45 : 30;
 
             updateMachine(selectedMachineId, {
                 status: 'running',
@@ -103,7 +117,7 @@ export default function HostDashboard() {
                 clientName: orderData.customer.name,
                 total: orderData.total,
                 paymentMethod: orderData.paymentMethod,
-                items: itemsArray, // Save as Array
+                items: itemsArray,
                 startDate: new Date().toISOString()
             });
 
@@ -128,14 +142,37 @@ export default function HostDashboard() {
         setIsOrderModalOpen(true);
     };
 
+    const handleToggleMaintenance = (id) => {
+        const machine = machines.find(m => m.id === id);
+        if (!machine) return;
+
+        // If running, warn user
+        if (machine.status === 'running') {
+            if (!confirm('⚠️ La máquina está en uso. ¿Seguro que deseas ponerla en mantenimiento? Esto no detendrá el temporizador.')) {
+                return;
+            }
+        }
+
+        const newStatus = machine.status === 'maintenance' ? 'available' : 'maintenance';
+
+        // If coming back from maintenance, ensure it's clean
+        const updates = newStatus === 'available' ? {
+            status: 'available',
+            timeLeft: 0,
+            clientName: null,
+            total: 0,
+            items: null,
+            startDate: null
+        } : { status: 'maintenance' };
+
+        updateMachine(id, updates);
+    };
+
     const selectedMachine = machines.find(m => m.id === selectedMachineId);
 
-    // Helper to normalize items (Legacy Object -> Array)
     const getNormalizedItems = (items) => {
         if (!items) return [];
         if (Array.isArray(items)) return items;
-
-        // Convert Object { id: qty } to Array [ { id, quantity, ... } ]
         return Object.entries(items).map(([id, qty]) => {
             const service = SERVICES_CATALOG.find(s => s.id === id);
             const product = PRODUCTS_CATALOG.find(p => p.id === id);
@@ -150,101 +187,99 @@ export default function HostDashboard() {
         });
     };
 
-    // Map Machine State to Order Structure for Modal
     const machineOrder = selectedMachine ? {
         id: `M-${selectedMachine.id}`,
-        createdAt: selectedMachine.startDate, // Map startDate to createdAt
+        createdAt: selectedMachine.startDate,
         customerName: selectedMachine.clientName || 'Cliente Anónimo',
-        customerPhone: '', // Not stored in machine currently
-        status: selectedMachine.status === 'running' ? 'WASHING' : 'COMPLETED', // Map status
-        items: getNormalizedItems(selectedMachine.items), // Normalize items
+        customerPhone: '',
+        status: selectedMachine.status === 'running' ? 'WASHING' : 'COMPLETED',
+        items: getNormalizedItems(selectedMachine.items),
         totalAmount: selectedMachine.total,
-        advancePayment: selectedMachine.total, // Machines are usually paid upfront
+        advancePayment: selectedMachine.total,
         balanceDue: 0,
         branchId: selectedMachine.branchId
     } : null;
 
-    const handleSaveExpense = (data) => {
-        const { user } = useAuth();
-
-        addExpense({
-            ...data,
-            branchId: currentBranch,
-            shiftId: JSON.parse(localStorage.getItem('washouse_active_shift'))?.id
-        }, user?.name || 'Host');
-        alert('Gasto registrado exitosamente');
-    };
-
     return (
-        <div className="max-w-7xl mx-auto">
-            <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h2 className="text-2xl font-bold text-washouse-navy">Panel de Control</h2>
-                    <div className="flex items-center gap-2 text-gray-500">
-                        <span>Sucursal:</span>
-                        <span className="font-medium text-washouse-blue bg-blue-50 px-2 py-0.5 rounded">
-                            {currentBranchName}
-                        </span>
-                    </div>
-                </div>
-                <div className="flex items-center gap-3">
-                    <ViewToggle view={viewMode} onViewChange={setViewMode} />
-                    <div className="h-8 w-px bg-gray-200 mx-1"></div>
+        <motion.div
+            className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+        >
+            <div className="sticky top-0 z-10 bg-gray-50/95 backdrop-blur-sm -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 py-4 mb-6 border-b border-gray-200 transition-all shadow-sm">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <motion.div variants={itemVariants}>
+                        <h1 className="text-3xl font-bold text-washouse-navy tracking-tight">Panel de Control</h1>
+                        <div className="flex items-center gap-2 mt-2 text-gray-500">
+                            <div className="p-1 bg-blue-50 rounded-md">
+                                <Store className="w-4 h-4 text-washouse-blue" />
+                            </div>
+                            <span className="text-sm font-medium">Sucursal:</span>
+                            <span className="text-sm font-semibold text-washouse-blue">
+                                {currentBranchName}
+                            </span>
+                        </div>
+                    </motion.div>
 
-                    <Button variant="secondary" onClick={() => setIsInventoryModalOpen(true)}>
-                        <Package className="w-5 h-5 mr-2" />
-                        Inventario
-                    </Button>
-                    <Button onClick={openCleanOrderModal}>
-                        Nueva Orden
-                    </Button>
+                    <motion.div variants={itemVariants} className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                        <ViewToggle view={viewMode} onViewChange={setViewMode} />
+                        <div className="hidden md:block h-8 w-px bg-gray-200 mx-1"></div>
+
+                        <Button variant="secondary" onClick={() => setIsInventoryModalOpen(true)} className="flex-1 md:flex-none justify-center">
+                            <Package className="w-4 h-4 mr-2" />
+                            Inventario
+                        </Button>
+                        <Button onClick={openCleanOrderModal} className="flex-1 md:flex-none justify-center shadow-lg shadow-blue-500/20">
+                            Nueva Orden
+                        </Button>
+                    </motion.div>
                 </div>
             </div>
 
-            <div className={`grid gap-4 ${viewMode === 'grid'
-                ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3'
-                : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
-                }`}>
+            <motion.div
+                className={`grid gap-6 ${viewMode === 'grid'
+                    ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3'
+                    : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                    }`}
+                variants={containerVariants}
+            >
                 {branchMachines.map((machine) => (
-                    <MachineCard
-                        key={machine.id}
-                        {...machine}
-                        variant={viewMode}
-                        onAction={handleMachineAction}
-                    />
+                    <motion.div key={machine.id} variants={itemVariants} layout>
+                        <MachineCard
+                            {...machine}
+                            variant={viewMode}
+                            onAction={handleMachineAction}
+                            onToggleMaintenance={handleToggleMaintenance}
+                        />
+                    </motion.div>
                 ))}
-            </div>
+            </motion.div>
 
-            {/* New Order Modal */}
-            <Modal
+            {/* Modals */}
+            <NewOrderWizard
                 isOpen={isOrderModalOpen}
                 onClose={() => setIsOrderModalOpen(false)}
-                title={selectedMachineId ? `Iniciar Máquina #${selectedMachineId}` : "Crear Nueva Orden"}
-            >
-                <NewOrderForm
-                    onSubmit={handleCreateOrder}
-                    onCancel={() => setIsOrderModalOpen(false)}
-                />
-            </Modal>
+                machineId={selectedMachineId}
+            />
 
-            {/* Order Details Modal */}
             <Modal
                 isOpen={isDetailsModalOpen}
                 onClose={() => setIsDetailsModalOpen(false)}
                 title={`Detalles: ${selectedMachine?.name}`}
             >
                 <OrderDetailsModal
-                    order={machineOrder} // Pass mapped object
-                    onFinish={() => handleFinishCycle(selectedMachineId)} // Pass ID
+                    order={machineOrder}
+                    onFinish={() => handleFinishCycle(selectedMachineId)}
                     onClose={() => setIsDetailsModalOpen(false)}
                 />
 
-                {/* Quick Finish Button for Machines */}
                 {selectedMachine?.status === 'running' && (
-                    <div className="p-4 border-t flex justify-center">
+                    <div className="p-4 border-t flex justify-center bg-gray-50">
                         <Button
                             variant="danger"
                             onClick={() => handleFinishCycle(selectedMachine.id)}
+                            className="w-full sm:w-auto"
                         >
                             <Power className="w-4 h-4 mr-2" /> Forzar Terminado
                         </Button>
@@ -252,7 +287,6 @@ export default function HostDashboard() {
                 )}
             </Modal>
 
-            {/* Inventory Modal */}
             <Modal
                 isOpen={isInventoryModalOpen}
                 onClose={() => setIsInventoryModalOpen(false)}
@@ -260,6 +294,7 @@ export default function HostDashboard() {
             >
                 <InventoryModal onClose={() => setIsInventoryModalOpen(false)} />
             </Modal>
-        </div>
+
+        </motion.div>
     );
 }

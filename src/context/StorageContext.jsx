@@ -163,6 +163,63 @@ export function StorageProvider({ children }) {
         localStorage.setItem('washouse_customer_overrides', JSON.stringify(customerOverrides));
     }, [customerOverrides]);
 
+    const syncData = () => {
+        try {
+            const b = localStorage.getItem('washouse_branches');
+            const m = localStorage.getItem('washouse_machines');
+            const s = localStorage.getItem('washouse_sales');
+            const sh = localStorage.getItem('washouse_shifts');
+            const l = localStorage.getItem('washouse_logs');
+            const i = localStorage.getItem('washouse_inventory');
+            const o = localStorage.getItem('washouse_orders');
+            const e = localStorage.getItem('washouse_expenses');
+
+            if (b) setBranches(JSON.parse(b));
+            if (m) setMachines(JSON.parse(m));
+            if (s) setSales(JSON.parse(s));
+            if (sh) setShifts(JSON.parse(sh));
+            if (l) setActivityLogs(JSON.parse(l));
+            if (i) setInventory(JSON.parse(i));
+            if (o) setOrders(JSON.parse(o));
+            if (e) setExpenses(JSON.parse(e));
+        } catch (err) {
+            console.error('Error syncing data from localStorage', err);
+        }
+    };
+
+    // Live Timer Update Logic
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setMachines(prevMachines => {
+                let hasChanges = false;
+                const nextMachines = prevMachines.map(m => {
+                    if (m.status === 'running' && m.timeLeft > 0) {
+                        hasChanges = true;
+                        const newTime = m.timeLeft - 1;
+                        if (newTime <= 0) {
+                            return { ...m, timeLeft: 0, status: 'finished' };
+                        }
+                        return { ...m, timeLeft: newTime };
+                    }
+                    return m;
+                });
+                return hasChanges ? nextMachines : prevMachines;
+            });
+        }, 60000); // Update every minute
+
+        // Sync across tabs
+        window.addEventListener('storage', (e) => {
+            if (e.key && e.key.startsWith('washouse_')) {
+                syncData();
+            }
+        });
+
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener('storage', syncData);
+        };
+    }, []);
+
     // Actions
     const updateMachine = (machineId, updates) => {
         setMachines(prev => prev.map(m =>
@@ -339,12 +396,15 @@ export function StorageProvider({ children }) {
 
         // If there is an advance payment, record it as a sale linked to the order
         if (orderData.advancePayment > 0) {
+            const machine = machines.find(m => m.id === orderData.machineId);
             addSale({
                 type: 'service_advance',
                 description: `Anticipo Orden ${newOrder.id}`,
                 amount: orderData.advancePayment,
                 orderId: newOrder.id,
-                method: orderData.paymentMethod
+                method: orderData.paymentMethod,
+                machineId: orderData.machineId,
+                machineType: machine?.type || 'N/A'
             }, orderData.branchId);
         }
 
@@ -493,7 +553,8 @@ export function StorageProvider({ children }) {
             updateInventoryStock,
             logActivity,
             setBranches,
-            setDeviceBranch
+            setDeviceBranch,
+            syncData
         }}>
             {children}
         </StorageContext.Provider>

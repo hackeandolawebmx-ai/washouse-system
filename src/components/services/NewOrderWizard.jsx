@@ -1,20 +1,46 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useStorage } from '../../context/StorageContext';
 import { useAuth } from '../../context/AuthContext';
 import { SERVICES_CATALOG, SERVICE_LEVELS } from '../../data/catalog';
-import { X, Search, ShoppingBag, Truck, Calendar, DollarSign, User, Phone, Check } from 'lucide-react';
+import { X, Search, ShoppingBag, Truck, Calendar, DollarSign, User, Phone, Check, Weight, Usb } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatCurrency';
+import { useScale } from '../../hooks/useScale';
 
-export default function NewOrderWizard({ isOpen, onClose }) {
-    const { createOrder, deviceBranchId, branches } = useStorage();
-    const { user } = useAuth(); // Get authenticated user
+export default function NewOrderWizard({ isOpen, onClose, machineId }) {
+    const { createOrder, deviceBranchId, branches, updateMachine, machines } = useStorage();
+    const { user } = useAuth();
     const [step, setStep] = useState(1);
+    const [selectedMachineId, setSelectedMachineId] = useState(machineId);
+
+    // Reset state when opening
+    useEffect(() => {
+        if (isOpen) {
+            setStep(1);
+            setCustomer({ name: '', phone: '' });
+            setItems([]);
+            setServiceLevel('standard');
+            setPayment({ advance: 0, method: 'cash' });
+            setCreatedOrder(null);
+            setSelectedMachineId(machineId); // Reset to prop or null
+        }
+    }, [isOpen, machineId]);
+
+    // Scale Logic
+    const { isSupported, isConnected, weight: scaleWeight, connect: connectScale, error: scaleError, simulateConnection } = useScale();
 
     // Form State
     const [customer, setCustomer] = useState({ name: '', phone: '' });
     const [items, setItems] = useState([]);
     const [serviceLevel, setServiceLevel] = useState('standard');
     const [payment, setPayment] = useState({ advance: 0, method: 'cash' });
+
+    // Filter State
+    const [selectedCategory, setSelectedCategory] = useState('all');
+
+    const filteredServices = useMemo(() => {
+        if (selectedCategory === 'all') return SERVICES_CATALOG;
+        return SERVICES_CATALOG.filter(s => s.category === selectedCategory);
+    }, [selectedCategory]);
 
     // Step 1: Customer Search / Input
     const renderCustomerStep = () => (
@@ -103,80 +129,174 @@ export default function NewOrderWizard({ isOpen, onClose }) {
 
     const renderServicesStep = () => (
         <div className="space-y-6 flex-1 min-h-0 flex flex-col">
-            <h3 className="text-xl font-bold flex items-center gap-2"><ShoppingBag /> Agregar Servicios</h3>
+            <div className="flex justify-between items-center">
+                <h3 className="text-xl font-bold flex items-center gap-2"><ShoppingBag /> Agregar Servicios</h3>
+
+                {/* Scale Connection Control */}
+                <div className="flex items-center gap-2">
+                    {/* Display Weight */}
+                    {isConnected && (
+                        <span className="bg-green-100 text-green-700 font-mono text-lg font-bold px-3 py-1 rounded-md border border-green-200 shadow-sm animate-in fade-in zoom-in">
+                            {scaleWeight.toFixed(2)} kg
+                        </span>
+                    )}
+
+                    {isSupported ? (
+                        <button
+                            onClick={connectScale}
+                            disabled={isConnected}
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${isConnected
+                                ? 'bg-blue-50 text-blue-600 cursor-default'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                }`}
+                        >
+                            <Usb size={16} />
+                            {isConnected ? 'Báscula Conectada' : 'Conectar Báscula'}
+                        </button>
+                    ) : (
+                        <span className="text-xs text-gray-400 italic hidden sm:block">
+                            USB no soportado
+                        </span>
+                    )}
+
+                    {!isConnected && (
+                        <button
+                            onClick={simulateConnection}
+                            className="text-xs text-blue-500 underline hover:text-blue-700 font-medium"
+                            title="Simular conexión para pruebas"
+                        >
+                            Demo
+                        </button>
+                    )}
+                </div>
+            </div>
 
             <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-2 gap-6 overflow-hidden">
+                {/* Machine Selection (Optional if not passed) */}
+                <div className="md:col-span-2 bg-blue-50/50 p-3 rounded-xl border border-blue-100 flex items-center justify-between">
+                    <span className="text-sm text-gray-600 font-medium flex items-center gap-2">
+                        <Truck size={16} />
+                        {selectedMachineId ? 'Máquina Asignada:' : 'Asignar a Máquina (Opcional):'}
+                    </span>
+                    <select
+                        value={selectedMachineId || ''}
+                        onChange={(e) => {
+                            const m = machines.find(mach => String(mach.id) === e.target.value);
+                            setSelectedMachineId(m ? m.id : null);
+                        }}
+                        disabled={!!machineId} // Disable if passed from props
+                        className="bg-white border rounded-lg px-3 py-1 text-sm font-bold text-washouse-navy outline-none focus:ring-2 ring-blue-500"
+                    >
+                        <option value="">-- Mostrador / Solo Servicio --</option>
+                        {machines.filter(m => m.branchId === (deviceBranchId || 'main') && (m.status === 'available' || m.id === machineId)).map(m => (
+                            <option key={m.id} value={m.id}>
+                                {m.name} ({m.type})
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
                 {/* Catalog */}
-                <div className="overflow-y-auto pr-2 space-y-2 h-full">
-                    {SERVICES_CATALOG.map(service => (
-                        <button
-                            key={service.id}
-                            onClick={() => addToOrder(service)}
-                            className="w-full flex items-center justify-between p-4 border rounded-xl hover:bg-blue-50 hover:border-blue-200 transition-all text-left group"
-                        >
-                            <div className="flex items-center gap-3">
-                                <span className="text-2xl">{service.icon}</span>
-                                <div>
-                                    <div className="font-bold text-gray-800">{service.name}</div>
-                                    <div className="text-xs text-gray-500 uppercase">
-                                        {service.type === 'weight' ? `Base ${service.baseKg}kg + ${formatCurrency(service.extraPrice)}/kg extra` : 'Por Pieza'}
-                                    </div>
+                <div className="flex flex-col h-full overflow-hidden">
+                    {/* Category Tabs */}
+                    <div className="flex gap-2 mb-2 overflow-x-auto pb-1 custom-scrollbar">
+                        {[
+                            { id: 'all', label: 'Todos', icon: '📋' },
+                            { id: 'wash', label: 'Lavado', icon: '🧼' },
+                            { id: 'special', label: 'Especiales', icon: '✨' },
+                            { id: 'iron', label: 'Planchado', icon: '♨️' }
+                        ].map(cat => (
+                            <button
+                                key={cat.id}
+                                onClick={() => setSelectedCategory(cat.id)}
+                                className={`px-3 py-1.5 rounded-lg text-sm font-bold whitespace-nowrap transition-colors flex items-center gap-1 ${selectedCategory === cat.id
+                                    ? 'bg-washouse-blue text-white shadow-md'
+                                    : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                                    }`}
+                            >
+                                <span>{cat.icon}</span> {cat.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="overflow-y-auto pr-1 flex-1 custom-scrollbar grid grid-cols-2 gap-2 content-start">
+                        {filteredServices.map(service => (
+                            <button
+                                key={service.id}
+                                onClick={() => addToOrder(service)}
+                                className="w-full flex flex-col items-center justify-center p-2 border rounded-xl hover:bg-blue-50 hover:border-blue-200 transition-all text-center group bg-white shadow-sm h-24"
+                            >
+                                <span className="text-2xl mb-1">{service.icon}</span>
+                                <div className="leading-tight">
+                                    <div className="font-bold text-gray-800 text-xs line-clamp-2">{service.name}</div>
+                                    <div className="font-bold text-washouse-blue text-xs mt-1">{formatCurrency(service.price)}</div>
                                 </div>
-                            </div>
-                            <div className="font-bold text-washouse-blue">{formatCurrency(service.price)}</div>
-                        </button>
-                    ))}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Current Order List */}
                 <div className="bg-gray-50 rounded-xl p-4 flex flex-col h-full overflow-hidden">
-                    <h4 className="font-bold text-gray-600 mb-4">Resumen de Orden</h4>
+                    <h4 className="font-bold text-gray-600 mb-4 flex justify-between">
+                        <span>Resumen de Orden</span>
+                        {isConnected && <span className="text-xs font-normal text-green-600 flex items-center gap-1"><Weight size={12} /> Lectura Activa</span>}
+                    </h4>
                     <div className="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
                         {items.length === 0 && (
                             <div className="text-center text-gray-400 py-10">Agrega servicios del menú</div>
                         )}
                         {items.map((item, idx) => (
-                            <div key={idx} className="bg-white p-3 rounded-lg shadow-sm flex items-center justify-between gap-3">
-                                <div className="flex-1">
-                                    <div className="font-medium">{item.name}</div>
-                                    <div className="text-sm text-gray-500">
+                            <div key={idx} className="bg-white p-2 rounded-lg shadow-sm flex items-center justify-between gap-2 animate-fadeIn border border-gray-100">
+                                <div className="flex-1 min-w-0">
+                                    <div className="font-medium text-sm truncate">{item.name}</div>
+                                    <div className="text-xs text-gray-500">
                                         {item.type === 'weight'
                                             ? item.quantity <= item.baseKg
-                                                ? `Base ${formatCurrency(item.basePrice)}`
-                                                : `Base ${formatCurrency(item.basePrice)} + ${(item.quantity - item.baseKg).toFixed(2)}kg extra`
-                                            : `${formatCurrency(item.basePrice)} x ${item.quantity}`
+                                                ? `Base`
+                                                : `+ ${(item.quantity - item.baseKg).toFixed(1)}kg`
+                                            : `${item.quantity} pzas`
                                         }
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-2">
-                                    <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                                <div className="flex items-center gap-1">
+                                    <div className="flex items-center bg-gray-50 rounded-lg p-0.5">
                                         {item.type === 'unit' ? (
                                             <>
-                                                <button onClick={() => updateQuantity(idx, item.quantity - 1)} className="w-8 h-8 flex items-center justify-center font-bold hover:bg-white rounded">-</button>
-                                                <span className="w-8 text-center font-bold">{item.quantity}</span>
-                                                <button onClick={() => updateQuantity(idx, item.quantity + 1)} className="w-8 h-8 flex items-center justify-center font-bold hover:bg-white rounded">+</button>
+                                                <button onClick={() => updateQuantity(idx, item.quantity - 1)} className="w-6 h-6 flex items-center justify-center font-bold hover:bg-white rounded text-gray-600">-</button>
+                                                <span className="w-6 text-center font-bold text-sm text-gray-800">{item.quantity}</span>
+                                                <button onClick={() => updateQuantity(idx, item.quantity + 1)} className="w-6 h-6 flex items-center justify-center font-bold hover:bg-white rounded text-gray-600">+</button>
                                             </>
                                         ) : (
-                                            <div className="relative">
+                                            <div className="relative flex items-center">
+                                                {isConnected && (
+                                                    <button
+                                                        onClick={() => updateQuantity(idx, scaleWeight)}
+                                                        className="mr-1 p-0.5 bg-green-100 text-green-600 rounded hover:bg-green-200 transition-colors"
+                                                        title="Usar peso"
+                                                    >
+                                                        <Weight size={12} />
+                                                    </button>
+                                                )}
                                                 <input
                                                     type="number"
                                                     step="0.1"
                                                     min="0"
                                                     value={item.quantity}
                                                     onChange={(e) => updateQuantity(idx, e.target.value)}
-                                                    className="w-20 text-center font-bold bg-transparent outline-none border-b-2 border-gray-300 focus:border-washouse-blue"
+                                                    className="w-14 text-center font-bold bg-transparent outline-none border-b border-gray-300 focus:border-washouse-blue text-sm"
                                                 />
-                                                <span className="text-xs text-gray-500 absolute right-0 -bottom-3">kg</span>
+                                                <span className="text-[10px] text-gray-500 absolute right-0 -bottom-2">kg</span>
                                             </div>
                                         )}
                                     </div>
-                                    <div className="font-bold text-washouse-blue w-20 text-right">
+                                    <div className="font-bold text-washouse-blue w-16 text-right text-sm">
                                         {formatCurrency(calculateItemTotal(item))}
                                     </div>
                                 </div>
 
-                                <button onClick={() => removeItem(idx)} className="text-red-400 hover:text-red-500"><X size={18} /></button>
+                                <button onClick={() => removeItem(idx)} className="text-red-400 hover:text-red-500 transition-colors"><X size={16} /></button>
                             </div>
                         ))}
                     </div>
@@ -201,6 +321,7 @@ export default function NewOrderWizard({ isOpen, onClose }) {
         if (items.length === 0) return alert('Orden vacía');
         if (payment.advance < totals.minAdvance) return alert(`El anticipo mínimo es ${formatCurrency(totals.minAdvance)}`);
 
+        // 1. Create Order Record
         const newOrder = createOrder({
             customerName: customer.name,
             customerPhone: customer.phone,
@@ -210,8 +331,28 @@ export default function NewOrderWizard({ isOpen, onClose }) {
             advancePayment: parseFloat(payment.advance),
             balanceDue: totals.total - parseFloat(payment.advance),
             paymentMethod: payment.method,
-            branchId: deviceBranchId
-        }, user?.name || 'Host'); // Pass actual user name
+            branchId: deviceBranchId,
+            machineId: selectedMachineId
+        }, user?.name || 'Host');
+
+        // 2. Start Machine if selected
+        // 2. Start Machine if selected
+        if (selectedMachineId) {
+            const hasWash = items.some(i => i.name.toLowerCase().includes('lavado') || i.name.toLowerCase().includes('edredón'));
+            // Default times: 45min for wash, 30min for dry/others (simplified logic)
+            const time = hasWash ? 45 : 30;
+
+            updateMachine(selectedMachineId, {
+                status: 'running',
+                timeLeft: time,
+                clientName: customer.name,
+                total: totals.total,
+                paymentMethod: payment.method,
+                items: items, // Save denormalized items for display
+                startDate: new Date().toISOString()
+            });
+        }
+
         setCreatedOrder(newOrder);
         setStep(4); // Success Step
     };
@@ -220,7 +361,6 @@ export default function NewOrderWizard({ isOpen, onClose }) {
         if (!createdOrder) return null;
 
         const branchName = branches.find(b => b.id === deviceBranchId)?.name || 'Washouse';
-
         const waLink = `https://wa.me/52${createdOrder.customerPhone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${createdOrder.customerName}, tu orden *${createdOrder.id}* ha sido recibida en *${branchName}*. Total: ${formatCurrency(createdOrder.totalAmount)}. Anticipo: ${formatCurrency(createdOrder.advancePayment)}. Te avisaremos cuando esté lista!`)}`;
 
         return (
@@ -229,8 +369,11 @@ export default function NewOrderWizard({ isOpen, onClose }) {
                     <Check size={40} strokeWidth={3} />
                 </div>
                 <div>
-                    <h3 className="text-2xl font-bold text-gray-800">¡Orden Creada con Éxito!</h3>
+                    <h3 className="text-2xl font-bold text-gray-800">
+                        {selectedMachineId ? '¡Orden Creada y Máquina Iniciada!' : '¡Orden Creada con Éxito!'}
+                    </h3>
                     <p className="text-gray-500 mt-1">ID de Orden: <span className="font-mono font-bold text-gray-700">{createdOrder.id}</span></p>
+                    {selectedMachineId && <p className="text-blue-600 font-medium mt-2">La máquina ha comenzado su ciclo.</p>}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-md">
@@ -341,8 +484,8 @@ export default function NewOrderWizard({ isOpen, onClose }) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-            <div className="bg-white w-full max-w-4xl h-[80vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-2 backdrop-blur-sm">
+            <div className="bg-white w-full max-w-6xl h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                 {/* Header */}
                 <div className="bg-gray-50 px-6 py-4 border-b flex justify-between items-center">
                     <h2 className="text-xl font-bold text-washouse-navy">Nueva Orden de Servicio</h2>

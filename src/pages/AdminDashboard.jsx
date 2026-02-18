@@ -8,8 +8,9 @@ import ServicesTable from '../components/admin/ServicesTable';
 import ProductModal from '../components/admin/ProductModal';
 import ActivityLogTable from '../components/admin/ActivityLogTable';
 import BranchModal from '../components/admin/BranchModal';
+import EquipmentControlModal from '../components/ui/EquipmentControlModal';
 import { useStorage } from '../context/StorageContext';
-
+import { formatCurrency } from '../utils/formatCurrency';
 import { useRef } from 'react';
 import {
     LayoutDashboard,
@@ -33,12 +34,13 @@ import {
     Percent,
     Database
 } from 'lucide-react'; // Add icons
-import { formatCurrency } from '../utils/formatCurrency';
+import EquipmentControlTable from '../components/admin/EquipmentControlTable';
 
-export default function AdminDashboard() {
-    const { sales, shifts, inventory, orders, activityLogs, branches, machines, addProduct, updateProduct, deleteProduct, importInventory, addBranch, updateBranch, deleteBranch, loadStandardInventory, deviceBranchId, setDeviceBranch, expenses } = useStorage();
+export default function AdminDashboard({ view = 'summary' }) {
+    const { sales, shifts, inventory, orders, activityLogs, branches, machines, updateMachine, addProduct, updateProduct, deleteProduct, importInventory, addBranch, updateBranch, deleteBranch, loadStandardInventory, deviceBranchId, setDeviceBranch, expenses } = useStorage();
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
     const [isBranchModalOpen, setIsBranchModalOpen] = useState(false);
+    const [isControlModalOpen, setIsControlModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
     const [editingBranch, setEditingBranch] = useState(null);
     const [selectedBranch, setSelectedBranch] = useState('all');
@@ -113,6 +115,38 @@ export default function AdminDashboard() {
             e.target.value = ''; // Reset input
         };
         reader.readAsText(file);
+    };
+
+    const handleToggleMaintenance = (id) => {
+        const machine = machines.find(m => m.id === id);
+        if (!machine) return;
+
+        if (machine.status === 'running') {
+            if (!confirm('⚠️ La máquina está en uso. ¿Seguro que deseas ponerla en mantenimiento?')) return;
+        }
+
+        const newStatus = machine.status === 'maintenance' ? 'available' : 'maintenance';
+        const updates = newStatus === 'available' ? {
+            status: 'available',
+            timeLeft: 0,
+            clientName: null,
+            total: 0,
+            items: null,
+            startDate: null
+        } : { status: 'maintenance' };
+
+        updateMachine(id, updates);
+    };
+
+    const handleForceStop = (id) => {
+        if (!confirm('⚠️ ¿Estás seguro de detener forzosamente este equipo?')) return;
+        updateMachine(id, { status: 'finished', timeLeft: 0 });
+    };
+
+    const handleViewDetailsFromControl = (id) => {
+        // Simple alert for details in Admin for now
+        const m = machines.find(x => x.id === id);
+        alert(`Detalles del Equipo:\nID: ${m.name}\nEstado: ${m.status}\nCliente: ${m.clientName || 'N/A'}`);
     };
 
     // Filter data based on branch
@@ -454,75 +488,105 @@ export default function AdminDashboard() {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold text-washouse-navy">Dashboard Administrativo</h2>
-                    <p className="text-gray-500">Métricas clave de rendimiento y operación</p>
+                    <h2 className="text-2xl font-bold text-washouse-navy">
+                        {view === 'equipment' ? 'Control de Equipos' : 'Dashboard Administrativo'}
+                    </h2>
+                    <p className="text-gray-500">
+                        {view === 'equipment' ? 'Gestión centralizada de lavadoras y secadoras' : 'Métricas clave de rendimiento y operación'}
+                    </p>
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <div className="bg-white p-1 rounded-lg border border-gray-200 flex items-center shadow-sm">
-                        <span className="px-3 text-sm text-gray-500 font-medium">Sucursal:</span>
-                        <select
-                            value={selectedBranch}
-                            onChange={(e) => setSelectedBranch(e.target.value)}
-                            className="border-none bg-transparent py-1 pl-2 pr-8 text-sm font-bold text-washouse-navy focus:ring-0 cursor-pointer"
-                        >
-                            <option value="all">Todas las Sucursales</option>
-                            {branches.map(b => (
-                                <option key={b.id} value={b.id}>{b.name}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <button
-                        onClick={() => {
-                            const branch = branches.find(b => b.id === selectedBranch);
-                            if (branch) {
-                                setEditingBranch(branch);
-                                setIsBranchModalOpen(true);
-                            }
-                        }}
-                        disabled={selectedBranch === 'all'}
-                        className={`p-2 rounded-lg border border-gray-200 transition-colors shadow-sm ${selectedBranch === 'all'
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                            : 'bg-white text-washouse-blue hover:bg-blue-50'
-                            }`}
-                        title="Editar Sucursal"
-                    >
-                        <Pencil size={20} />
-                    </button>
-                    <button
-                        onClick={() => {
-                            if (selectedBranch === 'main') {
-                                alert('No puedes eliminar la sucursal principal');
-                                return;
-                            }
-                            if (confirm('¿Estás seguro de eliminar esta sucursal? Se borrarán todos sus datos (inventario, máquinas, turnos).')) {
-                                deleteBranch(selectedBranch);
-                                setSelectedBranch('all');
-                            }
-                        }}
-                        disabled={selectedBranch === 'all' || selectedBranch === 'main'}
-                        className={`p-2 rounded-lg border border-gray-200 transition-colors shadow-sm ${selectedBranch === 'all' || selectedBranch === 'main'
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                            : 'bg-white text-red-500 hover:bg-red-50'
-                            }`}
-                        title="Eliminar Sucursal"
-                    >
-                        <Trash2 size={20} />
-                    </button>
-                    <button
-                        onClick={() => {
-                            setEditingBranch(null);
-                            setIsBranchModalOpen(true);
-                        }}
-                        className="bg-white p-2 rounded-lg border border-gray-200 text-washouse-blue hover:bg-blue-50 transition-colors shadow-sm"
-                        title="Nueva Sucursal"
-                    >
-                        +
-                    </button>
+                    {view === 'summary' && (
+                        <>
+                            <a
+                                href="https://sqinsights.com/machines?roomId=5917&scrub=default"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="bg-orange-500 text-white px-3 py-2 rounded-lg hover:bg-orange-600 transition-colors shadow-sm flex items-center gap-2 text-sm font-medium"
+                                title="Abrir Speed Queen Insights"
+                            >
+                                <Store size={18} />
+                                <span className="hidden sm:inline">Control Lavadoras</span>
+                                <ArrowUpRight size={16} className="text-orange-100" />
+                            </a>
+
+                            <div className="bg-white p-1 rounded-lg border border-gray-200 flex items-center shadow-sm">
+                                <span className="px-3 text-sm text-gray-500 font-medium">Sucursal:</span>
+                                <select
+                                    value={selectedBranch}
+                                    onChange={(e) => setSelectedBranch(e.target.value)}
+                                    className="border-none bg-transparent py-1 pl-2 pr-8 text-sm font-bold text-washouse-navy focus:ring-0 cursor-pointer"
+                                >
+                                    <option value="all">Todas las Sucursales</option>
+                                    {branches.map(b => (
+                                        <option key={b.id} value={b.id}>{b.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <button
+                                onClick={() => {
+                                    const branch = branches.find(b => b.id === selectedBranch);
+                                    if (branch) {
+                                        setEditingBranch(branch);
+                                        setIsBranchModalOpen(true);
+                                    }
+                                }}
+                                disabled={selectedBranch === 'all'}
+                                className={`p-2 rounded-lg border border-gray-200 transition-colors shadow-sm ${selectedBranch === 'all'
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : 'bg-white text-washouse-blue hover:bg-blue-50'
+                                    }`}
+                                title="Editar Sucursal"
+                            >
+                                <Pencil size={20} />
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (selectedBranch === 'main') {
+                                        alert('No puedes eliminar la sucursal principal');
+                                        return;
+                                    }
+                                    if (confirm('¿Estás seguro de eliminar esta sucursal? Se borrarán todos sus datos (inventario, máquinas, turnos).')) {
+                                        deleteBranch(selectedBranch);
+                                        setSelectedBranch('all');
+                                    }
+                                }}
+                                disabled={selectedBranch === 'all' || selectedBranch === 'main'}
+                                className={`p-2 rounded-lg border border-gray-200 transition-colors shadow-sm ${selectedBranch === 'all' || selectedBranch === 'main'
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : 'bg-white text-red-500 hover:bg-red-50'
+                                    }`}
+                                title="Eliminar Sucursal"
+                            >
+                                <Trash2 size={20} />
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setEditingBranch(null);
+                                    setIsBranchModalOpen(true);
+                                }}
+                                className="bg-white p-2 rounded-lg border border-gray-200 text-washouse-blue hover:bg-blue-50 transition-colors shadow-sm"
+                                title="Nueva Sucursal"
+                            >
+                                +
+                            </button>
+                        </>
+                    )}
                 </div>
             </div>
 
-            <Tabs items={tabItems} />
+            {view === 'equipment' ? (
+                <div className="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden min-h-[600px] flex flex-col">
+                    <EquipmentControlTable
+                        onToggleMaintenance={handleToggleMaintenance}
+                        onForceStop={handleForceStop}
+                        onViewDetails={handleViewDetailsFromControl}
+                    />
+                </div>
+            ) : (
+                <Tabs items={tabItems} />
+            )}
 
             <ProductModal
                 isOpen={isProductModalOpen}
@@ -554,6 +618,7 @@ export default function AdminDashboard() {
                     setEditingBranch(null);
                 }}
             />
+
         </div>
     );
 }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import Button from './Button';
+import IconInput from './IconInput';
 import { User, DollarSign, LogIn } from 'lucide-react';
 
 export default function ShiftModal() {
@@ -32,34 +33,28 @@ export default function ShiftModal() {
                     <div className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del Operador</label>
-                            <div className="relative">
-                                <User className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
-                                <input
-                                    type="text"
-                                    required
-                                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-washouse-blue focus:border-transparent outline-none transition-all"
-                                    placeholder="Ej. Juan Pérez"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                />
-                            </div>
+                            <IconInput
+                                icon={User}
+                                type="text"
+                                required
+                                placeholder="Ej. Juan Pérez"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                            />
                         </div>
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Fondo de Caja Inicial</label>
-                            <div className="relative">
-                                <DollarSign className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
-                                <input
-                                    type="number"
-                                    required
-                                    min="0"
-                                    step="0.1"
-                                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-washouse-blue focus:border-transparent outline-none transition-all"
-                                    placeholder="0.00"
-                                    value={initialCash}
-                                    onChange={(e) => setInitialCash(e.target.value)}
-                                />
-                            </div>
+                            <IconInput
+                                icon={DollarSign}
+                                type="number"
+                                required
+                                min="0"
+                                step="0.1"
+                                placeholder="0.00"
+                                value={initialCash}
+                                onChange={(e) => setInitialCash(e.target.value)}
+                            />
                             <p className="text-xs text-gray-500 mt-1 ml-1">Dinero en efectivo al inicio del día.</p>
                         </div>
                     </div>

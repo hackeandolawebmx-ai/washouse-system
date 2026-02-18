@@ -1,9 +1,9 @@
 import StatusBadge from './StatusBadge';
 import Button from './Button';
 import Tooltip from './Tooltip';
-import { Timer, Power, Droplets, Wind, RotateCcw } from 'lucide-react';
+import { Timer, Power, Droplets, Wind, RotateCcw, Wrench } from 'lucide-react';
 
-export default function MachineCard({ id, name, type, status, timeLeft, onAction, variant = 'default', ...props }) {
+export default function MachineCard({ id, name, type, status, timeLeft, onAction, onToggleMaintenance, variant = 'default', ...props }) {
     const isAvailable = status === 'available';
 
     /* Determine status color for accent */
@@ -21,34 +21,43 @@ export default function MachineCard({ id, name, type, status, timeLeft, onAction
                 transition-all hover:bg-gray-50 flex items-center justify-between
                 ${statusColors[status]}
             `}>
-                <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-md ${type === 'lavadora' ? 'bg-blue-50 text-blue-600' : 'bg-orange-50 text-orange-600'}`}>
+                <div className="flex items-center gap-3 min-w-0 flex-1 mr-4">
+                    <div className={`p-2 rounded-md shrink-0 ${type === 'lavadora' ? 'bg-blue-50 text-blue-600' : 'bg-orange-50 text-orange-600'}`}>
                         {type === 'lavadora' ? <Droplets size={20} /> : <Wind size={20} />}
                     </div>
-                    <div>
-                        <h3 className="font-bold text-base text-washouse-navy">{name}</h3>
+                    <div className="min-w-0">
+                        <h3 className="font-bold text-base text-washouse-navy truncate">{name}</h3>
                         <div className="flex items-center gap-2">
                             {status === 'running' ? (
-                                <span className="text-sm font-bold text-washouse-blue flex items-center">
+                                <span className="text-sm font-bold text-washouse-blue flex items-center whitespace-nowrap">
                                     <Timer className="w-3 h-3 mr-1" /> {timeLeft}m
                                 </span>
                             ) : (
-                                <span className="text-xs text-gray-500">{isAvailable ? 'Listo' : 'Ocupado'}</span>
+                                <span className="text-xs text-gray-500 truncate">{isAvailable ? 'Listo' : 'Ocupado'}</span>
                             )}
                         </div>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 shrink-0">
                     <StatusBadge status={status} />
+                    {onToggleMaintenance && (
+                        <button
+                            onClick={() => onToggleMaintenance(id)}
+                            className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${status === 'maintenance' ? 'bg-orange-100 text-orange-600' : 'text-gray-400 hover:bg-gray-100'}`}
+                            title={status === 'maintenance' ? 'Reactivar equipo' : 'Poner en mantenimiento'}
+                        >
+                            <Wrench size={14} />
+                        </button>
+                    )}
                     <Button
                         size="sm"
                         variant={isAvailable ? 'primary' : 'secondary'}
                         onClick={() => onAction(id)}
                         disabled={status === 'maintenance'}
-                        className="px-3"
+                        className="w-8 h-8 p-0 flex items-center justify-center rounded-full"
                     >
-                        <Power size={16} />
+                        <Power size={14} />
                     </Button>
                 </div>
             </div>
@@ -59,7 +68,7 @@ export default function MachineCard({ id, name, type, status, timeLeft, onAction
         <div
             className={`
             bg-white rounded-xl shadow-sm border border-gray-100 p-6 
-            transition-all duration-300 hover:shadow-xl hover:-translate-y-1 relative overflow-hidden
+            transition-all duration-300 hover:shadow-xl hover:-translate-y-1 relative overflow-hidden flex flex-col h-full
             ${statusColors[status] || 'border-t-4 border-gray-200'}
         `}
         >
@@ -68,22 +77,33 @@ export default function MachineCard({ id, name, type, status, timeLeft, onAction
                 {type === 'lavadora' ? <Droplets size={120} /> : <Wind size={120} />}
             </div>
 
-            <div className="flex justify-between items-start mb-4 relative z-10">
-                <div className="flex items-center">
+            <div className="flex justify-between items-start mb-4 relative z-10 gap-2">
+                <div className="flex items-center min-w-0">
                     <Tooltip content={type === 'lavadora' ? 'Lavadora' : 'Secadora'} position="top">
-                        <div className={`p-3 rounded-lg mr-4 ${type === 'lavadora' ? 'bg-blue-50 text-blue-600' : 'bg-orange-50 text-orange-600'}`}>
+                        <div className={`p-3 rounded-lg mr-3 shrink-0 ${type === 'lavadora' ? 'bg-blue-50 text-blue-600' : 'bg-orange-50 text-orange-600'}`}>
                             {type === 'lavadora' ? <Droplets size={28} /> : <Wind size={28} />}
                         </div>
                     </Tooltip>
-                    <div>
-                        <h3 className="font-bold text-lg text-washouse-navy">{name}</h3>
-                        <p className="text-xs text-gray-500 uppercase tracking-widest font-semibold">{type}</p>
+                    <div className="min-w-0">
+                        <h3 className="font-bold text-lg text-washouse-navy truncate pr-1" title={name}>{name}</h3>
+                        <p className="text-xs text-gray-500 uppercase tracking-widest font-semibold truncate">{type}</p>
                     </div>
                 </div>
-                <StatusBadge status={status} />
+                <div className="shrink-0 flex flex-col items-end gap-2">
+                    <StatusBadge status={status} />
+                    {onToggleMaintenance && (
+                        <button
+                            onClick={() => onToggleMaintenance(id)}
+                            className={`p-1.5 rounded-full transition-colors ${status === 'maintenance' ? 'bg-orange-100 text-orange-600' : 'text-gray-300 hover:text-gray-500 hover:bg-gray-100'}`}
+                            title={status === 'maintenance' ? 'Reactivar equipo' : 'Poner en mantenimiento'}
+                        >
+                            <Wrench size={14} />
+                        </button>
+                    )}
+                </div>
             </div>
 
-            <div className="mb-6">
+            <div className="mb-6 flex-1">
                 {status === 'running' ? (
                     <div className="flex flex-col text-washouse-blue">
                         <div className="flex items-center">
@@ -92,23 +112,23 @@ export default function MachineCard({ id, name, type, status, timeLeft, onAction
                         </div>
                         {/* Display Client Name if available */}
                         {props.clientName && (
-                            <p className="text-xs font-medium text-gray-500 mt-1">
+                            <p className="text-xs font-medium text-gray-500 mt-1 truncate" title={props.clientName}>
                                 Cliente: {props.clientName}
                             </p>
                         )}
                     </div>
                 ) : (
-                    <div className="text-gray-400 text-sm">
+                    <div className="text-gray-400 text-sm h-full flex items-center">
                         {isAvailable ? 'Lista para usar' : 'Esperando acción'}
                     </div>
                 )}
             </div>
 
             <Button
-                variant={isAvailable ? 'primary' : 'secondary'}
+                variant={isAvailable ? 'primary' : 'outline'}
                 onClick={() => onAction(id)}
                 disabled={status === 'maintenance'}
-                className="w-full justify-center flex items-center"
+                className={`w-full justify-center flex items-center ${!isAvailable ? 'bg-white hover:bg-gray-50' : ''}`}
             >
                 {status === 'finished' ? (
                     <>

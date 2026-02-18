@@ -95,16 +95,17 @@ export function AuthProvider({ children }) {
         sessionStorage.removeItem('washouse_admin');
     };
 
-    const value = {
+    const value = React.useMemo(() => ({
         user,
         currentShift,
         startShift,
         endShift,
         loginAdmin,
+        logout,
         isAuthenticated: !!user,
         isAdmin: !!adminUser,
         isShiftOpen: !!currentShift
-    };
+    }), [user, currentShift, adminUser]);
 
     return (
         <AuthContext.Provider value={value}>

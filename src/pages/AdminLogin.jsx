@@ -25,9 +25,9 @@ export default function AdminLogin() {
             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-fadeIn">
                 <div className="bg-gray-50 p-6 text-center border-b border-gray-100">
                     <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                        <ShieldCheck className="w-8 h-8 text-washouse-blue" />
+                        <ShieldCheck className="w-8 h-8 text-washouse-blue" aria-hidden="true" />
                     </div>
-                    <h2 className="text-2xl font-bold text-washouse-navy">Acceso Administrativo</h2>
+                    <h1 className="text-2xl font-bold text-washouse-navy">Acceso Administrativo</h1>
                     <p className="text-gray-500 text-sm">Ingresa el PIN de seguridad</p>
                 </div>
 
@@ -35,7 +35,7 @@ export default function AdminLogin() {
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2 text-center">PIN de Acceso</label>
                         <div className="relative">
-                            <Lock className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
+                            <Lock className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" aria-hidden="true" />
                             <input
                                 type="password"
                                 required

@@ -32,7 +32,10 @@ function AnimatedRoutes() {
         <Route path="/admin" element={<PageTransition><ProtectedRoute /></PageTransition>}>
           <Route element={<AdminLayout />}>
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
-            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="dashboard">
+              <Route index element={<AdminDashboard view="summary" />} />
+              <Route path="equipment" element={<AdminDashboard view="equipment" />} />
+            </Route>
             <Route path="clients" element={<ClientsPage />} />
             <Route path="reports" element={<ReportsPage />} /> {/* Added */}
           </Route>

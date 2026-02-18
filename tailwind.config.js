@@ -7,41 +7,113 @@ export default {
     theme: {
         extend: {
             colors: {
+                border: "hsl(var(--border))",
+                input: "hsl(var(--input))",
+                ring: "hsl(var(--ring))",
+                background: "hsl(var(--background))",
+                foreground: "hsl(var(--foreground))",
+                primary: {
+                    DEFAULT: "hsl(var(--primary))",
+                    foreground: "hsl(var(--primary-foreground))",
+                },
+                secondary: {
+                    DEFAULT: "hsl(var(--secondary))",
+                    foreground: "hsl(var(--secondary-foreground))",
+                },
+                destructive: {
+                    DEFAULT: "hsl(var(--destructive))",
+                    foreground: "hsl(var(--destructive-foreground))",
+                },
+                muted: {
+                    DEFAULT: "hsl(var(--muted))",
+                    foreground: "hsl(var(--muted-foreground))",
+                },
+                accent: {
+                    DEFAULT: "hsl(var(--accent))",
+                    foreground: "hsl(var(--accent-foreground))",
+                },
+                popover: {
+                    DEFAULT: "hsl(var(--popover))",
+                    foreground: "hsl(var(--popover-foreground))",
+                },
+                card: {
+                    DEFAULT: "hsl(var(--card))",
+                    foreground: "hsl(var(--card-foreground))",
+                },
+
+                // Existing Washouse Palette
                 washouse: {
-                    // New Brand Colors (Electric Ocean Theme)
-                    blue: '#0099DD',       // Electric Ocean (Primary)
-                    'blue-alt': '#007BB8', // Deeper Blue for hover
-                    aqua: '#40E0D0',       // Teal Mint (Secondary)
-                    'aqua-alt': '#20B2AA', // Darker Teal
-                    navy: '#0F172A',       // Deep Abyss (Dark Bg)
-                    white: '#FFFFFF',      // Pure White
-                    surface: '#F8FAFC',    // Ice White (Backgrounds)
+                    // Brand Identity
+                    blue: '#0099DD',       // Primary Action
+                    'blue-alt': '#007BB8', // Hover state
+                    aqua: '#40E0D0',       // Secondary/Accent
+                    'aqua-alt': '#20B2AA', // Darker Accent
+                    navy: '#0F172A',       // Text & Headings
 
-                    // Interaction States
-                    'primary-hover': '#0088C7',
-                    'secondary-hover': '#3BCBC0',
+                    // Semantic Surfaces
+                    surface: '#F8FAFC',    // App Background
+                    white: '#FFFFFF',      // Card Background
 
-                    // Legacy mappings
+                    // Legacy mappings (preserving backward compatibility)
                     600: '#0099DD',
                     700: '#0088C7',
-                }
+
+                    // Interaction
+                    'primary-hover': '#0088C7',
+                },
+                // Add gray palette alias if needed, though Tailwind has it by default
             },
             backgroundImage: {
                 'washouse-gradient': 'linear-gradient(135deg, #0099DD 0%, #40E0D0 100%)',
                 'washouse-subtle': 'linear-gradient(to bottom right, #F8FAFC, #FFFFFF)',
+                'glass': 'linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.3) 100%)',
             },
             fontFamily: {
                 sans: ['Inter', 'system-ui', 'sans-serif'],
             },
             borderRadius: {
-                DEFAULT: '12px',  // Increased from 10px
-                'lg': '16px',     // Increased from 14px
-                'xl': '24px',     // Increased from 18px
+                DEFAULT: '12px',
+                'lg': '16px',
+                'xl': '24px',
+                '2xl': '32px',
+                'radius': 'var(--radius)',
             },
             boxShadow: {
-                'sm': '0 2px 8px rgba(0, 153, 221, 0.08)', // Colored shadow
-                'md': '0 8px 24px rgba(15, 23, 42, 0.08)',
-                'lg': '0 12px 32px rgba(0, 153, 221, 0.12)', // Glow effect
+                'sm': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                'md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
+                'lg': '0 10px 15px -3px rgba(0, 153, 221, 0.15), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
+                'xl': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                'glow': '0 0 15px rgba(0, 153, 221, 0.5)',
+                'card': '0 0 0 1px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.04)',
+            },
+            keyframes: {
+                "accordion-down": {
+                    from: { height: "0" },
+                    to: { height: "var(--radix-accordion-content-height)" },
+                },
+                "accordion-up": {
+                    from: { height: "var(--radix-accordion-content-height)" },
+                    to: { height: "0" },
+                },
+                fadeIn: {
+                    '0%': { opacity: '0' },
+                    '100%': { opacity: '1' },
+                },
+                slideUp: {
+                    '0%': { transform: 'translateY(10px)', opacity: '0' },
+                    '100%': { transform: 'translateY(0)', opacity: '1' },
+                },
+                pulse: {
+                    '0%, 100%': { opacity: '1' },
+                    '50%': { opacity: '0.5' },
+                }
+            },
+            animation: {
+                "accordion-down": "accordion-down 0.2s ease-out",
+                "accordion-up": "accordion-up 0.2s ease-out",
+                fadeIn: 'fadeIn 0.3s ease-out',
+                slideUp: 'slideUp 0.4s ease-out',
+                pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
             }
         },
     },

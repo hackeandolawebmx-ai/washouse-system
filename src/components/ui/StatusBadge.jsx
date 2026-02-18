@@ -28,7 +28,7 @@ export default function StatusBadge({ status }) {
     };
 
     return (
-        <span className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-wider ${styles[status] || 'bg-gray-100'}`}>
+        <span className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-wider whitespace-nowrap ${styles[status] || 'bg-gray-100'}`}>
             {labels[status] || status}
         </span>
     );

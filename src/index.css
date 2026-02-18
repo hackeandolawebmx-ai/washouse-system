@@ -1,8 +1,44 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
 @config "../tailwind.config.js";
 
+/* Shadcn UI Variables (Mapped to Washouse Brand) */
 @layer base {
   :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 199 100% 43%;
+    /* Washouse Blue */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 199 100% 43%;
+    /* Washouse Blue */
+
+    --radius: 0.75rem;
+
+    /* Legacy Variables */
     --washhouse-blue: #0099DD;
     --washhouse-aqua: #40E0D0;
     --washhouse-navy: #0F172A;
@@ -10,20 +46,110 @@
     --radius-sm: 12px;
     --radius-md: 16px;
     --radius-lg: 24px;
+
+    /* Fluid Typography (Responsive Design Support) */
+    --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+    --text-sm: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
+    --text-base: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
+    --text-lg: clamp(1.125rem, 1rem + 0.625vw, 1.25rem);
+    --text-xl: clamp(1.25rem, 1rem + 1.25vw, 1.5rem);
+    --text-2xl: clamp(1.5rem, 1.25rem + 1.25vw, 2rem);
+    --text-3xl: clamp(1.875rem, 1.5rem + 1.875vw, 2.5rem);
+    --text-4xl: clamp(2.25rem, 1.75rem + 2.5vw, 3.5rem);
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 199 100% 43%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 199 100% 43%;
+  }
+
+  /* Core Reset */
+  html {
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
   }
 
   body {
     @apply bg-gray-50 text-washouse-navy font-sans antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Update global heading color to Navy */
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
+  /* Premium Selection Styling */
+  ::selection {
+    @apply bg-washouse-blue/20 text-washouse-navy;
+  }
+
+  /* Custom Focus Ring for Accessibility */
+  :focus-visible {
+    @apply outline-none ring-2 ring-washouse-blue ring-offset-2;
+  }
+
+  /* Update global heading color to Navy with Fluid Typography */
+  h1 {
+    @apply text-washouse-navy tracking-tight;
+    font-size: var(--text-4xl);
+    font-weight: 700;
+  }
+
+  h2 {
+    @apply text-washouse-navy tracking-tight;
+    font-size: var(--text-3xl);
+    font-weight: 600;
+  }
+
+  h3 {
+    @apply text-washouse-navy tracking-tight;
+    font-size: var(--text-2xl);
+    font-weight: 600;
+  }
+
+  h4 {
+    @apply text-washouse-navy tracking-tight;
+    font-size: var(--text-xl);
+    font-weight: 500;
+  }
+
+  h5 {
+    @apply text-washouse-navy tracking-tight;
+    font-size: var(--text-lg);
+    font-weight: 500;
+  }
+
   h6 {
-    @apply text-washouse-navy;
+    @apply text-washouse-navy tracking-tight;
+    font-size: var(--text-base);
+    font-weight: 500;
+  }
+
+  p {
+    font-size: var(--text-base);
+    line-height: 1.6;
   }
 }
 
@@ -38,5 +164,23 @@
 
   .card {
     @apply bg-white rounded-xl shadow-sm border border-gray-100 p-4;
+  }
+
+  /* Custom Scrollbar Styling (Visible) */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 rounded-full border-2 border-white;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500;
   }
 }
