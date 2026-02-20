@@ -11,6 +11,8 @@ export default function EndShiftModal({ isOpen, onClose }) {
     const { currentShift, endShift, user } = useAuth();
     const { sales, expenses } = useStorage();
     const [declaredCash, setDeclaredCash] = useState('');
+    const [error, setError] = useState(null);
+    const [isConfirming, setIsConfirming] = useState(false);
 
     const shiftSummary = useMemo(() => {
         if (!currentShift) return null;
@@ -56,22 +58,26 @@ export default function EndShiftModal({ isOpen, onClose }) {
 
     const handleConfirmEndShift = () => {
         if (!declaredCash) {
-            alert('Por favor ingresa el dinero real en caja');
+            setError('Por favor ingresa el dinero real en caja');
             return;
         }
 
-        if (confirm('¿Estás seguro de que deseas cerrar el turno y salir?')) {
-            endShift({
-                ...shiftSummary,
-                finalCash,
-                difference
-            });
-            onClose();
+        if (!isConfirming) {
+            setIsConfirming(true);
+            setError(null);
+            return;
         }
+
+        endShift({
+            ...shiftSummary,
+            finalCash,
+            difference
+        });
+        onClose();
     };
 
     return (
-        <div className="fixed inset-0 bg-washouse-navy/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/60 z-100 flex items-center justify-center p-4">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -111,7 +117,7 @@ export default function EndShiftModal({ isOpen, onClose }) {
 
                     {/* Desglose Estilo Recibo */}
                     <div className="bg-gray-50 rounded-xl p-4 border border-gray-200/60 mb-6 space-y-3 relative overflow-hidden">
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-300 via-purple-300 to-pink-300 opacity-30"></div>
+                        <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-blue-300 via-purple-300 to-pink-300 opacity-30"></div>
 
                         <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Detalle de Movimientos</h3>
 
@@ -166,14 +172,24 @@ export default function EndShiftModal({ isOpen, onClose }) {
                                 type="number"
                                 step="any"
                                 value={declaredCash}
-                                onChange={(e) => setDeclaredCash(e.target.value)}
+                                onChange={(e) => {
+                                    setDeclaredCash(e.target.value);
+                                    if (error) setError(null);
+                                    if (isConfirming) setIsConfirming(false);
+                                }}
                                 className="block w-full pl-12 pr-4 py-4 text-2xl font-bold text-gray-900 placeholder-gray-300 border border-gray-300 rounded-xl focus:ring-2 focus:ring-washouse-blue focus:border-washouse-blue transition-all bg-white"
                                 placeholder="0.00"
                                 autoFocus
                             />
                         </div>
 
-                        {declaredCash && (
+                        {error && (
+                            <div className="text-red-500 text-sm font-medium flex items-center gap-2 px-1">
+                                <AlertCircle size={14} /> {error}
+                            </div>
+                        )}
+
+                        {declaredCash && !error && (
                             <div className={`flex items-center justify-between p-3 rounded-lg border ${difference === 0 ? 'bg-green-50 border-green-200 text-green-800' : 'bg-yellow-50 border-yellow-200 text-yellow-800'}`}>
                                 <div className="flex items-center gap-2">
                                     <AlertCircle size={16} />
@@ -188,15 +204,20 @@ export default function EndShiftModal({ isOpen, onClose }) {
                 </div>
 
                 <div className="p-6 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 shrink-0">
-                    <Button variant="secondary" onClick={onClose}>
-                        Cancelar
+                    <Button variant="ghost" onClick={onClose}>
+                        {isConfirming ? 'Atrás' : 'Cancelar'}
                     </Button>
                     <Button variant="secondary" onClick={() => printShiftTicket({ ...shiftSummary, finalCash, difference })}>
                         <Printer className="w-4 h-4 mr-2" />
                         Imprimir
                     </Button>
-                    <Button onClick={handleConfirmEndShift} variant="danger" className="shadow-lg shadow-red-500/20">
-                        Cerrar Turno <ArrowRight className="w-4 h-4 ml-2" />
+                    <Button
+                        onClick={handleConfirmEndShift}
+                        variant={isConfirming ? "primary" : "danger"}
+                        className="shadow-lg shadow-red-500/20 active:scale-95"
+                    >
+                        {isConfirming ? 'Sí, Cerrar Turno' : 'Cerrar Turno'}
+                        <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                 </div>
             </motion.div>

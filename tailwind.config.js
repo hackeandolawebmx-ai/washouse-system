@@ -41,30 +41,30 @@ export default {
                     foreground: "hsl(var(--card-foreground))",
                 },
 
-                // Existing Washouse Palette
+                // New WashHouse Palette (Logo Aligned)
                 washouse: {
                     // Brand Identity
-                    blue: '#0099DD',       // Primary Action
+                    blue: '#0090D7',       // Primary Logo Blue
                     'blue-alt': '#007BB8', // Hover state
-                    aqua: '#40E0D0',       // Secondary/Accent
+                    aqua: '#49B8E7',       // Secondary Logo Aqua
                     'aqua-alt': '#20B2AA', // Darker Accent
-                    navy: '#0F172A',       // Text & Headings
+                    navy: '#000000',       // Text & Headings (Pure Black)
 
                     // Semantic Surfaces
                     surface: '#F8FAFC',    // App Background
                     white: '#FFFFFF',      // Card Background
 
-                    // Legacy mappings (preserving backward compatibility)
-                    600: '#0099DD',
+                    // Legacy mappings
+                    600: '#0090D7',
                     700: '#0088C7',
 
                     // Interaction
-                    'primary-hover': '#0088C7',
+                    'primary-hover': '#007BB8',
                 },
                 // Add gray palette alias if needed, though Tailwind has it by default
             },
             backgroundImage: {
-                'washouse-gradient': 'linear-gradient(135deg, #0099DD 0%, #40E0D0 100%)',
+                'washouse-gradient': 'linear-gradient(135deg, #0090D7 0%, #49B8E7 100%)',
                 'washouse-subtle': 'linear-gradient(to bottom right, #F8FAFC, #FFFFFF)',
                 'glass': 'linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.3) 100%)',
             },

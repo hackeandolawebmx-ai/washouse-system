@@ -1,10 +1,12 @@
 import { useState, useMemo } from 'react';
 import { useStorage } from '../context/StorageContext';
-import { Calendar, DollarSign, TrendingUp, TrendingDown, Filter, Download, PieChart as PieIcon, BarChart as BarIcon, Activity } from 'lucide-react';
+import { useMetrics } from '../hooks/useMetrics';
+import { Calendar, DollarSign, TrendingUp, TrendingDown, Download, PieChart as PieIcon, BarChart as BarIcon, Activity } from 'lucide-react';
 import KpiCard from '../components/ui/KpiCard';
 import Button from '../components/ui/Button';
 import { formatCurrency } from '../utils/formatCurrency';
 import { exportToCSV } from '../utils/exportUtils';
+import GlobalFilterBar from '../components/admin/GlobalFilterBar';
 import {
     LineChart, Line, AreaChart, Area, BarChart, Bar,
     XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -12,11 +14,11 @@ import {
 } from 'recharts';
 
 export default function ReportsPage() {
-    const { sales, expenses, branches, machines } = useStorage();
+    const { sales, expenses, branches, machines, selectedBranch } = useStorage();
+    const metrics = useMetrics();
     const [dateRange, setDateRange] = useState('thisMonth'); // thisMonth, lastMonth, custom
     const [customStart, setCustomStart] = useState('');
     const [customEnd, setCustomEnd] = useState('');
-    const [selectedBranch, setSelectedBranch] = useState('all');
 
     // Utility Costs (State for P&L)
     const [utilityEstimates, setUtilityEstimates] = useState({
@@ -147,6 +149,8 @@ export default function ReportsPage() {
 
     return (
         <div className="max-w-7xl mx-auto space-y-6 pb-12">
+            <GlobalFilterBar />
+
             {/* Header & Controls */}
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 animate-in fade-in slide-in-from-top-4 duration-500">
                 <div>
@@ -155,20 +159,6 @@ export default function ReportsPage() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-                    <div className="flex items-center gap-2 bg-gray-50 p-1.5 rounded-xl border border-gray-200 flex-1 lg:flex-none">
-                        <Filter size={16} className="text-gray-400 ml-2" />
-                        <select
-                            value={selectedBranch}
-                            onChange={(e) => setSelectedBranch(e.target.value)}
-                            className="bg-transparent border-none text-sm font-bold focus:ring-0 cursor-pointer min-w-[140px]"
-                        >
-                            <option value="all">Todas las Sucursales</option>
-                            {branches.map(b => (
-                                <option key={b.id} value={b.id}>{b.name}</option>
-                            ))}
-                        </select>
-                    </div>
-
                     <div className="flex items-center gap-2 flex-1 lg:flex-none">
                         <Calendar size={18} className="text-gray-400" />
                         <select

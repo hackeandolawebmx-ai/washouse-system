@@ -207,30 +207,38 @@ export default function HostDashboard() {
             initial="hidden"
             animate="visible"
         >
-            <div className="sticky top-0 z-10 bg-gray-50/95 backdrop-blur-sm -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 py-4 mb-6 border-b border-gray-200 transition-all shadow-sm">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <motion.div variants={itemVariants}>
-                        <h1 className="text-3xl font-bold text-washouse-navy tracking-tight">Panel de Control</h1>
-                        <div className="flex items-center gap-2 mt-2 text-gray-500">
-                            <div className="p-1 bg-blue-50 rounded-md">
-                                <Store className="w-4 h-4 text-washouse-blue" />
+            <div className="sticky top-[89px] z-30 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 py-4 mb-8 transition-all duration-300">
+                <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-blue-500/5 border-white/60">
+                    <motion.div variants={itemVariants} className="flex flex-col gap-1">
+                        <h1 className="text-3xl font-black text-washouse-navy tracking-tight italic">Panel de Control</h1>
+                        <div className="flex items-center gap-3">
+                            <div className="px-2 py-1 bg-blue-50 rounded-lg flex items-center gap-2 border border-blue-100/50">
+                                <Store className="w-3.5 h-3.5 text-washouse-blue" />
+                                <span className="text-[10px] font-black uppercase tracking-widest text-washouse-blue">
+                                    {currentBranchName}
+                                </span>
                             </div>
-                            <span className="text-sm font-medium">Sucursal:</span>
-                            <span className="text-sm font-semibold text-washouse-blue">
-                                {currentBranchName}
-                            </span>
+                            <div className="w-1.5 h-1.5 rounded-full bg-gray-300" />
+                            <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest opacity-80">Vista General de Equipos</span>
                         </div>
                     </motion.div>
 
-                    <motion.div variants={itemVariants} className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <motion.div variants={itemVariants} className="flex flex-wrap items-center gap-4 w-full md:w-auto">
                         <ViewToggle view={viewMode} onViewChange={setViewMode} />
-                        <div className="hidden md:block h-8 w-px bg-gray-200 mx-1"></div>
+                        <div className="hidden md:block h-10 w-px bg-gray-200/50 mx-1"></div>
 
-                        <Button variant="secondary" onClick={() => setIsInventoryModalOpen(true)} className="flex-1 md:flex-none justify-center">
+                        <Button
+                            variant="secondary"
+                            onClick={() => setIsInventoryModalOpen(true)}
+                            className="flex-1 md:flex-none justify-center rounded-xl bg-white/50 backdrop-blur-sm border-gray-100 hover:shadow-lg transition-all"
+                        >
                             <Package className="w-4 h-4 mr-2" />
                             Inventario
                         </Button>
-                        <Button onClick={openCleanOrderModal} className="flex-1 md:flex-none justify-center shadow-lg shadow-blue-500/20">
+                        <Button
+                            onClick={openCleanOrderModal}
+                            className="flex-1 md:flex-none justify-center rounded-xl shadow-[0_8px_20px_rgba(0,144,215,0.2)] hover:shadow-[0_12px_25px_rgba(0,144,215,0.3)] transform transition-all active:scale-95"
+                        >
                             Nueva Orden
                         </Button>
                     </motion.div>
@@ -238,14 +246,14 @@ export default function HostDashboard() {
             </div>
 
             <motion.div
-                className={`grid gap-6 ${viewMode === 'grid'
+                className={`grid gap-8 ${viewMode === 'grid'
                     ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3'
                     : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
                     }`}
                 variants={containerVariants}
             >
                 {branchMachines.map((machine) => (
-                    <motion.div key={machine.id} variants={itemVariants} layout>
+                    <motion.div key={machine.id} variants={itemVariants} layout className="h-full">
                         <MachineCard
                             {...machine}
                             variant={viewMode}

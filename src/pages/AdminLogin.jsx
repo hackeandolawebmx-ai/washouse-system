@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/ui/Button';
 import { Lock, ShieldCheck } from 'lucide-react';
+import logo from '../assets/WasHouse CYMK.png';
 
 export default function AdminLogin() {
     const [pin, setPin] = useState('');
@@ -12,23 +13,26 @@ export default function AdminLogin() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        // loginAdmin now validates against the staff database via AuthContext
         if (loginAdmin(pin)) {
             navigate('/admin/dashboard');
         } else {
-            setError('PIN Incorrecto');
+            setError('PIN de Administrador Incorrecto o No Autorizado');
             setPin('');
         }
     };
 
     return (
-        <div className="min-h-screen bg-washouse-navy flex items-center justify-center p-4">
+        <div className="min-h-screen bg-washouse-gradient flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-fadeIn">
-                <div className="bg-gray-50 p-6 text-center border-b border-gray-100">
-                    <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                        <ShieldCheck className="w-8 h-8 text-washouse-blue" aria-hidden="true" />
+                <div className="bg-white/80 backdrop-blur-md p-8 text-center border-b border-gray-100/50">
+                    <div className="mx-auto mb-6 transform hover:scale-105 transition-transform duration-300">
+                        <img src={logo} alt="Washouse" className="h-24 w-auto mx-auto object-contain" />
                     </div>
-                    <h1 className="text-2xl font-bold text-washouse-navy">Acceso Administrativo</h1>
-                    <p className="text-gray-500 text-sm">Ingresa el PIN de seguridad</p>
+                    <div className="space-y-1">
+                        <h1 className="text-2xl font-black text-black italic tracking-tighter uppercase">Panel de Control</h1>
+                        <p className="text-gray-500 text-xs font-bold tracking-widest uppercase">Admin Security Portal</p>
+                    </div>
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-8 space-y-6">

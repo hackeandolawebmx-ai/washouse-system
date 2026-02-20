@@ -5,7 +5,8 @@ import AdminLayout from './layouts/AdminLayout';
 import HostDashboard from './pages/HostDashboard';
 import ServiceReception from './pages/ServiceReception';
 import ClientsPage from './pages/ClientsPage';
-import ReportsPage from './pages/ReportsPage'; // Added
+import ReportsPage from './pages/ReportsPage';
+import SettingsPage from './pages/SettingsPage';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminLogin from './pages/AdminLogin';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -13,35 +14,37 @@ import { StorageProvider } from './context/StorageContext';
 import { AuthProvider } from './context/AuthContext';
 import PageTransition from './components/PageTransition';
 
-function AnimatedRoutes() {
-  const location = useLocation();
+import StaffManagement from './pages/StaffManagement';
 
+function AppRoutes() {
   return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        {/* Host Routes (Default) */}
-        <Route path="/" element={<PageTransition><HostLayout /></PageTransition>}>
-          <Route index element={<HostDashboard />} />
-          <Route path="services" element={<ServiceReception />} />
-          <Route path="host" element={<Navigate to="/" replace />} />
-        </Route>
+    <Routes>
+      {/* Host Routes (Default) */}
+      <Route path="/" element={<HostLayout />}>
+        <Route index element={<HostDashboard />} />
+        <Route path="services" element={<ServiceReception />} />
+        <Route path="host" element={<Navigate to="/" replace />} />
+      </Route>
 
-        {/* Admin Routes */}
-        <Route path="/admin/login" element={<PageTransition><AdminLogin /></PageTransition>} />
+      {/* Admin Routes */}
+      <Route path="/admin/login" element={<AdminLogin />} />
 
-        <Route path="/admin" element={<PageTransition><ProtectedRoute /></PageTransition>}>
-          <Route element={<AdminLayout />}>
-            <Route index element={<Navigate to="/admin/dashboard" replace />} />
-            <Route path="dashboard">
-              <Route index element={<AdminDashboard view="summary" />} />
-              <Route path="equipment" element={<AdminDashboard view="equipment" />} />
-            </Route>
-            <Route path="clients" element={<ClientsPage />} />
-            <Route path="reports" element={<ReportsPage />} /> {/* Added */}
+      <Route path="/admin" element={<ProtectedRoute />}>
+        <Route element={<AdminLayout />}>
+          <Route index element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="dashboard">
+            <Route index element={<AdminDashboard />} />
+            <Route path="equipment" element={<AdminDashboard />} />
           </Route>
+          <Route path="staff" element={<StaffManagement />} />
+          <Route path="clients" element={<ClientsPage />} />
+          <Route path="reports" element={<ReportsPage />} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
-      </Routes>
-    </AnimatePresence>
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 
@@ -50,7 +53,7 @@ function App() {
     <StorageProvider>
       <AuthProvider>
         <BrowserRouter>
-          <AnimatedRoutes />
+          <AppRoutes />
         </BrowserRouter>
       </AuthProvider>
     </StorageProvider>

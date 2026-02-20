@@ -1,12 +1,14 @@
 import { useState, useMemo } from 'react';
 import { useStorage } from '../context/StorageContext';
-import { Search, User, Phone, DollarSign, Calendar, MessageCircle, Edit2, Archive, Save, X, Clock } from 'lucide-react'; // Added History icon replaced by Clock
+import { useMetrics } from '../hooks/useMetrics';
+import { Search, User, Phone, DollarSign, Calendar, MessageCircle, Edit2, Save, X, Clock } from 'lucide-react';
 import PageTransition from '../components/PageTransition';
 import ClientHistoryModal from '../components/clients/ClientHistoryModal';
 import { formatCurrency } from '../utils/formatCurrency';
+import GlobalFilterBar from '../components/admin/GlobalFilterBar';
 
 export default function ClientsPage() {
-    const { orders, customerOverrides, updateCustomerOverride } = useStorage();
+    const { orders, customerOverrides, updateCustomerOverride, branches, selectedBranch } = useStorage();
     const [searchTerm, setSearchTerm] = useState('');
     const [editingClient, setEditingClient] = useState(null);
     const [historyClient, setHistoryClient] = useState(null); // State for history modal
@@ -38,6 +40,8 @@ export default function ClientsPage() {
                     debt: 0,
                     visitCount: 0,
                     lastVisit: order.createdAt,
+                    firstVisit: order.createdAt,
+                    registrationBranchId: override.registrationBranchId || order.branchId, // First order's branch is registration
                     notes: override.notes || '',
                     orders: []
                 });
@@ -51,12 +55,19 @@ export default function ClientsPage() {
             client.visitCount += 1;
             client.orders.push(order);
 
-            // Update last visit if this order is newer
+            // Update last/first visit
             if (new Date(order.createdAt) > new Date(client.lastVisit)) {
                 client.lastVisit = order.createdAt;
                 // Update name if we don't have an override, assuming newest order has most current name
                 if (!customerOverrides?.[phone]?.name) {
                     client.name = order.customerName;
+                }
+            }
+            if (new Date(order.createdAt) < new Date(client.firstVisit)) {
+                client.firstVisit = order.createdAt;
+                // If override doesn't exist, oldest order wins for registration
+                if (!customerOverrides?.[phone]?.registrationBranchId) {
+                    client.registrationBranchId = order.branchId;
                 }
             }
         });
@@ -66,10 +77,11 @@ export default function ClientsPage() {
     }, [orders, customerOverrides]);
 
     // 2. Filter
-    const filteredClients = clients.filter(c =>
-        c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.phone.includes(searchTerm)
-    );
+    const filteredClients = clients.filter(c => {
+        const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.phone.includes(searchTerm);
+        const matchesBranch = selectedBranch === 'all' || c.registrationBranchId === selectedBranch;
+        return matchesSearch && matchesBranch;
+    });
 
     const startEdit = (client) => {
         setEditingClient(client.phone);
@@ -84,22 +96,26 @@ export default function ClientsPage() {
     return (
         <PageTransition>
             <div className="space-y-6">
+                <GlobalFilterBar />
+
                 {/* Header */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-800">Directorio de Clientes</h1>
                         <p className="text-gray-500 text-sm">Gestiona la información y deudas de tus clientes frecuentes.</p>
                     </div>
 
-                    <div className="relative w-full md:w-72">
-                        <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
-                        <input
-                            type="text"
-                            placeholder="Buscar por nombre o teléfono..."
-                            value={searchTerm}
-                            onChange={e => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                        />
+                    <div className="flex flex-col md:flex-row gap-3 w-full lg:w-auto">
+                        <div className="relative flex-1 md:w-64">
+                            <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
+                            <input
+                                type="text"
+                                placeholder="Buscar por nombre o teléfono..."
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                            />
+                        </div>
                     </div>
                 </div>
 
@@ -107,9 +123,10 @@ export default function ClientsPage() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
-                            <thead className="bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                            <thead className="bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider border-b">
                                 <tr>
                                     <th className="px-6 py-4">Cliente</th>
+                                    <th className="px-6 py-4">Sucursal</th>
                                     <th className="px-6 py-4">Última Visita</th>
                                     <th className="px-6 py-4 text-center">Visitas</th>
                                     <th className="px-6 py-4 text-right">Gasto Total</th>
@@ -145,6 +162,16 @@ export default function ClientsPage() {
                                                             <Phone size={10} /> {client.displayPhone}
                                                         </div>
                                                     </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-tight ${client.registrationBranchId === 'main' ? 'bg-blue-50 text-blue-700 border-blue-100' :
+                                                        client.registrationBranchId === 'semillero' ? 'bg-purple-50 text-purple-700 border-purple-100' :
+                                                            'bg-green-50 text-green-700 border-green-100'
+                                                        }`}>
+                                                        {branches.find(b => b.id === client.registrationBranchId)?.name || 'Desconocido'}
+                                                    </span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 text-sm text-gray-600">

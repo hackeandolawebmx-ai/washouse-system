@@ -39,7 +39,7 @@ export function AuthProvider({ children }) {
         }
     }, [currentShift]);
 
-    const { addShift, logActivity, deviceBranchId } = useStorage();
+    const { addShift, logActivity, deviceBranchId, staff } = useStorage();
     useEffect(() => {
         // console.log('AuthProvider mounted');
     }, []);
@@ -66,26 +66,44 @@ export function AuthProvider({ children }) {
                 endedAt: new Date().toISOString(),
                 closedBy: user?.name,
                 id: currentShift.id
-            }, currentShift.branchId); // Ensure we pass the shift's branch ID
+            }, currentShift.branchId);
 
             logActivity('TURNO_CERRADO', `Ventas: ${formatCurrency(summary.totalSales)}`, user?.name, currentShift.branchId);
         }
+        localStorage.removeItem(SHIFT_STORAGE_KEY);
+        localStorage.removeItem(USER_STORAGE_KEY);
+        sessionStorage.removeItem('washouse_admin');
         setCurrentShift(null);
         setUser(null);
+        setAdminUser(false);
     };
 
     const [adminUser, setAdminUser] = useState(() => {
         return sessionStorage.getItem('washouse_admin') ? true : false;
     });
 
-    const loginAdmin = (password) => {
-        // Simple generic PIN for MVP
-        if (password === '1234') {
+    const loginAdmin = (pin) => {
+        // Find admin in staff list
+        const adminFound = staff.find(s => s.role === 'admin' && s.pin === pin);
+        if (adminFound) {
             setAdminUser(true);
             sessionStorage.setItem('washouse_admin', 'true');
+            logActivity('ADMIN_LOGIN', `Acceso Administrador: ${adminFound.name}`, adminFound.name);
             return true;
         }
         return false;
+    };
+
+    const loginHost = (pin) => {
+        const staffFound = staff.find(s => s.pin === pin);
+        if (staffFound) {
+            // Check if staff belongs to current branch or is global (all)
+            if (staffFound.branchId !== 'all' && staffFound.branchId !== deviceBranchId) {
+                return { success: false, error: 'Acceso no autorizado para esta sucursal.' };
+            }
+            return { success: true, userData: staffFound };
+        }
+        return { success: false, error: 'PIN incorrecto.' };
     };
 
     const logout = () => {
@@ -101,11 +119,13 @@ export function AuthProvider({ children }) {
         startShift,
         endShift,
         loginAdmin,
+        loginHost,
         logout,
         isAuthenticated: !!user,
         isAdmin: !!adminUser,
-        isShiftOpen: !!currentShift
-    }), [user, currentShift, adminUser]);
+        isShiftOpen: !!currentShift,
+        staff // Expose staff for management UI
+    }), [user, currentShift, adminUser, staff, loginHost]);
 
     return (
         <AuthContext.Provider value={value}>

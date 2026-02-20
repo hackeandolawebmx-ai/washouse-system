@@ -48,7 +48,7 @@ export const printServiceTicket = (order) => {
                 if (item.quantity <= item.baseKg) {
                     itemTotal = item.basePrice;
                 } else {
-                    itemTotal = item.basePrice + ((item.quantity - item.baseKg) * item.extraPrice);
+                    itemTotal = item.basePrice + (Math.ceil(item.quantity - item.baseKg) * item.extraPrice);
                 }
                 totalDisplay = itemTotal.toFixed(2);
             }

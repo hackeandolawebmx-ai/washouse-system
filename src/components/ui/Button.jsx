@@ -4,7 +4,9 @@ export default function Button({ children, variant = 'primary', className = '', 
     const variants = {
         primary: "bg-washouse-blue text-white hover:bg-washouse-primary-hover border border-transparent",
         secondary: "bg-washouse-aqua text-white hover:bg-washouse-secondary-hover border border-transparent",
-        outline: "bg-transparent border-2 border-washouse-blue text-washouse-blue hover:bg-blue-50"
+        outline: "bg-transparent border-2 border-washouse-blue text-washouse-blue hover:bg-blue-50",
+        danger: "bg-red-500 text-white hover:bg-red-600 border border-transparent",
+        ghost: "bg-transparent hover:bg-gray-100 text-gray-500 border border-transparent"
     };
 
     return (

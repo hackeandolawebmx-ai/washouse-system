@@ -8,6 +8,7 @@ export default function EquipmentControlTable({ onToggleMaintenance, onForceStop
     const { machines, branches, syncData } = useStorage();
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
+    const [branchFilter, setBranchFilter] = useState('all');
     const [isRefreshing, setIsRefreshing] = useState(false);
 
     const handleManualRefresh = () => {
@@ -21,9 +22,10 @@ export default function EquipmentControlTable({ onToggleMaintenance, onForceStop
             const matchesSearch = machine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 (machine.clientName && machine.clientName.toLowerCase().includes(searchTerm.toLowerCase()));
             const matchesStatus = statusFilter === 'all' || machine.status === statusFilter;
-            return matchesSearch && matchesStatus;
+            const matchesBranch = branchFilter === 'all' || machine.branchId === branchFilter;
+            return matchesSearch && matchesStatus && matchesBranch;
         });
-    }, [machines, searchTerm, statusFilter]);
+    }, [machines, searchTerm, statusFilter, branchFilter]);
 
     return (
         <div className="flex flex-col h-full bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -54,7 +56,19 @@ export default function EquipmentControlTable({ onToggleMaintenance, onForceStop
                 </div>
 
                 <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
-                    <Filter className="w-4 h-4 text-gray-500 shrink-0" />
+                    <div className="flex items-center gap-2 mr-2 border-r pr-2">
+                        <Filter className="w-4 h-4 text-gray-500 shrink-0" />
+                        <select
+                            value={branchFilter}
+                            onChange={(e) => setBranchFilter(e.target.value)}
+                            className="bg-white border border-gray-200 rounded-lg text-xs font-medium px-2 py-1 outline-none focus:ring-1 focus:ring-washouse-blue"
+                        >
+                            <option value="all">Todas las Sucursales</option>
+                            {branches.map(branch => (
+                                <option key={branch.id} value={branch.id}>{branch.name}</option>
+                            ))}
+                        </select>
+                    </div>
                     <div className="flex gap-1">
                         {['all', 'available', 'running', 'maintenance', 'finished'].map(status => (
                             <button

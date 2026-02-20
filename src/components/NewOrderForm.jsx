@@ -28,7 +28,7 @@ export default function NewOrderForm({ onSubmit, onCancel }) {
             if (isNaN(weight)) return 0;
             if (weight <= item.baseKg) return item.price;
             const extraKg = weight - item.baseKg;
-            return item.price + (extraKg * item.extraPrice);
+            return item.price + (Math.ceil(extraKg) * item.extraPrice);
         }
         // Handle Units (Services or Products)
         return item.price * value;

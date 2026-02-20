@@ -6,1539 +6,374 @@
       "address": "Avenida Hermosillo 3312, Mitras Centro, 64460 Monterrey, N.L."
     },
     {
+      "id": "semillero",
       "name": "Washouse Semillero",
-      "address": "Padre Mier 653-Local 110, Centro, 64000 Monterrey, N.L.",
-      "id": "sucursal_monterrey"
+      "address": "Padre Mier 653-Local 110, Centro, 64000 Monterrey, N.L."
     },
     {
-      "name": "Washouse Cabezada",
-      "address": "Av. Cabezada 10117 A, Barrio Aztlán, 64960 Monterrey, N.L.",
-      "id": "sucursal_centro"
-    },
-    {
-      "name": "Washouse Ruiz Cortinez",
-      "address": "Prolongacion Ruiz Cortinez 3000, Dominio Cumbres, 66036 Mitras Poniente, N.L.",
-      "id": "sucursal_san_jeronimo"
+      "id": "guadalupe",
+      "name": "Washouse Guadalupe",
+      "address": "Guadalupe, N.L."
     }
   ],
   "machines": [
     {
-      "id": 1,
-      "name": "Lavadora 01",
+      "id": "mitras_w1",
+      "name": "Yo 1",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
-      "clientName": null,
-      "total": 0,
-      "paymentMethod": "cash",
-      "items": null,
-      "startDate": null,
       "branchId": "main"
     },
     {
-      "id": 2,
-      "name": "Lavadora 02",
+      "id": "mitras_w2",
+      "name": "Yo 2",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
-      "clientName": null,
-      "total": 0,
-      "paymentMethod": "cash",
-      "items": null,
-      "startDate": null,
       "branchId": "main"
     },
     {
-      "id": 3,
-      "name": "Lavadora 03",
+      "id": "mitras_w3",
+      "name": "Yo 3",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
-      "clientName": null,
-      "total": 0,
-      "paymentMethod": "cash",
-      "items": null,
-      "startDate": null,
       "branchId": "main"
     },
     {
-      "id": 4,
-      "name": "Secadora 01",
-      "type": "secadora",
+      "id": "mitras_w4",
+      "name": "Yo 4",
+      "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
-      "clientName": null,
-      "total": 0,
-      "paymentMethod": "cash",
-      "items": null,
-      "startDate": null,
       "branchId": "main"
     },
     {
-      "id": 5,
-      "name": "Secadora 02",
+      "id": "mitras_w5",
+      "name": "Yo 5",
+      "type": "lavadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "main"
+    },
+    {
+      "id": "mitras_w6",
+      "name": "Yo 6",
+      "type": "lavadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "main"
+    },
+    {
+      "id": "mitras_d7",
+      "name": "D 7",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
       "branchId": "main"
     },
     {
-      "id": 6,
-      "name": "Secadora 03",
+      "id": "mitras_d8",
+      "name": "D 8",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
-      "clientName": null,
-      "total": 0,
-      "paymentMethod": "cash",
-      "items": null,
-      "startDate": null,
       "branchId": "main"
     },
     {
-      "id": 1770003680644,
-      "name": "Lavadora 01",
-      "type": "lavadora",
-      "status": "running",
-      "timeLeft": 45,
-      "branchId": "sucursal_monterrey",
-      "clientName": "Juan Perez",
-      "total": 460,
-      "paymentMethod": "cash",
-      "items": {
-        "wash_basic": "10",
-        "wash_dry": "10",
-        "soap_dose": 1,
-        "softener_dose": 1,
-        "bag_l": 1
-      },
-      "startDate": "2026-02-02T20:05:54.778Z"
-    },
-    {
-      "id": 1770003680645,
-      "name": "Lavadora 02",
-      "type": "lavadora",
-      "status": "running",
-      "timeLeft": 45,
-      "branchId": "sucursal_monterrey",
-      "clientName": "sdafds",
-      "total": 165,
-      "paymentMethod": "cash",
-      "items": {
-        "wash_basic": "10"
-      },
-      "startDate": "2026-02-02T20:18:51.904Z"
-    },
-    {
-      "id": 1770003680646,
-      "name": "Lavadora 03",
-      "type": "lavadora",
-      "status": "running",
-      "timeLeft": 45,
-      "branchId": "sucursal_monterrey",
-      "clientName": "sad",
-      "total": 345,
-      "paymentMethod": "cash",
-      "items": {
-        "wash_basic": "22"
-      },
-      "startDate": "2026-02-02T20:30:29.476Z"
-    },
-    {
-      "id": 1770003680647,
-      "name": "Secadora 01",
+      "id": "mitras_d9",
+      "name": "D 9",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
-      "branchId": "sucursal_monterrey"
+      "branchId": "main"
     },
     {
-      "id": 1770003680648,
-      "name": "Secadora 02",
+      "id": "mitras_d10",
+      "name": "D 10",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
-      "branchId": "sucursal_monterrey"
+      "branchId": "main"
     },
     {
-      "id": 1770003680649,
-      "name": "Secadora 03",
+      "id": "mitras_d11",
+      "name": "D 11",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
-      "branchId": "sucursal_monterrey"
+      "branchId": "main"
     },
     {
-      "id": 1770050907410,
-      "name": "Lavadora 01",
+      "id": "mitras_d12",
+      "name": "D 12",
+      "type": "secadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "main"
+    },
+    {
+      "id": "sem_w1",
+      "name": "Yo 1",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
-      "branchId": "sucursal_centro"
+      "branchId": "semillero"
     },
     {
-      "id": 1770050907676,
-      "name": "Lavadora 02",
+      "id": "sem_w2",
+      "name": "Yo 2",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
-      "branchId": "sucursal_centro"
+      "branchId": "semillero"
     },
     {
-      "id": 1770050907230,
-      "name": "Lavadora 03",
+      "id": "sem_w3",
+      "name": "Yo 3",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
-      "branchId": "sucursal_centro"
+      "branchId": "semillero"
     },
     {
-      "id": 1770050907467,
-      "name": "Secadora 01",
-      "type": "secadora",
-      "status": "available",
-      "timeLeft": 0,
-      "branchId": "sucursal_centro"
-    },
-    {
-      "id": 1770050907809,
-      "name": "Secadora 02",
-      "type": "secadora",
-      "status": "maintenance",
-      "timeLeft": 0,
-      "branchId": "sucursal_centro"
-    },
-    {
-      "id": 1770050907958,
-      "name": "Secadora 03",
-      "type": "secadora",
-      "status": "available",
-      "timeLeft": 0,
-      "branchId": "sucursal_centro"
-    },
-    {
-      "id": 1770050907338,
-      "name": "Lavadora 01",
+      "id": "sem_w4",
+      "name": "Yo 4",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
-      "branchId": "sucursal_san_jeronimo"
+      "branchId": "semillero"
     },
     {
-      "id": 1770050907635,
-      "name": "Lavadora 02",
+      "id": "sem_w5",
+      "name": "Yo 5",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
-      "branchId": "sucursal_san_jeronimo"
+      "branchId": "semillero"
     },
     {
-      "id": 1770050907724,
-      "name": "Lavadora 03",
+      "id": "sem_w6",
+      "name": "Yo 6",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
-      "branchId": "sucursal_san_jeronimo"
+      "branchId": "semillero"
     },
     {
-      "id": 1770050907548,
-      "name": "Secadora 01",
+      "id": "sem_w7",
+      "name": "Yo 7",
+      "type": "lavadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "semillero"
+    },
+    {
+      "id": "sem_w8",
+      "name": "Yo 8",
+      "type": "lavadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "semillero"
+    },
+    {
+      "id": "sem_w9",
+      "name": "Yo 9",
+      "type": "lavadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "semillero"
+    },
+    {
+      "id": "sem_w10",
+      "name": "Yo 10",
+      "type": "lavadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "semillero"
+    },
+    {
+      "id": "sem_d11",
+      "name": "D 11",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
-      "branchId": "sucursal_san_jeronimo"
+      "branchId": "semillero"
     },
     {
-      "id": 1770050907230,
-      "name": "Secadora 02",
-      "type": "secadora",
-      "status": "maintenance",
-      "timeLeft": 0,
-      "branchId": "sucursal_san_jeronimo"
-    },
-    {
-      "id": 1770050907055,
-      "name": "Secadora 03",
+      "id": "sem_d12",
+      "name": "D 12",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
-      "branchId": "sucursal_san_jeronimo"
+      "branchId": "semillero"
+    },
+    {
+      "id": "sem_d13",
+      "name": "D 13",
+      "type": "secadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "semillero"
+    },
+    {
+      "id": "sem_d14",
+      "name": "D 14",
+      "type": "secadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "semillero"
+    },
+    {
+      "id": "sem_d15",
+      "name": "D 15",
+      "type": "secadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "semillero"
+    },
+    {
+      "id": "sem_d16",
+      "name": "D 16",
+      "type": "secadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "semillero"
+    },
+    {
+      "id": "sem_d17",
+      "name": "D 17",
+      "type": "secadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "semillero"
+    },
+    {
+      "id": "sem_d18",
+      "name": "D 18",
+      "type": "secadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "semillero"
+    },
+    {
+      "id": "sem_d19",
+      "name": "D 19",
+      "type": "secadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "semillero"
+    },
+    {
+      "id": "sem_d20",
+      "name": "D 20",
+      "type": "secadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "semillero"
+    },
+    {
+      "id": "gpe_w1",
+      "name": "Yo 1",
+      "type": "lavadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "guadalupe"
+    },
+    {
+      "id": "gpe_w2",
+      "name": "Yo 2",
+      "type": "lavadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "guadalupe"
+    },
+    {
+      "id": "gpe_w3",
+      "name": "Yo 3",
+      "type": "lavadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "guadalupe"
+    },
+    {
+      "id": "gpe_w4",
+      "name": "Yo 4",
+      "type": "lavadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "guadalupe"
+    },
+    {
+      "id": "gpe_w5",
+      "name": "Yo 5",
+      "type": "lavadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "guadalupe"
+    },
+    {
+      "id": "gpe_w6",
+      "name": "Yo 6",
+      "type": "lavadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "guadalupe"
+    },
+    {
+      "id": "gpe_d7",
+      "name": "D 7",
+      "type": "secadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "guadalupe"
+    },
+    {
+      "id": "gpe_d8",
+      "name": "D 8",
+      "type": "secadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "guadalupe"
+    },
+    {
+      "id": "gpe_d10",
+      "name": "D 10",
+      "type": "secadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "guadalupe"
+    },
+    {
+      "id": "gpe_d11",
+      "name": "D 11",
+      "type": "secadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "guadalupe"
+    },
+    {
+      "id": "gpe_d12",
+      "name": "D 12",
+      "type": "secadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "guadalupe"
+    },
+    {
+      "id": "gpe_d250",
+      "name": "D 250",
+      "type": "secadora",
+      "status": "available",
+      "timeLeft": 0,
+      "branchId": "guadalupe"
     }
   ],
-  "inventory": [
-    {
-      "id": "soap_dose",
-      "name": "Dosis Jabón",
-      "price": 15,
-      "stock": 49,
-      "icon": "🧼",
-      "branchId": "sucursal_monterrey"
-    },
-    {
-      "id": "softener_dose",
-      "name": "Dosis Suavitel",
-      "price": 15,
-      "stock": 44,
-      "icon": "🌸",
-      "branchId": "sucursal_monterrey"
-    },
-    {
-      "id": "bleach_dose",
-      "name": "Dosis Cloro",
-      "price": 10,
-      "stock": 30,
-      "icon": "🧴",
-      "branchId": "sucursal_monterrey"
-    },
-    {
-      "id": "bag_l",
-      "name": "Bolsa Grande",
-      "price": 15,
-      "stock": 54,
-      "icon": "🛍️",
-      "branchId": "sucursal_monterrey"
-    },
-    {
-      "id": "bag_j",
-      "name": "Bolsa Jumbo",
-      "price": 25,
-      "stock": 60,
-      "icon": "🎒",
-      "branchId": "sucursal_monterrey"
-    },
-    {
-      "id": "soap_dose_sucursal_centro",
-      "name": "Dosis Jabón",
-      "price": 15,
-      "stock": 50,
-      "icon": "🧼",
-      "branchId": "sucursal_centro"
-    },
-    {
-      "id": "softener_dose_sucursal_centro",
-      "name": "Dosis Suavitel",
-      "price": 15,
-      "stock": 45,
-      "icon": "🌸",
-      "branchId": "sucursal_centro"
-    },
-    {
-      "id": "bleach_dose_sucursal_centro",
-      "name": "Dosis Cloro",
-      "price": 10,
-      "stock": 30,
-      "icon": "🧴",
-      "branchId": "sucursal_centro"
-    },
-    {
-      "id": "bag_l_sucursal_centro",
-      "name": "Bolsa Grande",
-      "price": 15,
-      "stock": 100,
-      "icon": "🛍️",
-      "branchId": "sucursal_centro"
-    },
-    {
-      "id": "bag_j_sucursal_centro",
-      "name": "Bolsa Jumbo",
-      "price": 25,
-      "stock": 60,
-      "icon": "🎒",
-      "branchId": "sucursal_centro"
-    },
-    {
-      "id": "soap_dose_sucursal_san_jeronimo",
-      "name": "Dosis Jabón",
-      "price": 15,
-      "stock": 50,
-      "icon": "🧼",
-      "branchId": "sucursal_san_jeronimo"
-    },
-    {
-      "id": "softener_dose_sucursal_san_jeronimo",
-      "name": "Dosis Suavitel",
-      "price": 15,
-      "stock": 45,
-      "icon": "🌸",
-      "branchId": "sucursal_san_jeronimo"
-    },
-    {
-      "id": "bleach_dose_sucursal_san_jeronimo",
-      "name": "Dosis Cloro",
-      "price": 10,
-      "stock": 30,
-      "icon": "🧴",
-      "branchId": "sucursal_san_jeronimo"
-    },
-    {
-      "id": "bag_l_sucursal_san_jeronimo",
-      "name": "Bolsa Grande",
-      "price": 15,
-      "stock": 100,
-      "icon": "🛍️",
-      "branchId": "sucursal_san_jeronimo"
-    },
-    {
-      "id": "bag_j_sucursal_san_jeronimo",
-      "name": "Bolsa Jumbo",
-      "price": 25,
-      "stock": 60,
-      "icon": "🎒",
-      "branchId": "sucursal_san_jeronimo"
-    },
-    {
-      "id": "soap_dose_main_1770051961294",
-      "name": "Dosis Jabón",
-      "price": 15,
-      "stock": 50,
-      "icon": "🧼",
-      "branchId": "main"
-    },
-    {
-      "id": "softener_dose_main_1770051961294",
-      "name": "Dosis Suavitel",
-      "price": 15,
-      "stock": 45,
-      "icon": "🌸",
-      "branchId": "main"
-    },
-    {
-      "id": "bleach_dose_main_1770051961294",
-      "name": "Dosis Cloro",
-      "price": 10,
-      "stock": 30,
-      "icon": "🧴",
-      "branchId": "main"
-    },
-    {
-      "id": "bag_l_main_1770051961294",
-      "name": "Bolsa Grande",
-      "price": 15,
-      "stock": 100,
-      "icon": "🛍️",
-      "branchId": "main"
-    },
-    {
-      "id": "bag_j_main_1770051961294",
-      "name": "Bolsa Jumbo",
-      "price": 25,
-      "stock": 60,
-      "icon": "🎒",
-      "branchId": "main"
-    }
-  ],
-  "sales": [
-    {
-      "id": 1770080474604,
-      "date": "2026-02-03T01:01:14.604Z",
-      "branchId": "sucursal_monterrey",
-      "customer": {
-        "name": "wdsds",
-        "phone": ""
-      },
-      "items": [
-        {
-          "id": "wash_basic",
-          "name": "Carga Lavado (5kg)",
-          "price": 90,
-          "quantity": "12",
-          "type": "weight"
-        }
-      ],
-      "total": 195,
-      "paymentMethod": "cash",
-      "machineId": 1770003680644,
-      "status": "completed"
-    },
-    {
-      "id": 1770076998790,
-      "date": "2026-02-03T00:03:18.790Z",
-      "branchId": "sucursal_monterrey",
-      "customer": {
-        "name": "Da",
-        "phone": ""
-      },
-      "items": [
-        {
-          "id": "wash_dry",
-          "name": "Lavado + Secado (5kg)",
-          "price": 150,
-          "quantity": "5",
-          "type": "weight"
-        }
-      ],
-      "total": 150,
-      "paymentMethod": "cash",
-      "machineId": 1770003680649,
-      "status": "completed"
-    },
-    {
-      "id": 1770076680088,
-      "date": "2026-02-02T23:58:00.088Z",
-      "branchId": "sucursal_monterrey",
-      "customer": {
-        "name": "DAss",
-        "phone": ""
-      },
-      "items": {
-        "wash_dry": "10"
-      },
-      "total": 250,
-      "paymentMethod": "cash",
-      "machineId": 1770003680647,
-      "status": "completed"
-    },
-    {
-      "id": 1770074112394,
-      "date": "2026-02-02T23:15:12.394Z",
-      "branchId": "sucursal_monterrey",
-      "type": "service_advance",
-      "description": "Anticipo Orden ORD-112393-56",
-      "amount": 90,
-      "orderId": "ORD-112393-56",
-      "method": "cash"
-    },
-    {
-      "id": 1770064229420,
-      "date": "2026-02-02T20:30:29.420Z",
-      "branchId": "sucursal_monterrey",
-      "customer": {
-        "name": "sad",
-        "phone": ""
-      },
-      "items": {
-        "wash_basic": "22"
-      },
-      "total": 345,
-      "paymentMethod": "cash",
-      "machineId": 1770003680646,
-      "status": "completed"
-    },
-    {
-      "id": 1770063531851,
-      "date": "2026-02-02T20:18:51.851Z",
-      "branchId": "sucursal_monterrey",
-      "customer": {
-        "name": "sdafds",
-        "phone": ""
-      },
-      "items": {
-        "wash_basic": "10"
-      },
-      "total": 165,
-      "paymentMethod": "cash",
-      "machineId": 1770003680645,
-      "status": "completed"
-    },
-    {
-      "id": 1770063503988,
-      "date": "2026-02-02T20:18:23.988Z",
-      "branchId": "sucursal_monterrey",
-      "customer": {
-        "name": "sadad",
-        "phone": ""
-      },
-      "items": {
-        "wash_basic": "10"
-      },
-      "total": 165,
-      "paymentMethod": "cash",
-      "machineId": "counter",
-      "status": "completed"
-    },
-    {
-      "id": 1770063082371,
-      "date": "2026-02-02T20:11:22.371Z",
-      "branchId": "sucursal_monterrey",
-      "type": "service_payment",
-      "description": "Pago Saldo Orden ORD-969062-30",
-      "amount": 45,
-      "orderId": "ORD-969062-30",
-      "method": "cash"
-    },
-    {
-      "id": 1770062969063,
-      "date": "2026-02-02T20:09:29.063Z",
-      "branchId": "sucursal_monterrey",
-      "type": "service_advance",
-      "description": "Anticipo Orden ORD-969062-30",
-      "amount": 45,
-      "orderId": "ORD-969062-30",
-      "method": "cash"
-    },
-    {
-      "id": 1770062754720,
-      "date": "2026-02-02T20:05:54.720Z",
-      "branchId": "sucursal_monterrey",
-      "customer": {
-        "name": "Juan Perez",
-        "phone": "8186811851"
-      },
-      "items": {
-        "wash_basic": "10",
-        "wash_dry": "10",
-        "soap_dose": 1,
-        "softener_dose": 1,
-        "bag_l": 1
-      },
-      "total": 460,
-      "paymentMethod": "cash",
-      "machineId": 1770003680644,
-      "status": "completed"
-    },
-    {
-      "id": 1770056839323,
-      "date": "2026-02-02T18:27:19.323Z",
-      "branchId": "sucursal_monterrey",
-      "type": "service_payment",
-      "description": "Pago Saldo Orden ORD-650107-34",
-      "amount": 120,
-      "orderId": "ORD-650107-34",
-      "method": "card"
-    },
-    {
-      "id": 1770056650107,
-      "date": "2026-02-02T18:24:10.107Z",
-      "branchId": "sucursal_monterrey",
-      "type": "service_advance",
-      "description": "Anticipo Orden ORD-650107-34",
-      "amount": 120,
-      "orderId": "ORD-650107-34",
-      "method": "cash"
-    },
-    {
-      "id": 1770055942265,
-      "date": "2026-02-02T18:12:22.265Z",
-      "branchId": "sucursal_monterrey",
-      "type": "service_advance",
-      "description": "Anticipo Orden ORD-942264-13",
-      "amount": 365,
-      "orderId": "ORD-942264-13",
-      "method": "card"
-    },
-    {
-      "id": 1770055086610,
-      "date": "2026-02-02T17:58:06.610Z",
-      "branchId": "sucursal_monterrey",
-      "type": "service_advance",
-      "description": "Anticipo Orden ORD-086610-44",
-      "amount": 247.5,
-      "orderId": "ORD-086610-44",
-      "method": "cash"
-    },
-    {
-      "id": 1770004922553,
-      "date": "2026-02-02T04:02:02.553Z",
-      "branchId": "main",
-      "customer": {
-        "name": "scsc",
-        "phone": ""
-      },
-      "items": {
-        "wash_basic": "11"
-      },
-      "total": 180,
-      "paymentMethod": "card",
-      "machineId": "counter",
-      "status": "completed"
-    },
-    {
-      "id": 1770002663866,
-      "date": "2026-02-02T03:24:23.866Z",
-      "customer": {
-        "name": "cssc",
-        "phone": ""
-      },
-      "items": {
-        "wash_basic": "13.7"
-      },
-      "total": 220.5,
-      "paymentMethod": "cash",
-      "machineId": 6,
-      "status": "completed"
-    },
-    {
-      "id": 1770001981874,
-      "date": "2026-02-02T03:13:01.874Z",
-      "customer": {
-        "name": "asds",
-        "phone": ""
-      },
-      "items": {
-        "wash_basic": "12"
-      },
-      "total": 195,
-      "paymentMethod": "cash",
-      "machineId": 3,
-      "status": "completed"
-    },
-    {
-      "id": 1769808160887,
-      "date": "2026-01-30T21:22:40.887Z",
-      "customer": {
-        "name": "Ceci",
-        "phone": ""
-      },
-      "items": {
-        "wash_basic": "10",
-        "dry_basic": "10",
-        "soap_dose": 1,
-        "softener_dose": 1
-      },
-      "total": 350,
-      "paymentMethod": "card",
-      "machineId": "counter",
-      "status": "completed"
-    },
-    {
-      "id": 1769778211699,
-      "date": "2026-01-30T13:03:31.699Z",
-      "customer": {
-        "name": "DDa",
-        "phone": ""
-      },
-      "items": {
-        "wash_basic": "30"
-      },
-      "total": 465,
-      "paymentMethod": "cash",
-      "machineId": 4,
-      "status": "completed"
-    },
-    {
-      "id": 1769778150648,
-      "date": "2026-01-30T13:02:30.648Z",
-      "customer": {
-        "name": "dccs",
-        "phone": ""
-      },
-      "items": {
-        "wash_basic": "23"
-      },
-      "total": 360,
-      "paymentMethod": "cash",
-      "machineId": 3,
-      "status": "completed"
-    },
-    {
-      "id": 1769778030587,
-      "date": "2026-01-30T13:00:30.587Z",
-      "customer": {
-        "name": "scsc",
-        "phone": ""
-      },
-      "items": {
-        "wash_basic": "12"
-      },
-      "total": 195,
-      "paymentMethod": "cash",
-      "machineId": 1,
-      "status": "completed"
-    },
-    {
-      "id": 1769746069159,
-      "date": "2026-01-30T04:07:49.159Z",
-      "customer": {
-        "name": "sdsd",
-        "phone": ""
-      },
-      "items": {
-        "softener_dose": 5,
-        "wash_basic": "12"
-      },
-      "total": 270,
-      "paymentMethod": "cash",
-      "machineId": "counter",
-      "status": "completed"
-    },
-    {
-      "id": 1769662624096,
-      "date": "2026-01-29T04:57:04.096Z",
-      "customer": {
-        "name": "ghj",
-        "phone": ""
-      },
-      "items": {
-        "wash_basic": "5.5",
-        "soap_dose": 1,
-        "softener_dose": 1
-      },
-      "total": 127.5,
-      "paymentMethod": "cash",
-      "machineId": 2,
-      "status": "completed"
-    }
-  ],
-  "shifts": [
-    {
-      "totalSales": null,
-      "cashSales": 0,
-      "cardSales": 0,
-      "transferSales": null,
-      "saleCount": 4,
-      "initialCash": 1500,
-      "totalExpenses": 0,
-      "expectedDrawer": 1500,
-      "finalCash": 1300,
-      "difference": -200,
-      "endedAt": "2026-02-02T19:33:39.366Z",
-      "closedBy": "Dan",
-      "id": 1770050396131,
-      "branchId": "main"
-    },
-    {
-      "totalSales": 180,
-      "cashSales": 0,
-      "cardSales": 180,
-      "transferSales": 0,
-      "saleCount": 1,
-      "initialCash": 1122,
-      "expectedDrawer": 1122,
-      "finalCash": 1122,
-      "difference": 0,
-      "endedAt": "2026-02-02T16:39:48.362Z",
-      "closedBy": "scs",
-      "id": 1770003729046,
-      "branchId": "main"
-    },
-    {
-      "totalSales": 220.5,
-      "cashSales": 220.5,
-      "cardSales": 0,
-      "transferSales": 0,
-      "saleCount": 1,
-      "initialCash": 1234,
-      "expectedDrawer": 1454.5,
-      "endedAt": "2026-02-02T03:41:59.844Z",
-      "closedBy": "DDa",
-      "id": 1770002004496,
-      "branchId": "main"
-    },
-    {
-      "totalSales": 195,
-      "cashSales": 195,
-      "cardSales": 0,
-      "transferSales": 0,
-      "saleCount": 1,
-      "initialCash": 1222,
-      "expectedDrawer": 1417,
-      "endedAt": "2026-02-02T03:13:11.251Z",
-      "closedBy": "scsc",
-      "id": 1770001591502
-    },
-    {
-      "totalSales": 350,
-      "cashSales": 0,
-      "cardSales": 350,
-      "transferSales": 0,
-      "saleCount": 1,
-      "initialCash": 1002,
-      "expectedDrawer": 1002,
-      "endedAt": "2026-02-02T03:06:24.032Z",
-      "closedBy": "Chavita",
-      "id": 1769778236079
-    }
-  ],
-  "orders": [
-    {
-      "customerName": "Juan Perez",
-      "customerPhone": "8186811851",
-      "items": [
-        {
-          "serviceId": "wash_basic",
-          "quantity": 5,
-          "basePrice": 90,
-          "name": "Carga Lavado (5kg)",
-          "type": "weight",
-          "baseKg": 5,
-          "extraPrice": 15
-        }
-      ],
-      "serviceLevel": "standard",
-      "totalAmount": 90,
-      "advancePayment": 90,
-      "balanceDue": 0,
-      "paymentMethod": "cash",
-      "branchId": "sucursal_monterrey",
-      "id": "ORD-112393-56",
-      "status": "DELIVERED",
-      "createdAt": "2026-02-02T23:15:12.393Z",
-      "statusHistory": [
-        {
-          "status": "RECEIVED",
-          "timestamp": "2026-02-02T23:15:12.394Z",
-          "user": "Daa"
-        },
-        {
-          "status": "WASHING",
-          "timestamp": "2026-02-02T23:15:23.397Z",
-          "user": "Daa"
-        },
-        {
-          "status": "DRYING",
-          "timestamp": "2026-02-02T23:15:36.423Z",
-          "user": "Daa"
-        },
-        {
-          "status": "IRONING",
-          "timestamp": "2026-02-02T23:15:38.116Z",
-          "user": "Daa"
-        },
-        {
-          "status": "COMPLETED",
-          "timestamp": "2026-02-02T23:15:39.420Z",
-          "user": "Daa"
-        },
-        {
-          "status": "DELIVERED",
-          "timestamp": "2026-02-02T23:15:47.079Z",
-          "user": "Daa"
-        }
-      ]
-    },
-    {
-      "customerName": "Test Client",
-      "customerPhone": "8186811851",
-      "items": [
-        {
-          "serviceId": "wash_basic",
-          "quantity": 4,
-          "basePrice": 90,
-          "name": "Carga Lavado (5kg)",
-          "type": "weight",
-          "baseKg": 5,
-          "extraPrice": 15
-        }
-      ],
-      "serviceLevel": "standard",
-      "totalAmount": 90,
-      "advancePayment": 90,
-      "balanceDue": 0,
-      "paymentMethod": "cash",
-      "branchId": "sucursal_monterrey",
-      "id": "ORD-969062-30",
-      "status": "DELIVERED",
-      "createdAt": "2026-02-02T20:09:29.062Z",
-      "statusHistory": [
-        {
-          "status": "RECEIVED",
-          "timestamp": "2026-02-02T20:09:29.062Z",
-          "user": "Host"
-        },
-        {
-          "status": "WASHING",
-          "timestamp": "2026-02-02T20:10:07.120Z",
-          "user": "Host"
-        },
-        {
-          "status": "DRYING",
-          "timestamp": "2026-02-02T20:10:09.615Z",
-          "user": "Host"
-        },
-        {
-          "status": "IRONING",
-          "timestamp": "2026-02-02T20:10:11.302Z",
-          "user": "Host"
-        },
-        {
-          "status": "COMPLETED",
-          "timestamp": "2026-02-02T20:10:12.810Z",
-          "user": "Host"
-        },
-        {
-          "status": "DELIVERED",
-          "timestamp": "2026-02-02T20:11:22.371Z",
-          "user": "Host"
-        }
-      ]
-    },
-    {
-      "customerName": "JJS",
-      "customerPhone": "81150121215",
-      "items": [
-        {
-          "serviceId": "wash_basic",
-          "quantity": 5,
-          "basePrice": 90,
-          "name": "Carga Lavado (5kg)",
-          "type": "weight",
-          "baseKg": 5,
-          "extraPrice": 15
-        },
-        {
-          "serviceId": "wash_dry",
-          "quantity": 5,
-          "basePrice": 150,
-          "name": "Lavado + Secado (5kg)",
-          "type": "weight",
-          "baseKg": 5,
-          "extraPrice": 20
-        }
-      ],
-      "serviceLevel": "standard",
-      "totalAmount": 240,
-      "advancePayment": 240,
-      "balanceDue": 0,
-      "paymentMethod": "cash",
-      "branchId": "sucursal_monterrey",
-      "id": "ORD-650107-34",
-      "status": "DELIVERED",
-      "createdAt": "2026-02-02T18:24:10.107Z",
-      "statusHistory": [
-        {
-          "status": "RECEIVED",
-          "timestamp": "2026-02-02T18:24:10.107Z",
-          "user": "Host"
-        },
-        {
-          "status": "WASHING",
-          "timestamp": "2026-02-02T18:26:24.774Z",
-          "user": "Host"
-        },
-        {
-          "status": "DRYING",
-          "timestamp": "2026-02-02T18:26:32.521Z",
-          "user": "Host"
-        },
-        {
-          "status": "IRONING",
-          "timestamp": "2026-02-02T18:26:46.059Z",
-          "user": "Host"
-        },
-        {
-          "status": "COMPLETED",
-          "timestamp": "2026-02-02T18:26:48.261Z",
-          "user": "Host"
-        },
-        {
-          "status": "DELIVERED",
-          "timestamp": "2026-02-02T18:27:19.324Z",
-          "user": "Host"
-        }
-      ]
-    },
-    {
-      "customerName": "DA",
-      "customerPhone": "8112255511",
-      "items": [
-        {
-          "serviceId": "wash_basic",
-          "quantity": 2,
-          "basePrice": 90,
-          "name": "Carga Lavado (5kg)",
-          "type": "weight",
-          "baseKg": 5,
-          "extraPrice": 15
-        },
-        {
-          "serviceId": "wash_dry",
-          "quantity": 5,
-          "basePrice": 150,
-          "name": "Lavado + Secado (5kg)",
-          "type": "weight",
-          "baseKg": 5,
-          "extraPrice": 20
-        },
-        {
-          "serviceId": "wash_dry_iron",
-          "quantity": 5,
-          "basePrice": 220,
-          "name": "Lavado + Secado + Planchado",
-          "type": "weight",
-          "baseKg": 5,
-          "extraPrice": 25
-        },
-        {
-          "serviceId": "duvet_s",
-          "quantity": 1,
-          "basePrice": 150,
-          "name": "Edredón Ind/Mat",
-          "type": "unit"
-        },
-        {
-          "serviceId": "iron_dozen",
-          "quantity": 1,
-          "basePrice": 120,
-          "name": "Docena Planchado",
-          "type": "unit"
-        }
-      ],
-      "serviceLevel": "standard",
-      "totalAmount": 730,
-      "advancePayment": 365,
-      "balanceDue": 365,
-      "paymentMethod": "card",
-      "branchId": "sucursal_monterrey",
-      "id": "ORD-942264-13",
-      "status": "DELIVERED",
-      "createdAt": "2026-02-02T18:12:22.264Z",
-      "statusHistory": [
-        {
-          "status": "RECEIVED",
-          "timestamp": "2026-02-02T18:12:22.264Z",
-          "user": "Host"
-        },
-        {
-          "status": "WASHING",
-          "timestamp": "2026-02-02T18:13:30.401Z",
-          "user": "Host"
-        },
-        {
-          "status": "DRYING",
-          "timestamp": "2026-02-02T18:13:32.435Z",
-          "user": "Host"
-        },
-        {
-          "status": "IRONING",
-          "timestamp": "2026-02-02T18:13:34.487Z",
-          "user": "Host"
-        },
-        {
-          "status": "COMPLETED",
-          "timestamp": "2026-02-02T18:13:38.095Z",
-          "user": "Host"
-        },
-        {
-          "status": "DELIVERED",
-          "timestamp": "2026-02-02T18:13:50.254Z",
-          "user": "Host"
-        }
-      ]
-    },
-    {
-      "customerName": "Prueba 1",
-      "customerPhone": "8181881511",
-      "items": [
-        {
-          "serviceId": "wash_basic",
-          "quantity": 2,
-          "price": 90,
-          "name": "Carga Lavado (5kg)"
-        },
-        {
-          "serviceId": "wash_dry",
-          "quantity": 2,
-          "price": 150,
-          "name": "Lavado + Secado (5kg)"
-        },
-        {
-          "serviceId": "iron_piece",
-          "quantity": 1,
-          "price": 15,
-          "name": "Pieza Planchado"
-        }
-      ],
-      "serviceLevel": "standard",
-      "totalAmount": 495,
-      "advancePayment": 247.5,
-      "balanceDue": 247.5,
-      "paymentMethod": "cash",
-      "branchId": "sucursal_monterrey",
-      "id": "ORD-086610-44",
-      "status": "DELIVERED",
-      "createdAt": "2026-02-02T17:58:06.610Z",
-      "statusHistory": [
-        {
-          "status": "RECEIVED",
-          "timestamp": "2026-02-02T17:58:06.610Z",
-          "user": "Host"
-        },
-        {
-          "status": "WASHING",
-          "timestamp": "2026-02-02T18:12:28.503Z",
-          "user": "Host"
-        },
-        {
-          "status": "DRYING",
-          "timestamp": "2026-02-02T18:12:39.245Z",
-          "user": "Host"
-        },
-        {
-          "status": "IRONING",
-          "timestamp": "2026-02-02T18:12:42.533Z",
-          "user": "Host"
-        },
-        {
-          "status": "COMPLETED",
-          "timestamp": "2026-02-02T18:12:47.278Z",
-          "user": "Host"
-        },
-        {
-          "status": "DELIVERED",
-          "timestamp": "2026-02-02T18:12:50.339Z",
-          "user": "Host"
-        }
-      ]
-    }
-  ],
-  "activityLogs": [
-    {
-      "id": 1770074147079,
-      "timestamp": "2026-02-02T23:15:47.079Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-112393-56 a DELIVERED",
-      "user": "Daa",
-      "branchId": "main"
-    },
-    {
-      "id": 1770074139420,
-      "timestamp": "2026-02-02T23:15:39.420Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-112393-56 a COMPLETED",
-      "user": "Daa",
-      "branchId": "main"
-    },
-    {
-      "id": 1770074138116,
-      "timestamp": "2026-02-02T23:15:38.116Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-112393-56 a IRONING",
-      "user": "Daa",
-      "branchId": "main"
-    },
-    {
-      "id": 1770074136423,
-      "timestamp": "2026-02-02T23:15:36.423Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-112393-56 a DRYING",
-      "user": "Daa",
-      "branchId": "main"
-    },
-    {
-      "id": 1770074123397,
-      "timestamp": "2026-02-02T23:15:23.397Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-112393-56 a WASHING",
-      "user": "Daa",
-      "branchId": "main"
-    },
-    {
-      "id": 1770074112394,
-      "timestamp": "2026-02-02T23:15:12.394Z",
-      "action": "ORDEN_CREADA",
-      "details": "Orden ORD-112393-56 recibida",
-      "user": "Daa",
-      "branchId": "sucursal_monterrey"
-    },
-    {
-      "id": 1770063082371,
-      "timestamp": "2026-02-02T20:11:22.371Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-969062-30 a DELIVERED",
-      "user": "Host",
-      "branchId": "main"
-    },
-    {
-      "id": 1770063082371,
-      "timestamp": "2026-02-02T20:11:22.371Z",
-      "action": "PAGO_ORDEN",
-      "details": "Pago de 45 para Orden ORD-969062-30 (cash)",
-      "user": "Host",
-      "branchId": "sucursal_monterrey"
-    },
-    {
-      "id": 1770063012810,
-      "timestamp": "2026-02-02T20:10:12.810Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-969062-30 a COMPLETED",
-      "user": "Host",
-      "branchId": "main"
-    },
-    {
-      "id": 1770063011301,
-      "timestamp": "2026-02-02T20:10:11.301Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-969062-30 a IRONING",
-      "user": "Host",
-      "branchId": "main"
-    },
-    {
-      "id": 1770063009615,
-      "timestamp": "2026-02-02T20:10:09.615Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-969062-30 a DRYING",
-      "user": "Host",
-      "branchId": "main"
-    },
-    {
-      "id": 1770063007120,
-      "timestamp": "2026-02-02T20:10:07.120Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-969062-30 a WASHING",
-      "user": "Host",
-      "branchId": "main"
-    },
-    {
-      "id": 1770062969063,
-      "timestamp": "2026-02-02T20:09:29.063Z",
-      "action": "ORDEN_CREADA",
-      "details": "Orden ORD-969062-30 recibida",
-      "user": "Host",
-      "branchId": "sucursal_monterrey"
-    },
-    {
-      "id": 1770060827459,
-      "timestamp": "2026-02-02T19:33:47.459Z",
-      "action": "TURNO_INICIADO",
-      "details": "Fondo: $1,522.00 (sucursal_monterrey)",
-      "user": "Daa",
-      "branchId": "sucursal_monterrey"
-    },
-    {
-      "id": 1770060819366,
-      "timestamp": "2026-02-02T19:33:39.366Z",
-      "action": "TURNO_CERRADO",
-      "details": "Ventas: $0.00",
-      "user": "Dan",
-      "branchId": "main"
-    },
-    {
-      "id": 1770056839323,
-      "timestamp": "2026-02-02T18:27:19.323Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-650107-34 a DELIVERED",
-      "user": "Host",
-      "branchId": "main"
-    },
-    {
-      "id": 1770056839323,
-      "timestamp": "2026-02-02T18:27:19.323Z",
-      "action": "PAGO_ORDEN",
-      "details": "Pago de 120 para Orden ORD-650107-34 (card)",
-      "user": "Host",
-      "branchId": "sucursal_monterrey"
-    },
-    {
-      "id": 1770056808260,
-      "timestamp": "2026-02-02T18:26:48.260Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-650107-34 a COMPLETED",
-      "user": "Host",
-      "branchId": "main"
-    },
-    {
-      "id": 1770056806059,
-      "timestamp": "2026-02-02T18:26:46.059Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-650107-34 a IRONING",
-      "user": "Host",
-      "branchId": "main"
-    },
-    {
-      "id": 1770056792521,
-      "timestamp": "2026-02-02T18:26:32.521Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-650107-34 a DRYING",
-      "user": "Host",
-      "branchId": "main"
-    },
-    {
-      "id": 1770056784774,
-      "timestamp": "2026-02-02T18:26:24.774Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-650107-34 a WASHING",
-      "user": "Host",
-      "branchId": "main"
-    },
-    {
-      "id": 1770056650107,
-      "timestamp": "2026-02-02T18:24:10.107Z",
-      "action": "ORDEN_CREADA",
-      "details": "Orden ORD-650107-34 recibida",
-      "user": "Host",
-      "branchId": "sucursal_monterrey"
-    },
-    {
-      "id": 1770056030254,
-      "timestamp": "2026-02-02T18:13:50.254Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-942264-13 a DELIVERED",
-      "user": "Host",
-      "branchId": "main"
-    },
-    {
-      "id": 1770056018094,
-      "timestamp": "2026-02-02T18:13:38.094Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-942264-13 a COMPLETED",
-      "user": "Host",
-      "branchId": "main"
-    },
-    {
-      "id": 1770056014487,
-      "timestamp": "2026-02-02T18:13:34.487Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-942264-13 a IRONING",
-      "user": "Host",
-      "branchId": "main"
-    },
-    {
-      "id": 1770056012435,
-      "timestamp": "2026-02-02T18:13:32.435Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-942264-13 a DRYING",
-      "user": "Host",
-      "branchId": "main"
-    },
-    {
-      "id": 1770056010401,
-      "timestamp": "2026-02-02T18:13:30.401Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-942264-13 a WASHING",
-      "user": "Host",
-      "branchId": "main"
-    },
-    {
-      "id": 1770055970339,
-      "timestamp": "2026-02-02T18:12:50.339Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-086610-44 a DELIVERED",
-      "user": "Host",
-      "branchId": "main"
-    },
-    {
-      "id": 1770055967278,
-      "timestamp": "2026-02-02T18:12:47.278Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-086610-44 a COMPLETED",
-      "user": "Host",
-      "branchId": "main"
-    },
-    {
-      "id": 1770055962533,
-      "timestamp": "2026-02-02T18:12:42.533Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-086610-44 a IRONING",
-      "user": "Host",
-      "branchId": "main"
-    },
-    {
-      "id": 1770055959245,
-      "timestamp": "2026-02-02T18:12:39.245Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-086610-44 a DRYING",
-      "user": "Host",
-      "branchId": "main"
-    },
-    {
-      "id": 1770055948503,
-      "timestamp": "2026-02-02T18:12:28.503Z",
-      "action": "ORDEN_ACTUALIZADA",
-      "details": "Orden ORD-086610-44 a WASHING",
-      "user": "Host",
-      "branchId": "main"
-    },
-    {
-      "id": 1770055942265,
-      "timestamp": "2026-02-02T18:12:22.265Z",
-      "action": "ORDEN_CREADA",
-      "details": "Orden ORD-942264-13 recibida",
-      "user": "Host",
-      "branchId": "sucursal_monterrey"
-    },
-    {
-      "id": 1770055086610,
-      "timestamp": "2026-02-02T17:58:06.610Z",
-      "action": "ORDEN_CREADA",
-      "details": "Orden ORD-086610-44 recibida",
-      "user": "Host",
-      "branchId": "sucursal_monterrey"
-    },
-    {
-      "id": 1770051961294,
-      "timestamp": "2026-02-02T17:06:01.294Z",
-      "action": "INVENTARIO_ESTANDAR",
-      "details": "Se cargaron 5 productos estándar.",
-      "user": "Admin",
-      "branchId": "main"
-    },
-    {
-      "id": 1770050396132,
-      "timestamp": "2026-02-02T16:39:56.132Z",
-      "action": "TURNO_INICIADO",
-      "details": "Fondo: $1500 (main)",
-      "user": "Dan",
-      "branchId": "main"
-    },
-    {
-      "id": 1770050388362,
-      "timestamp": "2026-02-02T16:39:48.362Z",
-      "action": "TURNO_CERRADO",
-      "details": "Ventas: $180.00",
-      "user": "scs",
-      "branchId": "main"
-    },
-    {
-      "id": 1770050293450,
-      "timestamp": "2026-02-02T16:38:13.450Z",
-      "action": "IMPORTACION_MASIVA",
-      "details": "Agregados: 0, Actualizados: 0",
-      "user": "Admin",
-      "branchId": "main"
-    },
-    {
-      "id": 1770050284294,
-      "timestamp": "2026-02-02T16:38:04.294Z",
-      "action": "IMPORTACION_MASIVA",
-      "details": "Agregados: 0, Actualizados: 0",
-      "user": "Admin",
-      "branchId": "main"
-    },
-    {
-      "id": 1770050172880,
-      "timestamp": "2026-02-02T16:36:12.880Z",
-      "action": "IMPORTACION_MASIVA",
-      "details": "Agregados: 0, Actualizados: 0",
-      "user": "Admin",
-      "branchId": "main"
-    },
-    {
-      "id": 1770050142616,
-      "timestamp": "2026-02-02T16:35:42.616Z",
-      "action": "IMPORTACION_MASIVA",
-      "details": "Agregados: 0, Actualizados: 10",
-      "user": "Admin",
-      "branchId": "main"
-    },
-    {
-      "id": 1770050024271,
-      "timestamp": "2026-02-02T16:33:44.271Z",
-      "action": "IMPORTACION_MASIVA",
-      "details": "Agregados: 0, Actualizados: 10",
-      "user": "Admin",
-      "branchId": "main"
-    },
-    {
-      "id": 1770003729047,
-      "timestamp": "2026-02-02T03:42:09.047Z",
-      "action": "TURNO_INICIADO",
-      "details": "Fondo inicial: $1122",
-      "user": "scs",
-      "branchId": "main"
-    },
-    {
-      "id": 1770003719844,
-      "timestamp": "2026-02-02T03:41:59.844Z",
-      "action": "TURNO_CERRADO",
-      "details": "Ventas: $220.50",
-      "user": "DDa",
-      "branchId": "main"
-    },
-    {
-      "id": 1770002719638,
-      "timestamp": "2026-02-02T03:25:19.638Z",
-      "action": "PRODUCTO_ACTUALIZADO",
-      "details": "Actualizado: Bolsa Jumbo",
-      "user": "Admin"
-    },
-    {
-      "id": 1770002719638,
-      "timestamp": "2026-02-02T03:25:19.638Z",
-      "action": "PRODUCTO_ACTUALIZADO",
-      "details": "Actualizado: Bolsa Jumbo",
-      "user": "Admin"
-    }
-  ],
-  "expenses": [],
-  "timestamp": "2026-02-03T02:20:56.238Z"
+  "inventory": [],
+  "sales": [],
+  "shifts": [],
+  "activityLogs": [],
+  "orders": [],
+  "expenses": []
 }

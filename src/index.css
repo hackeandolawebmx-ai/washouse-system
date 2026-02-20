@@ -15,17 +15,19 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 199 100% 43%;
-    /* Washouse Blue */
+    --primary: 199 100% 42%;
+    /* WashHouse Logo Blue #0090D7 */
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
+    --secondary: 198 80% 60%;
+    /* WashHouse Logo Aqua #49B8E7 */
     --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
+    --accent: 198 80% 60%;
+    /* Using Logo Aqua for accents */
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
@@ -33,15 +35,15 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 199 100% 43%;
-    /* Washouse Blue */
+    --ring: 199 100% 42%;
 
     --radius: 0.75rem;
 
-    /* Legacy Variables */
-    --washhouse-blue: #0099DD;
-    --washhouse-aqua: #40E0D0;
-    --washhouse-navy: #0F172A;
+    /* Legacy & Global Variables */
+    --washhouse-blue: #0090D7;
+    --washhouse-aqua: #49B8E7;
+    --washhouse-navy: #000000;
+    /* Pure black as per logo text */
 
     --radius-sm: 12px;
     --radius-md: 16px;
@@ -163,7 +165,24 @@
   }
 
   .card {
-    @apply bg-white rounded-xl shadow-sm border border-gray-100 p-4;
+    @apply bg-white rounded-xl shadow-sm border border-gray-100 p-4 transition-all duration-300;
+  }
+
+  .glass-card {
+    @apply bg-white rounded-2xl border border-gray-100 shadow-xl transition-all duration-500;
+  }
+
+  .glass-surface {
+    @apply bg-white border border-gray-100 shadow-sm;
+  }
+
+  .signature-glow {
+    box-shadow: 0 0 20px rgba(0, 144, 215, 0.15);
+    transition: box-shadow 500ms;
+  }
+
+  .signature-glow:hover {
+    box-shadow: 0 0 30px rgba(0, 144, 215, 0.25);
   }
 
   /* Custom Scrollbar Styling (Visible) */
