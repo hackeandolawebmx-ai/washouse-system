@@ -1,13 +1,13 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useStorage } from '../../context/StorageContext';
 import { useAuth } from '../../context/AuthContext';
-import { SERVICES_CATALOG } from '../../data/catalog';
+import { SERVICES_CATALOG, PRODUCTS_CATALOG } from '../../data/catalog';
 import { X, Search, ShoppingBag, Truck, DollarSign, User, Phone, Check, Weight, Usb } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { useScale } from '../../hooks/useScale';
 
 export default function NewOrderWizard({ isOpen, onClose, machineId }) {
-    const { executeOrder, deviceBranchId, branches, machines, inventory } = useStorage();
+    const { executeOrder, deviceBranchId, branches, machines, inventory, services } = useStorage();
     const { user } = useAuth();
     const [step, setStep] = useState(1);
     const [selectedMachineId, setSelectedMachineId] = useState(machineId);
@@ -48,7 +48,6 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
     // Filter State
     const [selectedCategory, setSelectedCategory] = useState('all');
 
-    const services = useMemo(() => SERVICES_CATALOG, []);
     const supplies = useMemo(() => {
         const branchIds = [deviceBranchId, 'main', ''].filter(Boolean);
         return (inventory || [])

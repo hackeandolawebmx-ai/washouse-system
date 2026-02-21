@@ -86,39 +86,40 @@ export function InventoryProvider({ children }) {
         return { added: addedCount, updated: updatedCount };
     }, [logActivity]);
 
-    const loadStandardInventory = useCallback((branchId, user = 'Admin') => {
-        if (!branchId || branchId === 'all') {
-            alert('Selecciona una sucursal específica para cargar el inventario estándar.');
-            return;
-        }
+    const loadStandardInventoryInAllBranches = useCallback((user = 'Admin') => {
+        const branches = JSON.parse(localStorage.getItem('washouse_branches') || '[]');
+        if (branches.length === 0) return;
 
-        let addedCount = 0;
+        let totalAdded = 0;
         setInventory(prev => {
-            const currentBranchProducts = new Set(
-                prev.filter(p => p.branchId === branchId)
-                    .map(p => p.name.toLowerCase().trim())
-            );
+            let currentInventory = [...prev];
 
-            const newProducts = [];
-            PRODUCTS_CATALOG.forEach(catalogItem => {
-                if (!currentBranchProducts.has(catalogItem.name.toLowerCase().trim())) {
-                    newProducts.push({
-                        ...catalogItem,
-                        id: `${catalogItem.id}_${branchId}_${Date.now()}`,
-                        branchId: branchId
-                    });
-                    addedCount++;
-                }
+            branches.forEach(branch => {
+                const currentBranchProducts = new Set(
+                    currentInventory.filter(p => p.branchId === branch.id)
+                        .map(p => p.name.toLowerCase().trim())
+                );
+
+                PRODUCTS_CATALOG.forEach(catalogItem => {
+                    if (!currentBranchProducts.has(catalogItem.name.toLowerCase().trim())) {
+                        currentInventory.push({
+                            ...catalogItem,
+                            id: `${catalogItem.id}_${branch.id}_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+                            branchId: branch.id
+                        });
+                        totalAdded++;
+                    }
+                });
             });
 
-            return [...prev, ...newProducts];
+            return currentInventory;
         });
 
-        if (addedCount > 0) {
-            logActivity('INVENTARIO_ESTANDAR', `Se cargaron ${addedCount} productos estándar.`, user, branchId);
-            alert(`Se agregaron ${addedCount} productos del catálogo estándar.`);
+        if (totalAdded > 0) {
+            logActivity('INVENTARIO_MASIVO', `Se inicializaron ${totalAdded} productos en todas las sucursales.`, user);
+            alert(`Se agregaron ${totalAdded} productos en total a todas las sucursales.`);
         } else {
-            alert('El inventario ya cuenta con todos los productos estándar.');
+            alert('Todas las sucursales ya tienen el catálogo completo.');
         }
     }, [logActivity]);
 
@@ -130,7 +131,7 @@ export function InventoryProvider({ children }) {
         updateProduct,
         deleteProduct,
         importInventory,
-        loadStandardInventory
+        loadStandardInventoryInAllBranches
     };
 
     return (

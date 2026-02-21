@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useApp } from './AppContext';
+import { SERVICES_CATALOG } from '../data/catalog';
 import initialDB from '../data/initialState.json';
 
 const SalesContext = createContext();
@@ -22,6 +23,12 @@ export function SalesProvider({ children }) {
         return getFromStorage('washouse_shifts', initialDB.shifts || []);
     });
 
+    const [services, setServices] = useState(() => {
+        const saved = getFromStorage('washouse_services', null);
+        if (saved && saved.length > 0) return saved;
+        return SERVICES_CATALOG;
+    });
+
     useEffect(() => {
         localStorage.setItem('washouse_sales', JSON.stringify(sales));
     }, [sales]);
@@ -29,6 +36,10 @@ export function SalesProvider({ children }) {
     useEffect(() => {
         localStorage.setItem('washouse_shifts', JSON.stringify(shifts));
     }, [shifts]);
+
+    useEffect(() => {
+        localStorage.setItem('washouse_services', JSON.stringify(services));
+    }, [services]);
 
     const addSale = useCallback((saleData, branchId = 'main') => {
         const newSale = {
@@ -45,13 +56,32 @@ export function SalesProvider({ children }) {
         setShifts(prev => [{ ...shiftData, branchId: branchId || 'main' }, ...prev]);
     }, []);
 
+    const addService = useCallback((service) => {
+        const newService = { ...service, id: `svc_${Date.now()}` };
+        setServices(prev => [...prev, newService]);
+        return newService;
+    }, []);
+
+    const updateService = useCallback((id, updates) => {
+        setServices(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
+    }, []);
+
+    const deleteService = useCallback((id) => {
+        setServices(prev => prev.filter(s => s.id !== id));
+    }, []);
+
     const value = {
         sales,
         setSales,
         shifts,
         setShifts,
+        services,
+        setServices,
         addSale,
-        addShift
+        addShift,
+        addService,
+        updateService,
+        deleteService
     };
 
     return (

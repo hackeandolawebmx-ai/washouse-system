@@ -1,4 +1,3 @@
-import { SERVICES_CATALOG } from '../data/catalog';
 import Logo from '../assets/logo.png';
 
 export const printServiceTicket = (order) => {
@@ -24,25 +23,17 @@ export const printServiceTicket = (order) => {
 
     // Build items rows
     const itemsHtml = items.map(item => {
-        const catalogItem = SERVICES_CATALOG.find(i => i.id === item.serviceId);
-        const isWeight = catalogItem?.type === 'weight' || item.type === 'weight';
+        const isWeight = item.type === 'weight';
 
-        let priceDisplay = '0.00';
         let totalDisplay = '0.00';
 
         // Calculate item total based on stored price or fallback
         if (item.price) { // Legacy or direct price
             totalDisplay = (item.price * item.quantity).toFixed(2);
-            priceDisplay = item.price.toFixed(2);
         }
 
         // Specialized display for weight vs units
-        // If we have detailed breakdown (base + extra) it would be nice, but simple line item is often enough
-        // We will calculate total per item row
         if (isWeight) {
-            // Re-calculate if needed or rely on stored? 
-            // Ideally we passed "total" in item, but we likely calculated it on the fly in UI.
-            // We can re-calculate here to be safe and consistent with UI logic:
             let itemTotal = 0;
             if (item.basePrice) {
                 if (item.quantity <= item.baseKg) {
@@ -65,17 +56,6 @@ export const printServiceTicket = (order) => {
             </div>
         `;
     }).join('');
-
-    // Express Surcharge Calculation (if applied globally or per item? UI applied it to total)
-    // In Wizard, we calculated Total = Subtotal * Multiplier.
-    // We should show Subtotal and then Surcharge if applicable.
-    // For simplicity, we just show Line Items and then Total. 
-    // BUT wait, in Wizard, line items are Base Price. The Surcharge is applied at the END.
-    // So the line items sum up to "Subtotal" (Standard Prices).
-    // And "Total" includes the surcharge.
-
-    // Let's Recalculate Subtotal from items to show the difference
-    // Actually, order.totalAmount is the final one.
 
     const ticketHtml = `
     <html>
@@ -161,7 +141,7 @@ export const printServiceTicket = (order) => {
         <div class="items">
             ${itemsHtml}
         </div>
-
+ 
         <div class="totals">
             <div class="total-row final-total">
                 <span>TOTAL</span>
@@ -176,7 +156,7 @@ export const printServiceTicket = (order) => {
                 <span>$${balanceDue.toFixed(2)}</span>
             </div>
         </div>
-
+ 
         <div class="footer">
             <p>¡Gracias por su preferencia!</p>
             <p style="text-align:left; margin-top:10px;">
@@ -186,7 +166,7 @@ export const printServiceTicket = (order) => {
                 3. Ropa abandonada 30 días se dona.
             </p>
         </div>
-
+ 
         <script>
             window.onload = function() {
                 window.print();

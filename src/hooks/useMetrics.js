@@ -54,10 +54,14 @@ export function useMetrics() {
         );
 
         const turnaroundTimes = completedOrders.map(o => {
-            const received = o.statusHistory.find(h => h.status === 'RECEIVED')?.timestamp;
-            const completed = o.statusHistory.find(h => h.status === 'COMPLETED' || h.status === 'DELIVERED')?.timestamp;
+            const received = o.statusHistory?.find(h => h.status === 'RECEIVED')?.timestamp;
+            const completed = o.statusHistory?.find(h => h.status === 'COMPLETED' || h.status === 'DELIVERED')?.timestamp;
             if (received && completed) {
-                return (new Date(completed) - new Date(received)) / (1000 * 60 * 60); // In hours
+                const start = new Date(received);
+                const end = new Date(completed);
+                if (!isNaN(start) && !isNaN(end)) {
+                    return (end - start) / (1000 * 60 * 60); // In hours
+                }
             }
             return null;
         }).filter(t => t !== null);
@@ -88,10 +92,16 @@ export function useMetrics() {
         // Calculate days in period based on sales data if available, fallback to 30
         let days = 30;
         if (filteredSales.length > 1) {
-            const dates = filteredSales.map(s => new Date(s.date)).sort((a, b) => a - b);
-            const diffTime = Math.abs(dates[dates.length - 1] - dates[0]);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            days = diffDays > 0 ? diffDays : 1;
+            const dates = filteredSales
+                .map(s => new Date(s.date))
+                .filter(d => !isNaN(d))
+                .sort((a, b) => a - b);
+
+            if (dates.length > 1) {
+                const diffTime = Math.abs(dates[dates.length - 1] - dates[0]);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                days = diffDays > 0 ? diffDays : 1;
+            }
         }
 
         // RPMD: Revenue Per Machine Day

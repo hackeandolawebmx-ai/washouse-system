@@ -1,5 +1,3 @@
-
-import { SERVICES_CATALOG, PRODUCTS_CATALOG } from '../data/catalog';
 import Logo from '../assets/logo.png';
 
 export const printTicket = (order) => {
@@ -23,23 +21,18 @@ export const printTicket = (order) => {
     const finalDate = date || startDate || new Date().toISOString();
     const orderId = id ? id.toString().slice(-4) : 'XXXX';
 
-    // Merge catalogs to find item details
-    const allItems = [...SERVICES_CATALOG, ...PRODUCTS_CATALOG];
-
     // Build items rows
-    const itemsHtml = Object.entries(items).map(([itemId, qty]) => {
-        const item = allItems.find(i => i.id === itemId);
-        // If item not found in catalog, try to construct a dummy one if possible, or skip
-        const name = item ? item.name : itemId;
-        const type = item ? item.type : 'unit';
+    const itemsHtml = (Array.isArray(items) ? items : Object.entries(items).map(([id, qty]) => ({ id, quantity: qty }))).map(item => {
+        const name = item.name || item.id || 'Servicio';
+        const type = item.type || 'unit';
+        const qty = item.quantity || 1;
 
-        // Calculate price - if item is missing, we might not have price unit. 
-        // Ideally order should allow storing snapshot of prices. For now we look up.
         let priceDisplay = '0.00';
-        if (item) {
-            const price = item.type === 'weight' && item.baseKg && qty > item.baseKg
-                ? item.price + ((qty - item.baseKg) * item.extraPrice)
-                : item.price * qty;
+        if (item.basePrice || item.price) {
+            const basePrice = item.basePrice || item.price;
+            const price = type === 'weight' && item.baseKg && qty > item.baseKg
+                ? basePrice + ((qty - item.baseKg) * (item.extraPrice || 0))
+                : basePrice * qty;
             priceDisplay = price.toFixed(2);
         }
 

@@ -52,6 +52,10 @@ export function AppProvider({ children }) {
 
     // Sync state to LocalStorage
     useEffect(() => {
+        localStorage.setItem('washouse_system_version', CURRENT_SYSTEM_VERSION);
+    }, []);
+
+    useEffect(() => {
         localStorage.setItem('washouse_admin_branch_filter', selectedBranch);
     }, [selectedBranch]);
 

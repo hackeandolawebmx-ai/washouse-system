@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Button from '../ui/Button';
-import { X } from 'lucide-react';
+import { X, Building } from 'lucide-react';
+import { useStorage } from '../../context/StorageContext';
 
-export default function ProductModal({ isOpen, onClose, onSave, productToEdit = null }) {
+export default function ProductModal({ isOpen, onClose, onSave, productToEdit = null, branchId = 'main' }) {
+    const { branches } = useStorage();
+    const branchName = branches.find(b => b.id === (productToEdit?.branchId || branchId))?.name || 'Sucursal';
+
     const [formData, setFormData] = useState({
         name: '',
         price: '',
@@ -47,9 +51,14 @@ export default function ProductModal({ isOpen, onClose, onSave, productToEdit = 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden animate-fadeIn">
-                <div className="bg-washouse-navy p-4 flex justify-between items-center text-white">
-                    <h3 className="font-bold text-lg">{productToEdit ? 'Editar Producto' : 'Nuevo Producto'}</h3>
-                    <button onClick={onClose} className="p-1 hover:bg-white/10 rounded">
+                <div className="bg-washouse-navy p-5 flex justify-between items-center text-white">
+                    <div>
+                        <h3 className="font-bold text-lg">{productToEdit ? 'Editar Insumo' : 'Nuevo Insumo'}</h3>
+                        <p className="text-[10px] text-blue-200 uppercase font-black tracking-widest flex items-center gap-1 mt-0.5">
+                            <Building size={10} /> {branchName}
+                        </p>
+                    </div>
+                    <button onClick={onClose} className="p-1 hover:bg-white/10 rounded transition-colors">
                         <X className="w-5 h-5" />
                     </button>
                 </div>

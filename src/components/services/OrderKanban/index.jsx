@@ -129,7 +129,7 @@ export default function OrderKanban({ searchTerm }) {
                             {/* Decorative Background Element */}
                             <div className={`absolute top-0 left-0 right-0 h-2 opacity-80 ${showWhatsAppPrompt ? 'bg-linear-to-r from-emerald-400 to-emerald-500' : 'bg-linear-to-r from-blue-400 to-blue-500'}`} />
 
-                            <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto shadow-inner ${showWhatsAppPrompt ? 'bg-emerald-50 text-emerald-500' : 'bg-blue-50 text-blue-500'}`}>
+                            <div className={`w-24 h-24 rounded-4xl flex items-center justify-center mx-auto shadow-inner ${showWhatsAppPrompt ? 'bg-emerald-50 text-emerald-500' : 'bg-blue-50 text-blue-500'}`}>
                                 {showWhatsAppPrompt ? <CheckCircle size={48} strokeWidth={2.5} /> : <Truck size={48} strokeWidth={2.5} />}
                             </div>
 

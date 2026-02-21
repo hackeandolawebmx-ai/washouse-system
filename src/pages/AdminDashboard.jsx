@@ -121,7 +121,7 @@ export default function AdminDashboard() {
                 </button>
             </div>
 
-            {!isListView && (
+            {!isListView && !isShiftsView && !isLogsView && (
                 <div className="space-y-10">
                     {metrics.alerts.length > 0 && (
                         <div className="flex flex-col gap-3 mb-8">
@@ -149,33 +149,33 @@ export default function AdminDashboard() {
                         className="space-y-8"
                     >
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                            <KpiCard title="Ingresos" value={formatCurrency(metrics.totalIncome)} icon={DollarSign} change="+12.5%" changeType="positive" />
-                            <KpiCard title="Ingreso p/Máquina (RPMD)" value={formatCurrency(metrics.rpmd)} icon={Activity} />
-                            <KpiCard title="Ticket Promedio" value={formatCurrency(metrics.avgTicketsValue)} icon={Percent} />
-                            <KpiCard title="Utilización (%)" value={`${metrics.utilizationRate}%`} icon={RefreshCw} change={`${metrics.avgTurnsPerDay} v/d`} changeType={metrics.utilizationRate > 40 ? 'positive' : 'neutral'} />
+                            <KpiCard title="Ingresos" value={formatCurrency(metrics.totalIncome || 0)} icon={DollarSign} change="+12.5%" changeType="positive" />
+                            <KpiCard title="Ingreso p/Máquina (RPMD)" value={formatCurrency(metrics.rpmd || 0)} icon={Activity} />
+                            <KpiCard title="Ticket Promedio" value={formatCurrency(metrics.avgTicketsValue || 0)} icon={Percent} />
+                            <KpiCard title="Utilización (%)" value={`${metrics.utilizationRate || 0}%`} icon={RefreshCw} change={`${metrics.avgTurnsPerDay || 0} v/d`} changeType={(metrics.utilizationRate || 0) > 40 ? 'positive' : 'neutral'} />
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <KpiCard
                                 title="Tiempo de Respuesta"
-                                value={`${metrics.avgTurnaroundTime}h`}
+                                value={`${metrics.avgTurnaroundTime || 0}h`}
                                 icon={Clock}
                                 change="Meta: 24h"
-                                changeType={metrics.avgTurnaroundTime <= 24 ? 'positive' : 'negative'}
+                                changeType={(metrics.avgTurnaroundTime || 0) <= 24 ? 'positive' : 'negative'}
                             />
                             <KpiCard
                                 title="Tasa de Retención"
-                                value={`${metrics.retentionRate}%`}
+                                value={`${metrics.retentionRate || 0}%`}
                                 icon={RefreshCw}
                                 change="Clientes recurrentes"
                                 changeType="neutral"
                             />
                             <KpiCard
                                 title="Margen Operativo"
-                                value={`${metrics.operatingMargin}%`}
+                                value={`${metrics.operatingMargin || 0}%`}
                                 icon={Percent}
                                 change="Ingresos vs Costos Var."
-                                changeType={metrics.operatingMargin > 50 ? 'positive' : 'neutral'}
+                                changeType={(metrics.operatingMargin || 0) > 50 ? 'positive' : 'neutral'}
                             />
                         </div>
                     </motion.div>
