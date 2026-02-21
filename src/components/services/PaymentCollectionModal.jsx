@@ -27,7 +27,7 @@ export default function PaymentCollectionModal({ order, isOpen, onClose, onPayme
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
             <div className="bg-white/80 backdrop-blur-xl w-full max-w-md rounded-[32px] shadow-2xl animate-in zoom-in-95 duration-500 overflow-hidden border border-white/20">
                 <div className="bg-gray-50/50 px-8 py-6 border-b flex justify-between items-center backdrop-blur-md">
-                    <h3 className="text-xl font-black text-washouse-navy flex items-center gap-3 italic tracking-tighter">
+                    <h3 className="text-xl font-black text-washouse-navy flex items-center gap-3 tracking-tighter">
                         <div className="p-2 bg-green-50 rounded-xl text-green-500 shadow-inner">
                             <DollarSign size={20} />
                         </div>
@@ -49,7 +49,7 @@ export default function PaymentCollectionModal({ order, isOpen, onClose, onPayme
                         <div>
                             <label className="block text-[10px] font-black text-gray-400 mb-3 uppercase tracking-widest px-1">Importe a Recibir</label>
                             <div className="relative group">
-                                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300 text-3xl font-black italic group-focus-within:text-washouse-blue transition-colors">$</span>
+                                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300 text-3xl font-black group-focus-within:text-washouse-blue transition-colors">$</span>
                                 <input
                                     type="number"
                                     value={amount}

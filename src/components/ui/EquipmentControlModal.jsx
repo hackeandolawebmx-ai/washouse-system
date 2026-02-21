@@ -23,7 +23,7 @@ export default function EquipmentControlModal({ isOpen, onClose, onToggleMainten
                                 <Wrench className="w-6 h-6 text-washouse-sky" />
                             </div>
                             <div>
-                                <h2 className="text-2xl font-black italic tracking-tighter">
+                                <h2 className="text-2xl font-black tracking-tighter">
                                     Control de Equipos
                                 </h2>
                                 <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mt-1 opacity-70">Monitoreo y gestión en tiempo real</p>

@@ -20,7 +20,7 @@ export default function InventoryModal({ onClose }) {
                                     {product.icon}
                                 </div>
                                 <div>
-                                    <h4 className="font-black text-washouse-navy italic leading-none">{product.name}</h4>
+                                    <h4 className="font-black text-washouse-navy leading-none">{product.name}</h4>
                                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1.5">PVP: ${product.price}</p>
                                 </div>
                             </div>

@@ -70,6 +70,8 @@ export default {
             },
             fontFamily: {
                 sans: ['Inter', 'system-ui', 'sans-serif'],
+                outfit: ['Outfit', 'sans-serif'],
+                mono: ['JetBrains Mono', 'monospace'],
             },
             borderRadius: {
                 DEFAULT: '12px',

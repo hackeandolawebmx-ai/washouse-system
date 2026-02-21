@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import KpiCard from '../components/ui/KpiCard';
@@ -74,13 +75,13 @@ export default function AdminDashboard() {
                     onClick={() => navigate('/admin/dashboard')}
                     className={`flex items-center gap-3 px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${!isListView ? 'bg-white text-washouse-blue shadow-md border border-blue-100/50' : 'text-gray-400 hover:text-gray-600'}`}
                 >
-                    <Activity size={16} strokeWidth={2.5} /> <span className="italic">Resumen Ejecutivo</span>
+                    <Activity size={16} strokeWidth={2.5} /> <span className="font-outfit font-bold">Resumen Ejecutivo</span>
                 </button>
                 <button
                     onClick={() => navigate('/admin/dashboard/equipment')}
                     className={`flex items-center gap-3 px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${isListView ? 'bg-white text-washouse-blue shadow-md border border-blue-100/50' : 'text-gray-400 hover:text-gray-600'}`}
                 >
-                    <LayoutGrid size={16} strokeWidth={2.5} /> <span className="italic">Control de Equipos</span>
+                    <LayoutGrid size={16} strokeWidth={2.5} /> <span className="font-outfit font-bold">Control de Equipos</span>
                 </button>
             </div>
 
@@ -91,7 +92,9 @@ export default function AdminDashboard() {
                             {metrics.alerts.map((alert, i) => (
                                 <div key={i} className={`flex items-center gap-3 p-4 rounded-2xl border ${alert.type === 'marketing' ? 'bg-amber-50 border-amber-100 text-amber-700' : 'bg-red-50 border-red-100 text-red-700'}`}>
                                     <ArrowUpRight className={alert.type === 'marketing' ? '-rotate-45' : 'rotate-45'} size={18} />
-                                    <span className="text-sm font-black uppercase tracking-widest italic">{alert.message}</span>
+                                    <span className="font-mono text-xs font-black tracking-widest bg-gray-100 px-3 py-1 rounded-lg text-gray-400 group-hover:text-washouse-navy transition-colors">
+                                        {alert.message}
+                                    </span>
                                 </div>
                             ))}
                         </div>
@@ -143,7 +146,7 @@ export default function AdminDashboard() {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div className="glass-card p-8 border-white/60 shadow-md group hover:shadow-xl transition-all duration-500">
-                            <h3 className="text-[10px] font-black text-gray-400 mb-8 uppercase tracking-[0.3em] opacity-60">Flujo de Ingresos (7 días)</h3>
+                            <h3 className="text-[10px] font-mono font-bold text-gray-400 mb-8 uppercase tracking-[0.3em] opacity-60">Flujo de Ingresos (7 días)</h3>
                             <div className="h-72">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <BarChart data={chartData}>
@@ -170,7 +173,7 @@ export default function AdminDashboard() {
                             </div>
                         </div>
                         <div className="glass-card p-8 border-white/60 shadow-md group hover:shadow-xl transition-all duration-500">
-                            <h3 className="text-[10px] font-black text-gray-400 mb-8 uppercase tracking-[0.3em] opacity-60">Volumen de Operaciones</h3>
+                            <h3 className="text-[10px] font-mono font-bold text-gray-400 mb-8 uppercase tracking-[0.3em] opacity-60">Volumen de Operaciones</h3>
                             <div className="h-72">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <LineChart data={chartData}>
@@ -207,7 +210,7 @@ export default function AdminDashboard() {
             ) : (
                 <div className="glass-card border-white/60 shadow-md overflow-hidden min-h-[600px]">
                     <div className="p-8 border-b border-gray-100 bg-gray-50/30">
-                        <h2 className="text-xl font-black text-washouse-navy italic tracking-tight uppercase">Monitor de Equipamiento</h2>
+                        <h2 className="text-xl font-black text-washouse-navy font-outfit tracking-tight uppercase">Monitor de Equipamiento</h2>
                         <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Estado en tiempo real por sucursal</p>
                     </div>
                     <EquipmentControlTable

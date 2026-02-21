@@ -19,7 +19,7 @@ export default function HostLayout() {
                     <div className="flex items-center group cursor-default">
                         <img src={logo} alt="Washouse" className="h-14 w-auto object-contain transition-transform duration-500 group-hover:scale-105" />
                         <div className="ml-5 pl-5 border-l border-gray-100 hidden md:block">
-                            <h2 className="text-[11px] font-black text-black tracking-[0.4em] leading-none uppercase italic">Sistema</h2>
+                            <h2 className="text-[11px] font-black text-black tracking-[0.4em] leading-none uppercase">Sistema</h2>
                             <p className="text-[9px] text-gray-400 font-bold tracking-[0.2em] uppercase mt-1.5 opacity-70">Gestión de Lavandería</p>
                         </div>
                     </div>

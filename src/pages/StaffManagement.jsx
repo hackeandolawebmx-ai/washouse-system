@@ -259,7 +259,7 @@ export default function StaffManagement() {
                                             </span>
                                         </td>
                                         <td className="px-8 py-6">
-                                            <span className="font-mono text-xs font-black tracking-widest bg-gray-100 px-3 py-1 rounded-lg text-gray-400 group-hover:text-washouse-navy transition-colors italic">
+                                            <span className="font-mono text-xs font-black tracking-widest bg-gray-100 px-3 py-1 rounded-lg text-gray-400 group-hover:text-washouse-navy transition-colors">
                                                 ****
                                             </span>
                                         </td>

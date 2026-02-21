@@ -329,7 +329,7 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
                             <span className="font-bold">{formatCurrency(totals.subtotal)}</span>
                         </div>
                         <div className="flex justify-between font-black text-3xl pt-4 border-t-2 border-white">
-                            <span className="text-washouse-navy italic">TOTAL</span>
+                            <span className="text-washouse-navy">TOTAL</span>
                             <span className="text-washouse-blue">{formatCurrency(totals.total)}</span>
                         </div>
                         <div className="flex justify-between text-sm font-black text-green-600 bg-green-50 p-3 rounded-xl border border-green-100">
@@ -343,7 +343,7 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
                     <div>
                         <label className="block text-sm font-black text-gray-500 mb-2 uppercase tracking-wide">Monto Recibido</label>
                         <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-3xl font-black italic">$</span>
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-3xl font-black">$</span>
                             <input
                                 type="number"
                                 value={payment.advance}
@@ -421,7 +421,7 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
                     <Check size={48} strokeWidth={3} />
                 </div>
                 <div>
-                    <h3 className="text-3xl font-black text-gray-800 italic uppercase tracking-tighter">¡Operación Exitosa!</h3>
+                    <h3 className="text-3xl font-black text-gray-800 uppercase tracking-tighter">¡Operación Exitosa!</h3>
                     <p className="text-gray-400 font-mono mt-2 text-sm bg-gray-50 px-3 py-1 rounded-full border">Folio de Orden: <span className="text-gray-800 font-bold">{createdOrder.id}</span></p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-md">
@@ -444,7 +444,7 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
         >
             <div className="bg-white w-full max-w-6xl h-[90vh] rounded-[48px] shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-500 border border-white/20">
                 <div className="bg-gray-50/30 px-10 py-6 border-b flex justify-between items-center backdrop-blur-sm">
-                    <h2 className="text-2xl font-black text-washouse-navy italic tracking-tighter leading-none">WASHOUSE SYSTEM <span className="text-blue-510 not-italic font-black text-xs ml-3 text-white bg-blue-500 px-3 py-1 rounded-full tracking-widest uppercase">Smart POS</span></h2>
+                    <h2 className="text-2xl font-black text-washouse-navy tracking-tighter leading-none">WASHOUSE SYSTEM <span className="text-blue-510 not-italic font-black text-xs ml-3 text-white bg-blue-500 px-3 py-1 rounded-full tracking-widest uppercase">Smart POS</span></h2>
                     <button onClick={onClose} className="p-3 hover:bg-red-50 hover:text-red-500 rounded-full transition-all bg-white border"><X size={24} /></button>
                 </div>
 
@@ -468,7 +468,7 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
                             ) : (
                                 <div className="flex items-center gap-2">
                                     <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
-                                    <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest italic">Paso {step} de 5</span>
+                                    <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Paso {step} de 5</span>
                                 </div>
                             )}
                         </div>

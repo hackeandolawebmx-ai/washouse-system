@@ -20,7 +20,7 @@ export default function SelectStaffModal({ isOpen, onClose, onAuthenticated }) {
             <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/60">
                 <div className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center gap-4">
                     <div className="w-12 h-12 border-4 border-washouse-blue border-t-transparent rounded-full animate-spin"></div>
-                    <p className="font-bold text-gray-500 italic">Cargando personal...</p>
+                    <p className="font-bold text-gray-500">Cargando personal...</p>
                 </div>
             </div>
         );
@@ -111,7 +111,7 @@ export default function SelectStaffModal({ isOpen, onClose, onAuthenticated }) {
                                 <div className="w-20 h-20 rounded-full bg-blue-50 border-4 border-white shadow-xl flex items-center justify-center font-black text-3xl text-washouse-blue mx-auto mb-4">
                                     {selectedStaff.name.charAt(0)}
                                 </div>
-                                <h3 className="text-xl font-black text-black italic leading-none">{selectedStaff.name}</h3>
+                                <h3 className="text-xl font-black text-black leading-none">{selectedStaff.name}</h3>
                                 <p className="text-xs text-gray-400 font-bold uppercase tracking-[0.2em] mt-2">Ingresa tu PIN personal</p>
                             </div>
 

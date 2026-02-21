@@ -83,7 +83,7 @@ export default function BranchModal({ isOpen, onClose, onSave, branchToEdit = nu
                             </h4>
 
                             {branchMachines.length === 0 ? (
-                                <p className="text-gray-400 italic text-sm">No hay equipos registrados en esta sucursal.</p>
+                                <p className="text-gray-400 text-sm">No hay equipos registrados en esta sucursal.</p>
                             ) : (
                                 <div className="space-y-3">
                                     {branchMachines.map(machine => (
@@ -94,8 +94,8 @@ export default function BranchModal({ isOpen, onClose, onSave, branchToEdit = nu
                                             </div>
                                             <div className="flex items-center gap-3">
                                                 <span className={`text-xs px-2 py-1 rounded-full font-medium ${machine.status === 'maintenance'
-                                                        ? 'bg-orange-100 text-orange-700'
-                                                        : 'bg-green-100 text-green-700'
+                                                    ? 'bg-orange-100 text-orange-700'
+                                                    : 'bg-green-100 text-green-700'
                                                     }`}>
                                                     {machine.status === 'maintenance' ? 'Mantenimiento' : 'Operativo'}
                                                 </span>
@@ -103,8 +103,8 @@ export default function BranchModal({ isOpen, onClose, onSave, branchToEdit = nu
                                                     type="button"
                                                     onClick={() => handleToggleMaintenance(machine.id, machine.status)}
                                                     className={`p-2 rounded-lg transition-colors ${machine.status === 'maintenance'
-                                                            ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                                                            : 'bg-gray-100 text-gray-500 hover:bg-orange-100 hover:text-orange-600'
+                                                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                                        : 'bg-gray-100 text-gray-500 hover:bg-orange-100 hover:text-orange-600'
                                                         }`}
                                                     title={machine.status === 'maintenance' ? 'Habilitar equipo' : 'Poner en mantenimiento'}
                                                 >

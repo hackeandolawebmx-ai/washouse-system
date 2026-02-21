@@ -25,7 +25,7 @@ export default function OrderDetailsModal({ order, isOpen, onClose }) {
                         <Phone size={24} />
                     </div>
                     <div>
-                        <h4 className="text-xl font-black text-washouse-navy italic leading-none">{order.customerName}</h4>
+                        <h4 className="text-xl font-black text-washouse-navy leading-none">{order.customerName}</h4>
                         <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-2">{order.customerPhone || 'Sin teléfono asociado'}</div>
                     </div>
                     <div className="ml-auto">
@@ -79,7 +79,7 @@ export default function OrderDetailsModal({ order, isOpen, onClose }) {
                                             {isLast && <span className="bg-washouse-blue text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-tighter">Actual</span>}
                                         </div>
                                         <div className="flex items-center justify-between mt-1">
-                                            <span className="text-xs font-black text-gray-700 italic">{entry.user}</span>
+                                            <span className="text-xs font-black text-gray-700">{entry.user}</span>
                                             <span className="text-[10px] text-gray-400 font-bold bg-white px-2 py-0.5 rounded-md border border-gray-100">
                                                 {new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </span>
@@ -106,7 +106,7 @@ export default function OrderDetailsModal({ order, isOpen, onClose }) {
                     <div className="pt-4 border-t border-white/10 flex justify-between items-end">
                         <div className="flex flex-col gap-1">
                             <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Pendiente</span>
-                            <span className="text-3xl font-black text-white italic tracking-tighter shadow-blue-500/50">
+                            <span className="text-3xl font-black text-white tracking-tighter shadow-blue-500/50">
                                 {formatCurrency(order.balanceDue)}
                             </span>
                         </div>

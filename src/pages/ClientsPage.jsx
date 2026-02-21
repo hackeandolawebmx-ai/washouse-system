@@ -238,7 +238,7 @@ export default function ClientsPage() {
                                                                 {client.weight ? `${client.weight}kg` : ''} {client.height ? ` / ${client.height}cm` : ''}
                                                             </div>
                                                         )}
-                                                        <span className={`italic ${!client.notes ? 'text-gray-300 text-xs' : 'text-gray-500'}`}>
+                                                        <span className={`${!client.notes ? 'text-gray-300 text-xs' : 'text-gray-500'}`}>
                                                             {client.notes || 'Sin notas'}
                                                         </span>
                                                     </div>

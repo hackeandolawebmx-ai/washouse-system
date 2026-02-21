@@ -14,7 +14,7 @@ export default function ServiceReception() {
             {/* Header */}
             <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-blue-500/5 mb-2">
                 <div>
-                    <h1 className="text-3xl font-black text-washouse-navy italic tracking-tight">Servicios Programados</h1>
+                    <h1 className="text-3xl font-black text-washouse-navy tracking-tight">Servicios Programados</h1>
                     <div className="flex items-center gap-2 mt-1">
                         <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
                         <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Mostrador de Recepción y Entrega</p>

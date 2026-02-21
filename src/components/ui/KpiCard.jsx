@@ -70,7 +70,7 @@ export default function KpiCard({ title, value, change, changeType = 'neutral', 
                                 </Tooltip>
                             )}
                         </div>
-                        <h3 className="text-4xl font-black text-washouse-navy italic tracking-tighter leading-tight">{value}</h3>
+                        <h3 className="text-4xl font-black text-washouse-navy font-outfit tracking-tighter leading-tight">{value}</h3>
                     </div>
                     {Icon && (
                         <div className="p-4 bg-blue-50/50 rounded-2xl text-washouse-blue signature-glow border border-blue-100/30 group-hover:scale-110 transition-transform duration-500">

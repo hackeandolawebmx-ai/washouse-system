@@ -58,10 +58,10 @@ export default function MachineCard({ id, name, type, status, timeLeft, onAction
                         {type === 'lavadora' ? <Droplets size={20} strokeWidth={2.5} /> : <Wind size={20} strokeWidth={2.5} />}
                     </div>
                     <div className="min-w-0">
-                        <h3 className="font-black text-sm text-washouse-navy italic tracking-tight truncate">{name}</h3>
+                        <h3 className="font-black text-sm text-washouse-navy font-outfit tracking-tight truncate">{name}</h3>
                         <div className="flex items-center gap-2 mt-0.5">
                             {status === 'running' ? (
-                                <span className="text-xs font-black text-washouse-blue flex items-center whitespace-nowrap italic tracking-tighter">
+                                <span className="text-[10px] font-bold text-washouse-blue flex items-center whitespace-nowrap font-mono tracking-tighter">
                                     <Timer className="w-3.5 h-3.5 mr-1" /> {timeLeft}m RESTANTES
                                 </span>
                             ) : (
@@ -123,7 +123,7 @@ export default function MachineCard({ id, name, type, status, timeLeft, onAction
                         </div>
                     </Tooltip>
                     <div className="min-w-0">
-                        <h3 className="font-black text-2xl text-washouse-navy italic tracking-tight truncate pr-1" title={name}>{name}</h3>
+                        <h3 className="font-black text-2xl text-washouse-navy font-outfit tracking-tight truncate pr-1" title={name}>{name}</h3>
                         <p className="text-xs text-slate-400 uppercase font-black tracking-widest mt-1 opacity-70 leading-none">{type}</p>
                     </div>
                 </div>
@@ -169,7 +169,7 @@ export default function MachineCard({ id, name, type, status, timeLeft, onAction
                         {props.clientName && (
                             <div className="flex items-center gap-3 mt-6 px-4 py-2 rounded-2xl bg-blue-50/50 border border-blue-100/30 w-fit group-hover:bg-blue-100/40 transition-colors">
                                 <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(0,144,215,0.6)] animate-pulse" />
-                                <p className="text-xs font-black text-slate-500 italic truncate max-w-[150px]">
+                                <p className="text-xs font-black text-slate-500 truncate max-w-[150px]">
                                     {props.clientName}
                                 </p>
                             </div>

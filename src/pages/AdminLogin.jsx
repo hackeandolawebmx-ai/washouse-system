@@ -30,7 +30,7 @@ export default function AdminLogin() {
                         <img src={logo} alt="Washouse" className="h-24 w-auto mx-auto object-contain" />
                     </div>
                     <div className="space-y-1">
-                        <h1 className="text-2xl font-black text-black italic tracking-tighter uppercase">Panel de Control</h1>
+                        <h1 className="text-2xl font-black text-black tracking-tighter uppercase">Panel de Control</h1>
                         <p className="text-gray-500 text-xs font-bold tracking-widest uppercase">Admin Security Portal</p>
                     </div>
                 </div>

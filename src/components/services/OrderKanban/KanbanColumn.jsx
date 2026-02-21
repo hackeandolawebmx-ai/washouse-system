@@ -16,7 +16,7 @@ export default function KanbanColumn({ column, orders, onSelectOrder, onAdvance,
                         <Icon size={20} strokeWidth={2.5} />
                     </div>
                     <div className="flex flex-col">
-                        <h3 className="font-black text-[11px] uppercase tracking-[0.3em] text-washouse-navy italic leading-none">
+                        <h3 className="font-bold text-[11px] uppercase tracking-[0.3em] text-washouse-navy font-outfit leading-none">
                             {column.label}
                         </h3>
                     </div>

@@ -49,7 +49,7 @@ export default function OrderCard({ order, onSelect, onAdvance, confirmingAdvanc
 
             {/* Customer Info */}
             <div className="mb-5">
-                <h4 className="text-lg font-black text-washouse-navy italic leading-tight truncate tracking-tight group-hover:text-washouse-blue transition-colors" title={order.customerName}>
+                <h4 className="text-lg font-black text-washouse-navy leading-tight truncate tracking-tight group-hover:text-washouse-blue transition-colors" title={order.customerName}>
                     {order.customerName}
                 </h4>
                 <div className="flex items-center gap-2 mt-2">
@@ -66,7 +66,7 @@ export default function OrderCard({ order, onSelect, onAdvance, confirmingAdvanc
                     {order.items.length} {order.items.length === 1 ? 'Item' : 'Items'}
                 </span>
                 <div className="w-1.5 h-1.5 bg-slate-200 rounded-full" />
-                <span className="text-sm font-black text-washouse-blue italic">
+                <span className="text-sm font-black text-washouse-blue">
                     {formatCurrency(order.totalAmount)}
                 </span>
             </div>

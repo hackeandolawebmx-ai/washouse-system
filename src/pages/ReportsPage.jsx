@@ -329,7 +329,7 @@ export default function ReportsPage() {
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
-                    <p className="text-[10px] text-gray-400 mt-2 italic text-center text-balance leading-tight">Vueltas promedio por máquina al día en el periodo de {reportData.daysInPeriod} días.</p>
+                    <p className="text-[10px] text-gray-400 mt-2 text-center text-balance leading-tight">Vueltas promedio por máquina al día en el periodo de {reportData.daysInPeriod} días.</p>
                 </div>
 
                 {/* 4. Hourly Traffic */}

@@ -134,12 +134,12 @@ export default function EquipmentControlTable({ onToggleMaintenance, onForceStop
                                                 <div className="w-32 h-1 bg-slate-100 rounded-full overflow-hidden">
                                                     <div className="h-full bg-washouse-blue rounded-full animate-infinite-loading" />
                                                 </div>
-                                                <span className="text-[10px] font-black text-washouse-blue italic">
+                                                <span className="text-[10px] font-black text-washouse-blue">
                                                     {machine.timeLeft} min restantes
                                                 </span>
                                             </div>
                                         ) : (
-                                            <span className="text-slate-300 text-[10px] font-black uppercase tracking-widest italic">{machine.status === 'maintenance' ? 'Bajo Revisión' : 'Standby'}</span>
+                                            <span className="text-slate-300 text-[10px] font-black uppercase tracking-widest">{machine.status === 'maintenance' ? 'Bajo Revisión' : 'Standby'}</span>
                                         )}
                                     </td>
                                     <td className="px-6 py-5 bg-white group-hover:bg-slate-50 rounded-r-2xl border-y border-r border-slate-100 group-hover:border-slate-200 transition-all text-right">
@@ -185,7 +185,7 @@ export default function EquipmentControlTable({ onToggleMaintenance, onForceStop
                                         </div>
                                         <div className="space-y-1">
                                             <p className="font-black text-slate-900 uppercase tracking-widest">Sin resultados</p>
-                                            <p className="text-xs text-slate-400 font-bold italic">Intenta ajustar los filtros de búsqueda</p>
+                                            <p className="text-xs text-slate-400 font-bold">Intenta ajustar los filtros de búsqueda</p>
                                         </div>
                                     </div>
                                 </td>
@@ -197,7 +197,7 @@ export default function EquipmentControlTable({ onToggleMaintenance, onForceStop
 
             {/* Footer */}
             <div className="p-6 border-t border-slate-100/60 bg-white/40 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex justify-between items-center shrink-0">
-                <span className="italic">Mostrando {filteredMachines.length} terminales activas</span>
+                <span>Mostrando {filteredMachines.length} terminales activas</span>
                 <div className="flex gap-6">
                     <div className="flex items-center gap-2 px-3 py-1 bg-emerald-50 rounded-lg text-emerald-600 border border-emerald-100/50">
                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Libres

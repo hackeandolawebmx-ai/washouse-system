@@ -87,8 +87,14 @@ export function useMetrics() {
         const totalVariableCosts = totalCycles * estimatedVariableCostPerLoad;
         const operatingMargin = totalIncome > 0 ? ((totalIncome - totalVariableCosts) / totalIncome) * 100 : 0;
 
-        // Days in period (simplified to 30 for now, should ideally come from filter)
-        const days = 30;
+        // Calculate days in period based on sales data if available, fallback to 30
+        let days = 30;
+        if (filteredSales.length > 1) {
+            const dates = filteredSales.map(s => new Date(s.date)).sort((a, b) => a - b);
+            const diffTime = Math.abs(dates[dates.length - 1] - dates[0]);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            days = diffDays > 0 ? diffDays : 1;
+        }
 
         // RPMD: Revenue Per Machine Day
         const rpmd = totalIncome / (totalMachinesCount * days);

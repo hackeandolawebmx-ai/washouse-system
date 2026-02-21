@@ -39,7 +39,7 @@ export default function AdminLayout() {
                         className="h-28 w-auto object-contain bg-white rounded-3xl p-5 relative z-10 border border-gray-100"
                     />
                     <div className="flex flex-col items-center gap-1 mt-4">
-                        <span className="text-[10px] font-black text-white uppercase tracking-[0.3em] italic">Admin Control</span>
+                        <span className="text-[10px] font-bold text-white uppercase tracking-[0.3em] font-mono">Admin Control</span>
                     </div>
                 </div>
 
@@ -58,7 +58,7 @@ export default function AdminLayout() {
                         >
                             <div className="flex items-center gap-3">
                                 <LayoutDashboard size={18} />
-                                <span className="italic">Dashboard</span>
+                                <span className="font-outfit font-bold">Dashboard</span>
                             </div>
                             <ChevronDown size={14} className={`transition-transform ${isDashboardOpen ? 'rotate-180' : ''}`} />
                         </button>

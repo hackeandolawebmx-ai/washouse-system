@@ -134,7 +134,7 @@ export default function OrderKanban({ searchTerm }) {
                             </div>
 
                             <div className="space-y-3">
-                                <h3 className="text-3xl font-black text-washouse-navy italic tracking-tight">
+                                <h3 className="text-3xl font-black text-washouse-navy tracking-tight">
                                     {showWhatsAppPrompt ? '¡Orden Lista!' : '¡Orden Entregada!'}
                                 </h3>
                                 <p className="text-sm text-slate-500 font-bold px-4 leading-relaxed opacity-80 uppercase tracking-wide">

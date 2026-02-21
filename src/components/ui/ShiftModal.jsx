@@ -40,7 +40,7 @@ export default function ShiftModal() {
                     <div className="mx-auto w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 backdrop-blur-md border border-white/30 shadow-inner">
                         <DollarSign className="w-10 h-10 text-white" />
                     </div>
-                    <h2 className="text-2xl font-black text-white italic tracking-tighter uppercase">Apertura de Caja</h2>
+                    <h2 className="text-2xl font-black text-white tracking-tighter uppercase">Apertura de Caja</h2>
                     <p className="text-blue-100 font-bold text-sm tracking-wide mt-1">Sessión iniciada como: <span className="text-white underline">{authenticatedUser?.name}</span></p>
 
                     <button
@@ -71,7 +71,7 @@ export default function ShiftModal() {
                                 className="w-full pl-18 pr-6 py-5 rounded-2xl bg-gray-50 border border-gray-100 focus:outline-none focus:ring-4 focus:ring-washouse-blue/10 focus:border-washouse-blue/30 transition-all font-black text-2xl"
                             />
                         </div>
-                        <p className="text-[10px] text-gray-400 font-bold mt-3 ml-2 flex items-center gap-2 italic">
+                        <p className="text-[10px] text-gray-400 font-bold mt-3 ml-2 flex items-center gap-2">
                             * Registra el monto exacto antes de la primera venta.
                         </p>
                     </div>

@@ -12,7 +12,7 @@ export default function GlobalFilterBar() {
                     <Filter size={22} strokeWidth={2.5} />
                 </div>
                 <div>
-                    <h3 className="text-lg font-black text-washouse-navy italic tracking-tight">Filtro Inteligente</h3>
+                    <h3 className="text-lg font-black text-washouse-navy font-outfit tracking-tight">Filtro Inteligente</h3>
                     <p className="text-[10px] text-gray-400 uppercase tracking-[0.2em] font-black opacity-60">Consolidado en tiempo real</p>
                 </div>
             </div>

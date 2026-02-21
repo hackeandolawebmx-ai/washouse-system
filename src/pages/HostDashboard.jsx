@@ -210,10 +210,11 @@ export default function HostDashboard() {
             <div className="sticky top-[89px] z-30 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 py-4 mb-8 transition-all duration-300">
                 <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-blue-500/5 border-white/60">
                     <motion.div variants={itemVariants} className="flex flex-col gap-1">
-                        <h1 className="text-3xl font-black text-washouse-navy tracking-tight italic">Panel de Control</h1>
+                        <h1 className="text-3xl font-black text-washouse-navy tracking-tight font-outfit">Panel de Control</h1>
                         <div className="flex items-center gap-3">
                             <div className="px-2 py-1 bg-blue-50 rounded-lg flex items-center gap-2 border border-blue-100/50">
                                 <Store className="w-3.5 h-3.5 text-washouse-blue" />
+                                <span className="text-[10px] font-bold text-white uppercase tracking-[0.3em] font-mono">Admin Control</span>
                                 <span className="text-[10px] font-black uppercase tracking-widest text-washouse-blue">
                                     {currentBranchName}
                                 </span>
