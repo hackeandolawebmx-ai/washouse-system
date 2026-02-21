@@ -7,14 +7,29 @@ export default function BranchModal({ isOpen, onClose, onSave, branchToEdit = nu
     const { machines, updateMachine } = useStorage();
     const [formData, setFormData] = useState({
         name: '',
-        address: ''
+        address: '',
+        waterCostPerCycle: 0,
+        electricityCostPerCycle: 0,
+        gasCostPerCycle: 0
     });
 
     useEffect(() => {
         if (branchToEdit) {
-            setFormData({ name: branchToEdit.name, address: branchToEdit.address });
+            setFormData({
+                name: branchToEdit.name,
+                address: branchToEdit.address,
+                waterCostPerCycle: branchToEdit.waterCostPerCycle || 0,
+                electricityCostPerCycle: branchToEdit.electricityCostPerCycle || 0,
+                gasCostPerCycle: branchToEdit.gasCostPerCycle || 0
+            });
         } else {
-            setFormData({ name: '', address: '' });
+            setFormData({
+                name: '',
+                address: '',
+                waterCostPerCycle: 0,
+                electricityCostPerCycle: 0,
+                gasCostPerCycle: 0
+            });
         }
     }, [branchToEdit, isOpen]);
 
@@ -22,7 +37,13 @@ export default function BranchModal({ isOpen, onClose, onSave, branchToEdit = nu
         e.preventDefault();
         onSave(formData);
         if (!branchToEdit) {
-            setFormData({ name: '', address: '' });
+            setFormData({
+                name: '',
+                address: '',
+                waterCostPerCycle: 0,
+                electricityCostPerCycle: 0,
+                gasCostPerCycle: 0
+            });
         }
         onClose();
     };
@@ -73,6 +94,52 @@ export default function BranchModal({ isOpen, onClose, onSave, branchToEdit = nu
                                 value={formData.address}
                                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                             />
+                        </div>
+
+                        <div className="pt-4 border-t border-gray-100">
+                            <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Costos Operativos (por ciclo)</h4>
+                            <div className="grid grid-cols-3 gap-4">
+                                <div>
+                                    <label className="block text-[10px] font-black text-gray-500 uppercase mb-1">Agua/Insumos</label>
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">$</span>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            className="w-full pl-6 rounded-lg border-gray-300 text-sm focus:border-washouse-blue focus:ring-washouse-blue font-mono"
+                                            value={formData.waterCostPerCycle}
+                                            onChange={(e) => setFormData({ ...formData, waterCostPerCycle: parseFloat(e.target.value) || 0 })}
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-black text-gray-500 uppercase mb-1">Energía</label>
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">$</span>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            className="w-full pl-6 rounded-lg border-gray-300 text-sm focus:border-washouse-blue focus:ring-washouse-blue font-mono"
+                                            value={formData.electricityCostPerCycle}
+                                            onChange={(e) => setFormData({ ...formData, electricityCostPerCycle: parseFloat(e.target.value) || 0 })}
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-black text-gray-500 uppercase mb-1">Gas</label>
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">$</span>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            className="w-full pl-6 rounded-lg border-gray-300 text-sm focus:border-washouse-blue focus:ring-washouse-blue font-mono"
+                                            value={formData.gasCostPerCycle}
+                                            onChange={(e) => setFormData({ ...formData, gasCostPerCycle: parseFloat(e.target.value) || 0 })}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <p className="text-[10px] text-gray-400 mt-3">Estos valores se utilizarán para calcular el Margen Operativo real en tiempo real.</p>
                         </div>
                     </form>
 

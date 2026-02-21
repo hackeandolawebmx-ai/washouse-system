@@ -2,19 +2,36 @@ import { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import logo from '../assets/WasHouse CYMK.png';
 import { useAuth } from '../context/AuthContext';
+import { useStorage } from '../context/StorageContext';
 import ShiftModal from '../components/ui/ShiftModal';
 import EndShiftModal from '../components/ui/EndShiftModal';
+import BranchLockout from '../components/BranchLockout';
 import { WashingMachine, Power, User, ClipboardList, LogOut } from 'lucide-react';
 
 export default function HostLayout() {
     const { user, isShiftOpen } = useAuth();
+    const { isBranchActive, deviceBranchId, BRANCH_LICENSES } = useStorage();
     const location = useLocation();
     const [isEndShiftModalOpen, setIsEndShiftModalOpen] = useState(false);
+
+    if (!isBranchActive(deviceBranchId)) {
+        return <BranchLockout />;
+    }
+
+    const license = BRANCH_LICENSES[deviceBranchId];
+    const expires = new Date(license?.expires);
+    const now = new Date();
+    const daysRemaining = Math.ceil((expires - now) / (1000 * 60 * 60 * 24));
 
     return (
         <div className="min-h-screen bg-washouse-subtle font-sans text-gray-800">
             {/* Professional Clean White Header */}
             <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm sticky top-0 z-50 transition-all duration-300">
+                {daysRemaining <= 7 && (
+                    <div className="bg-amber-500 text-white text-[10px] font-black uppercase tracking-[0.2em] py-2 text-center animate-pulse">
+                        Aviso: La suscripción de esta sucursal vence en {daysRemaining} {daysRemaining === 1 ? 'día' : 'días'}. Contacte a administración.
+                    </div>
+                )}
                 <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
                     <div className="flex items-center group cursor-default">
                         <img src={logo} alt="Washouse" className="h-14 w-auto object-contain transition-transform duration-500 group-hover:scale-105" />

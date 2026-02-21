@@ -7,10 +7,11 @@ import { useStorage } from '../context/StorageContext';
 import { formatCurrency } from '../utils/formatCurrency';
 import { useMetrics } from '../hooks/useMetrics';
 import GlobalFilterBar from '../components/admin/GlobalFilterBar';
+import BranchLockout from '../components/BranchLockout';
 import {
     Activity, ArrowUpRight, Clock,
     LayoutGrid, DollarSign, ClipboardList,
-    Percent, RefreshCw
+    Percent, RefreshCw, History, FileText
 } from 'lucide-react';
 import EquipmentControlTable from '../components/admin/EquipmentControlTable';
 import ServicesTable from '../components/admin/ServicesTable';
@@ -23,11 +24,34 @@ export default function AdminDashboard() {
     const location = useLocation();
     const {
         machines, sales, shifts, inventory, orders, activityLogs,
-        selectedBranch, updateMachine
+        selectedBranch, updateMachine, isBranchActive
     } = useStorage();
+
+    if (selectedBranch !== 'all' && !isBranchActive(selectedBranch)) {
+        return (
+            <div className="max-w-7xl mx-auto pb-12">
+                <GlobalFilterBar />
+                <div className="mt-8">
+                    <BranchLockout />
+                </div>
+            </div>
+        );
+    }
 
     const metrics = useMetrics();
     const isListView = location.pathname.endsWith('/equipment');
+    const isShiftsView = location.pathname.endsWith('/shifts');
+    const isLogsView = location.pathname.endsWith('/logs');
+
+    const filteredShifts = useMemo(() =>
+        shifts.filter(s => selectedBranch === 'all' || s.branchId === selectedBranch),
+        [shifts, selectedBranch]
+    );
+
+    const filteredLogs = useMemo(() =>
+        activityLogs.filter(l => selectedBranch === 'all' || l.branchId === selectedBranch),
+        [activityLogs, selectedBranch]
+    );
 
     const handleToggleMaintenance = (id) => {
         const machine = machines.find(m => m.id === id);
@@ -70,22 +94,34 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto pb-12">
             <GlobalFilterBar />
 
-            <div className="flex bg-gray-100 p-1.5 rounded-2xl w-fit mb-10 shadow-inner border border-gray-200">
+            <div className="flex bg-gray-100 p-1.5 rounded-2xl w-fit mb-10 shadow-inner border border-gray-200 overflow-x-auto no-scrollbar max-w-full">
                 <button
                     onClick={() => navigate('/admin/dashboard')}
-                    className={`flex items-center gap-3 px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${!isListView ? 'bg-white text-washouse-blue shadow-md border border-blue-100/50' : 'text-gray-400 hover:text-gray-600'}`}
+                    className={`flex items-center gap-3 px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap ${!isListView && !isShiftsView && !isLogsView ? 'bg-white text-washouse-blue shadow-md border border-blue-100/50' : 'text-gray-400 hover:text-gray-600'}`}
                 >
-                    <Activity size={16} strokeWidth={2.5} /> <span className="font-outfit font-bold">Resumen Ejecutivo</span>
+                    <Activity size={16} strokeWidth={2.5} /> <span className="font-outfit font-bold">Resumen</span>
                 </button>
                 <button
                     onClick={() => navigate('/admin/dashboard/equipment')}
-                    className={`flex items-center gap-3 px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${isListView ? 'bg-white text-washouse-blue shadow-md border border-blue-100/50' : 'text-gray-400 hover:text-gray-600'}`}
+                    className={`flex items-center gap-3 px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap ${isListView ? 'bg-white text-washouse-blue shadow-md border border-blue-100/50' : 'text-gray-400 hover:text-gray-600'}`}
                 >
-                    <LayoutGrid size={16} strokeWidth={2.5} /> <span className="font-outfit font-bold">Control de Equipos</span>
+                    <LayoutGrid size={16} strokeWidth={2.5} /> <span className="font-outfit font-bold">Equipos</span>
+                </button>
+                <button
+                    onClick={() => navigate('/admin/dashboard/shifts')}
+                    className={`flex items-center gap-3 px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap ${isShiftsView ? 'bg-white text-washouse-blue shadow-md border border-blue-100/50' : 'text-gray-400 hover:text-gray-600'}`}
+                >
+                    <History size={16} strokeWidth={2.5} /> <span className="font-outfit font-bold">Turnos</span>
+                </button>
+                <button
+                    onClick={() => navigate('/admin/dashboard/logs')}
+                    className={`flex items-center gap-3 px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap ${isLogsView ? 'bg-white text-washouse-blue shadow-md border border-blue-100/50' : 'text-gray-400 hover:text-gray-600'}`}
+                >
+                    <FileText size={16} strokeWidth={2.5} /> <span className="font-outfit font-bold">Bitácora</span>
                 </button>
             </div>
 
-            {!isListView ? (
+            {!isListView && (
                 <div className="space-y-10">
                     {metrics.alerts.length > 0 && (
                         <div className="flex flex-col gap-3 mb-8">
@@ -207,7 +243,9 @@ export default function AdminDashboard() {
                         </div>
                     </div>
                 </div>
-            ) : (
+            )}
+
+            {isListView && (
                 <div className="glass-card border-white/60 shadow-md overflow-hidden min-h-[600px]">
                     <div className="p-8 border-b border-gray-100 bg-gray-50/30">
                         <h2 className="text-xl font-black text-washouse-navy font-outfit tracking-tight uppercase">Monitor de Equipamiento</h2>
@@ -218,6 +256,26 @@ export default function AdminDashboard() {
                         onForceStop={handleForceStop}
                         onViewDetails={handleViewDetailsFromControl}
                     />
+                </div>
+            )}
+
+            {isShiftsView && (
+                <div className="glass-card border-white/60 shadow-md overflow-hidden min-h-[600px]">
+                    <div className="p-8 border-b border-gray-100 bg-gray-50/30">
+                        <h2 className="text-xl font-black text-washouse-navy font-outfit tracking-tight uppercase">Historial de Turnos</h2>
+                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Cortes de caja y arqueos registrados</p>
+                    </div>
+                    <ShiftHistoryTable shifts={filteredShifts} />
+                </div>
+            )}
+
+            {isLogsView && (
+                <div className="glass-card border-white/60 shadow-md overflow-hidden min-h-[600px]">
+                    <div className="p-8 border-b border-gray-100 bg-gray-50/30">
+                        <h2 className="text-xl font-black text-washouse-navy font-outfit tracking-tight uppercase">Bitácora de Actividad</h2>
+                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Registro de acciones críticas del sistema</p>
+                    </div>
+                    <ActivityLogTable logs={filteredLogs} />
                 </div>
             )}
         </div>

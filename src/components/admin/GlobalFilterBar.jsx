@@ -3,7 +3,7 @@ import { Filter, Calendar } from 'lucide-react';
 import { useStorage } from '../../context/StorageContext';
 
 export default function GlobalFilterBar() {
-    const { branches, selectedBranch, setSelectedBranch } = useStorage();
+    const { branches, selectedBranch, setSelectedBranch, isBranchActive } = useStorage();
 
     return (
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 glass-card p-6 border-white/60 shadow-md mb-8">
@@ -26,7 +26,7 @@ export default function GlobalFilterBar() {
                         className="bg-transparent border-none text-xs font-black uppercase tracking-widest text-washouse-navy focus:ring-0 cursor-pointer min-w-[200px] py-2"
                     >
                         <option value="all">Todas las Sucursales</option>
-                        {branches.map(b => (
+                        {branches.filter(b => isBranchActive(b.id)).map(b => (
                             <option key={b.id} value={b.id}>{b.name}</option>
                         ))}
                     </select>

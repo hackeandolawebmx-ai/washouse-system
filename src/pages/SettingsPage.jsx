@@ -15,7 +15,7 @@ export default function SettingsPage() {
         branches, addBranch, updateBranch, deleteBranch,
         inventory, addProduct, updateProduct, deleteProduct,
         deviceBranchId, setDeviceBranch,
-        syncData, logActivity
+        syncData, logActivity, BRANCH_LICENSES, isBranchActive
     } = useStorage();
 
     const [isBranchModalOpen, setIsBranchModalOpen] = useState(false);
@@ -113,38 +113,68 @@ export default function SettingsPage() {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {branches.map(branch => (
-                                    <div key={branch.id} className="p-5 rounded-2xl border border-gray-100 bg-gray-50/50 hover:bg-white hover:shadow-md transition-all group">
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div className="p-3 bg-white rounded-xl shadow-sm">
-                                                <Building className="text-washouse-blue" />
+                                {branches.map(branch => {
+                                    const license = BRANCH_LICENSES[branch.id];
+                                    const isSuspended = license?.status === 'suspended';
+
+                                    return (
+                                        <div key={branch.id} className={`p-5 rounded-2xl border transition-all group ${isSuspended ? 'bg-red-50/30 border-red-100 opacity-80' : 'border-gray-100 bg-gray-50/50 hover:bg-white hover:shadow-md'}`}>
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div className={`p-3 rounded-xl shadow-sm ${isSuspended ? 'bg-red-100 text-red-600' : 'bg-white text-washouse-blue'}`}>
+                                                    <Building />
+                                                </div>
+                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button
+                                                        onClick={() => { setEditingBranch(branch); setIsBranchModalOpen(true); }}
+                                                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
+                                                    >
+                                                        <Edit2 size={16} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => { if (confirm('¿Eliminar sucursal?')) deleteBranch(branch.id); }}
+                                                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
                                             </div>
-                                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button
-                                                    onClick={() => { setEditingBranch(branch); setIsBranchModalOpen(true); }}
-                                                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
-                                                >
-                                                    <Edit2 size={16} />
-                                                </button>
-                                                <button
-                                                    onClick={() => { if (confirm('¿Eliminar sucursal?')) deleteBranch(branch.id); }}
-                                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
+                                            <h3 className={`font-bold transition-colors ${isSuspended ? 'text-red-900 line-through decoration-red-300' : 'text-washouse-navy'}`}>
+                                                {branch.name}
+                                            </h3>
+                                            <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                                                <MapPin size={12} /> {branch.address}
+                                            </p>
+
+                                            {isSuspended ? (
+                                                <div className="mt-6 space-y-3">
+                                                    <span className="text-[10px] font-black bg-red-600 text-white px-3 py-1.5 rounded-xl uppercase flex items-center gap-2 w-fit shadow-lg shadow-red-200">
+                                                        <shield-alert size={12} strokeWidth={3} /> Licencia Suspendida
+                                                    </span>
+                                                    <a
+                                                        href={`https://wa.me/528186811851?text=Hola!%20Deseo%20reactivar%20la%20licencia%20de%20mi%20sucursal:%20${encodeURIComponent(branch.name)}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center justify-center gap-2 w-full py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md active:scale-95"
+                                                    >
+                                                        <Smartphone size={14} /> Solicitar Reactivación
+                                                    </a>
+                                                </div>
+                                            ) : (
+                                                <div className="mt-4 flex flex-wrap gap-2">
+                                                    <span className="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full uppercase flex items-center gap-1">
+                                                        <ShieldCheck size={10} /> Licencia Activa
+                                                    </span>
+                                                    <span className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full uppercase">
+                                                        Corte: {license?.expires || 'N/A'}
+                                                    </span>
+                                                    <span className="text-[10px] font-bold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full uppercase">
+                                                        ${(branch.waterCostPerCycle || 0) + (branch.electricityCostPerCycle || 0) + (branch.gasCostPerCycle || 0)}/Ciclo
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
-                                        <h3 className="font-bold text-washouse-navy">{branch.name}</h3>
-                                        <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                                            <MapPin size={12} /> {branch.address}
-                                        </p>
-                                        <div className="mt-4 flex gap-2">
-                                            <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full uppercase">
-                                                Activa
-                                            </span>
-                                        </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </div>
                     )}
@@ -219,7 +249,7 @@ export default function SettingsPage() {
                             <p className="text-gray-500 mb-8">Selecciona la sucursal que este dispositivo (computadora o tablet) está operando actualmente.</p>
 
                             <div className="space-y-3">
-                                {branches.map(branch => (
+                                {branches.filter(b => isBranchActive(b.id)).map(branch => (
                                     <button
                                         key={branch.id}
                                         onClick={() => setDeviceBranch(branch.id)}

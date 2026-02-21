@@ -39,7 +39,7 @@ export function AuthProvider({ children }) {
         }
     }, [currentShift]);
 
-    const { addShift, logActivity, deviceBranchId, staff } = useStorage();
+    const { addShift, logActivity, deviceBranchId, staff, isBranchActive } = useStorage();
     useEffect(() => {
         // console.log('AuthProvider mounted');
     }, []);
@@ -94,9 +94,15 @@ export function AuthProvider({ children }) {
         return false;
     };
 
+
     const loginHost = (pin) => {
         const staffFound = staff.find(s => s.pin === pin);
         if (staffFound) {
+            // Check if branch is active/paid
+            if (!isBranchActive(deviceBranchId)) {
+                return { success: false, error: 'Esta sucursal se encuentra temporalmente suspendida por falta de pago. Contacte al administrador.' };
+            }
+
             // Check if staff belongs to current branch or is global (all)
             if (staffFound.branchId !== 'all' && staffFound.branchId !== deviceBranchId) {
                 return { success: false, error: 'Acceso no autorizado para esta sucursal.' };

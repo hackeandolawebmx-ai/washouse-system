@@ -50,6 +50,44 @@ function CombinedStorageProvider({ children }) {
         return newBranch;
     }, [app, equipment, inventory]);
 
+    const executeOrder = useCallback((orderData, userLabel = 'Host') => {
+        // 1. Create the order
+        const newOrder = orders.createOrder(orderData, userLabel);
+
+        // 2. Deduct stock for supplies
+        if (orderData.items && Array.isArray(orderData.items)) {
+            orderData.items.forEach(item => {
+                // We identify items to deduct by their serviceId and check if they are products
+                // In NewOrderWizard, supplies are added with category 'products'
+                // We can also check if the serviceId exists in the catalog but for now 
+                // we'll rely on the metadata passed from the wizard if available, 
+                // or just check if it matches a product ID.
+                const isProduct = PRODUCTS_CATALOG.some(p => p.id === item.serviceId);
+                if (isProduct) {
+                    inventory.updateInventoryStock(item.serviceId, -item.quantity, orderData.branchId || 'main');
+                }
+            });
+        }
+
+        // 3. Update machine status if applicable
+        if (orderData.machineId) {
+            // Determine time based on items (heuristic from HostDashboard)
+            const hasWash = orderData.items.some(i => i.serviceId?.includes('wash') || i.serviceId?.includes('duvet'));
+            const time = hasWash ? 45 : 30;
+
+            equipment.updateMachine(orderData.machineId, {
+                status: 'running',
+                timeLeft: time,
+                clientName: orderData.customerName,
+                total: orderData.totalAmount,
+                items: orderData.items,
+                startDate: new Date().toISOString()
+            });
+        }
+
+        return newOrder;
+    }, [orders, inventory, equipment, app]);
+
     const deleteBranch = useCallback((branchId) => {
         if (branchId === 'main') {
             alert('No se puede eliminar la sucursal principal');
@@ -78,6 +116,7 @@ function CombinedStorageProvider({ children }) {
         ...inventory,
         ...expenses,
         addBranch,
+        executeOrder,
         deleteBranch,
         syncData: () => {
             // Placeholder for legacy syncData calls

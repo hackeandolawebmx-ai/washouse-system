@@ -66,7 +66,9 @@ export default function AdminLayout() {
                         {isDashboardOpen && (
                             <div className="space-y-1 mt-1 pl-4 ml-6 border-l border-white/5">
                                 <NavLink to="/admin/dashboard" label="Resumen" isSubItem />
-                                <NavLink to="/admin/dashboard/equipment" label="Estado de Equipos" isSubItem />
+                                <NavLink to="/admin/dashboard/equipment" label="Equipos" isSubItem />
+                                <NavLink to="/admin/dashboard/shifts" label="Historial de Turnos" isSubItem />
+                                <NavLink to="/admin/dashboard/logs" label="Registro de Actividad" isSubItem />
                             </div>
                         )}
                     </div>

@@ -1,10 +1,18 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import initialDB from '../data/initialState.json';
+import { isLicenseValid, BRANCH_LICENSES } from '../data/licenses';
 
 const AppContext = createContext();
 
 const INITIAL_BRANCHES = initialDB.branches || [
-    { id: 'main', name: 'Sucursal Principal', address: 'Calle Principal 123' }
+    {
+        id: 'main',
+        name: 'Sucursal Principal',
+        address: 'Calle Principal 123',
+        waterCostPerCycle: 15,
+        electricityCostPerCycle: 20,
+        gasCostPerCycle: 30
+    }
 ];
 
 const CURRENT_SYSTEM_VERSION = '2026_02_18_STAFF_v2';
@@ -89,10 +97,17 @@ export function AppProvider({ children }) {
         logActivity,
         CURRENT_SYSTEM_VERSION,
         addBranch: (branchData) => {
-            const newBranch = { ...branchData, id: branchData.name.toLowerCase().replace(/\s+/g, '_') };
+            const newBranch = {
+                ...branchData,
+                id: branchData.name.toLowerCase().replace(/\s+/g, '_')
+            };
             setBranches(prev => [...prev, newBranch]);
             return newBranch;
         },
+        isBranchActive: (branchId) => {
+            return isLicenseValid(branchId);
+        },
+        BRANCH_LICENSES,
         updateBranch: (id, updates) => {
             setBranches(prev => prev.map(b => b.id === id ? { ...b, ...updates } : b));
         },

@@ -35,6 +35,8 @@ function AppRoutes() {
           <Route path="dashboard">
             <Route index element={<AdminDashboard />} />
             <Route path="equipment" element={<AdminDashboard />} />
+            <Route path="shifts" element={<AdminDashboard />} />
+            <Route path="logs" element={<AdminDashboard />} />
           </Route>
           <Route path="staff" element={<StaffManagement />} />
           <Route path="clients" element={<ClientsPage />} />

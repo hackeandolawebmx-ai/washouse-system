@@ -7,7 +7,7 @@ import { formatCurrency } from '../../utils/formatCurrency';
 import { useScale } from '../../hooks/useScale';
 
 export default function NewOrderWizard({ isOpen, onClose, machineId }) {
-    const { createOrder, deviceBranchId, branches, updateMachine, machines, inventory } = useStorage();
+    const { executeOrder, deviceBranchId, branches, machines, inventory } = useStorage();
     const { user } = useAuth();
     const [step, setStep] = useState(1);
     const [selectedMachineId, setSelectedMachineId] = useState(machineId);
@@ -383,7 +383,7 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
             return alert(`Pago total requerido: ${formatCurrency(totals.total)}`);
         }
 
-        const newOrder = createOrder({
+        const newOrder = executeOrder({
             customerName: customer.name,
             customerPhone: customer.phone,
             items,
@@ -396,16 +396,6 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
             machineId: selectedMachineId
         }, user?.name || 'Host');
 
-        if (selectedMachineId) {
-            updateMachine(selectedMachineId, {
-                status: 'running',
-                timeLeft: 45,
-                clientName: customer.name,
-                total: totals.total,
-                items: items,
-                startDate: new Date().toISOString()
-            });
-        }
         setCreatedOrder(newOrder);
         setStep(5);
     };

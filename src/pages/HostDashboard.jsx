@@ -75,57 +75,6 @@ export default function HostDashboard() {
         }
     };
 
-    const handleCreateOrder = (orderData) => {
-        setIsOrderModalOpen(false);
-
-        const itemsArray = Object.entries(orderData.items).map(([id, qty]) => {
-            const service = SERVICES_CATALOG.find(s => s.id === id);
-            const product = PRODUCTS_CATALOG.find(p => p.id === id);
-            const item = service || product;
-            return {
-                id,
-                name: item ? item.name : id,
-                price: item ? item.price : 0,
-                quantity: qty,
-                type: item ? item.type : 'unit'
-            };
-        });
-
-        // Register Sale
-        const newSale = addSale({
-            ...orderData,
-            items: itemsArray,
-            machineId: selectedMachineId || 'counter',
-            status: 'completed'
-        }, currentBranch);
-
-        // Deduct stock
-        Object.entries(orderData.items).forEach(([itemId, qty]) => {
-            updateInventoryStock(itemId, -qty, currentBranch);
-        });
-
-        // Print Ticket
-        printTicket({ ...newSale, items: itemsArray });
-
-        if (selectedMachineId) {
-            const hasWash = orderData.items['wash_basic'] || orderData.items['duvet_s'] || orderData.items['duvet_l'];
-            const time = hasWash ? 45 : 30;
-
-            updateMachine(selectedMachineId, {
-                status: 'running',
-                timeLeft: time,
-                clientName: orderData.customer.name,
-                total: orderData.total,
-                paymentMethod: orderData.paymentMethod,
-                items: itemsArray,
-                startDate: new Date().toISOString()
-            });
-
-            setSelectedMachineId(null);
-        } else {
-            alert(`✅ Orden Generada (Venta de Mostrador)\nCliente: ${orderData.customer.name}\nTotal: $${orderData.total}`);
-        }
-    };
 
     const handleFinishCycle = (id) => {
         updateMachine(id, { status: 'finished', timeLeft: 0 });
@@ -214,7 +163,7 @@ export default function HostDashboard() {
                         <div className="flex items-center gap-3">
                             <div className="px-2 py-1 bg-blue-50 rounded-lg flex items-center gap-2 border border-blue-100/50">
                                 <Store className="w-3.5 h-3.5 text-washouse-blue" />
-                                <span className="text-[10px] font-bold text-white uppercase tracking-[0.3em] font-mono">Admin Control</span>
+                                <span className="text-[10px] font-bold text-washouse-blue uppercase tracking-[0.3em] font-mono">Admin Control</span>
                                 <span className="text-[10px] font-black uppercase tracking-widest text-washouse-blue">
                                     {currentBranchName}
                                 </span>

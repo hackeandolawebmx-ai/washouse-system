@@ -22,6 +22,7 @@ export default function ActivityLogTable({ logs }) {
                         <tr>
                             <th className="px-6 py-4">Fecha / Hora</th>
                             <th className="px-6 py-4">Usuario</th>
+                            <th className="px-6 py-4">Sucursal</th>
                             <th className="px-6 py-4">Acción</th>
                             <th className="px-6 py-4">Detalles</th>
                         </tr>
@@ -43,10 +44,13 @@ export default function ActivityLogTable({ logs }) {
                                         </span>
                                     </div>
                                 </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-xs font-bold text-gray-400 uppercase tracking-widest" style={{ width: '120px' }}>
+                                    {log.branchId || 'N/A'}
+                                </td>
                                 <td className="px-6 py-4 whitespace-nowrap" style={{ width: '200px' }}>
                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${log.action.includes('ELIMINADO') ? 'bg-red-100 text-red-800' :
-                                            log.action.includes('TURNO') ? 'bg-purple-100 text-purple-800' :
-                                                'bg-blue-100 text-blue-800'
+                                        log.action.includes('TURNO') ? 'bg-purple-100 text-purple-800' :
+                                            'bg-blue-100 text-blue-800'
                                         }`}>
                                         {log.action.replace('_', ' ')}
                                     </span>

@@ -65,7 +65,7 @@ export default function MachineCard({ id, name, type, status, timeLeft, onAction
                                     <Timer className="w-3.5 h-3.5 mr-1" /> {timeLeft}m RESTANTES
                                 </span>
                             ) : (
-                                <span className="text-[10px] text-slate-400 uppercase font-black tracking-widest opacity-70">{isAvailable ? 'Listo' : status}</span>
+                                <span className="text-[10px] text-slate-400 uppercase font-black tracking-widest opacity-70">{type}</span>
                             )}
                         </div>
                     </div>

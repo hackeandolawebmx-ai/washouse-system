@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useStorage } from '../context/StorageContext';
 
 export function useMetrics() {
-    const { sales, expenses, machines, orders, selectedBranch } = useStorage();
+    const { sales, expenses, machines, orders, branches, selectedBranch } = useStorage();
 
     const metrics = useMemo(() => {
         // 1. Basic Filtering
@@ -18,33 +18,39 @@ export function useMetrics() {
             selectedBranch === 'all' || m.branchId === selectedBranch
         );
 
-        // 2. Core Totals
+        // 2. Core Totals & Variable Costs
         const totalIncome = filteredSales.reduce((acc, s) => acc + (s.total || 0), 0);
         const totalExpenses = filteredExpenses.reduce((acc, e) => acc + (e.amount || 0), 0);
 
-        // Mock Utility Estimates (based on ReportsPage logic)
+        // Calculate Variable Costs based on Branch-Specific Settings
+        const totalVariableCosts = filteredSales.reduce((acc, sale) => {
+            const branch = branches.find(b => b.id === sale.branchId);
+            const water = branch?.waterCostPerCycle || 0;
+            const energy = branch?.electricityCostPerCycle || 0;
+            const gas = branch?.gasCostPerCycle || 0;
+            return acc + (water + energy + gas);
+        }, 0);
+
+        // Utility estimates are now derived from real per-cycle data if possible
+        // but kept as a summary for the UI if needed
         const utilityEstimates = {
-            water: selectedBranch === 'all' ? 4500 : 1500,
-            electricity: selectedBranch === 'all' ? 6000 : 2000,
-            gas: selectedBranch === 'all' ? 9000 : 3000
+            water: filteredSales.reduce((acc, s) => acc + (branches.find(b => b.id === s.branchId)?.waterCostPerCycle || 0), 0),
+            electricity: filteredSales.reduce((acc, s) => acc + (branches.find(b => b.id === s.branchId)?.electricityCostPerCycle || 0), 0),
+            gas: filteredSales.reduce((acc, s) => acc + (branches.find(b => b.id === s.branchId)?.gasCostPerCycle || 0), 0)
         };
 
-        const totalUtilityCosts = utilityEstimates.water + utilityEstimates.electricity + utilityEstimates.gas;
-        const netProfit = totalIncome - (totalExpenses + totalUtilityCosts);
+        const netProfit = totalIncome - (totalExpenses + totalVariableCosts);
 
         // 3. Productivity & Utilization (diseño.md KPIs)
-        const washerCycles = filteredSales.filter(s => s.machineType === 'lavadora').length;
         const totalCycles = filteredSales.length;
-        const washerCount = filteredMachines.filter(m => m.type === 'lavadora').length || 1;
         const totalMachinesCount = filteredMachines.length || 1;
 
         // 4. Missing KPIs from diseño.md
 
         // Turnaround Time (Tiempo de Respuesta)
-        // Average time from RECEIVED to COMPLETED for orders in this period
         const completedOrders = orders.filter(o =>
             (selectedBranch === 'all' || o.branchId === selectedBranch) &&
-            o.status === 'COMPLETED' || o.status === 'DELIVERED'
+            (o.status === 'COMPLETED' || o.status === 'DELIVERED')
         );
 
         const turnaroundTimes = completedOrders.map(o => {
@@ -61,12 +67,8 @@ export function useMetrics() {
             : 0;
 
         // Retention Rate (Tasa de Retención)
-        // % of unique customers with > 1 visit
         const customerVisits = {};
         filteredSales.forEach(s => {
-            // Simplified: use a hypothetical phone/id from sale if available, 
-            // otherwise use a unique identifier or skip
-            // Since sales data doesn't strictly have customerId yet, we'll try to link with orders
             if (s.orderId) {
                 const order = orders.find(o => o.id === s.orderId);
                 if (order && order.customerPhone) {
@@ -81,10 +83,6 @@ export function useMetrics() {
 
         // Operating Margin per Load (Margen Operativo)
         // Real profitability (Income - Variable Costs)
-        // Note: For now using a estimated cost per load (water, energy, supplies) 
-        // until product costs are fully tracked in database.
-        const estimatedVariableCostPerLoad = 15; // Placeholder value
-        const totalVariableCosts = totalCycles * estimatedVariableCostPerLoad;
         const operatingMargin = totalIncome > 0 ? ((totalIncome - totalVariableCosts) / totalIncome) * 100 : 0;
 
         // Calculate days in period based on sales data if available, fallback to 30
@@ -100,7 +98,6 @@ export function useMetrics() {
         const rpmd = totalIncome / (totalMachinesCount * days);
 
         // Utilization Rate (%): Monitor of operational efficiency
-        // Based on turns vs capacity (capacity estimate: 8 turns/day/machine)
         const capacityPerDay = 8;
         const utilizationRate = (totalCycles / (totalMachinesCount * days * capacityPerDay)) * 100;
 
@@ -112,7 +109,7 @@ export function useMetrics() {
         return {
             totalIncome,
             totalExpenses,
-            totalUtilityCosts,
+            totalUtilityCosts: totalVariableCosts,
             netProfit,
             orderCount: filteredSales.length,
             avgTicketsValue: totalIncome / (filteredSales.length || 1),
@@ -128,7 +125,7 @@ export function useMetrics() {
             filteredMachines,
             utilityEstimates
         };
-    }, [sales, expenses, machines, orders, selectedBranch]);
+    }, [sales, expenses, machines, orders, branches, selectedBranch]);
 
     return metrics;
 }
