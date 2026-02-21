@@ -1,6 +1,5 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import initialDB from '../data/initialState.json';
 import { isLicenseValid, BRANCH_LICENSES } from '../data/licenses';
+import { supabase } from '../lib/supabase';
 
 const AppContext = createContext();
 
@@ -34,9 +33,46 @@ export function AppProvider({ children }) {
         return localStorage.getItem('washouse_admin_branch_filter') || 'all';
     });
 
-    const [branches, setBranches] = useState(() => {
-        return getFromStorage('washouse_branches', INITIAL_BRANCHES);
-    });
+    const [branches, setBranches] = useState([]);
+
+    // Initial Fetch & Migration
+    useEffect(() => {
+        const syncBranches = async () => {
+            try {
+                const { data: remoteBranches, error } = await supabase
+                    .from('branches')
+                    .select('*');
+
+                if (error) throw error;
+
+                if (remoteBranches.length > 0) {
+                    setBranches(remoteBranches);
+                } else {
+                    // Migrate from localStorage if remote is empty
+                    const localBranches = getFromStorage('washouse_branches', INITIAL_BRANCHES);
+                    if (localBranches.length > 0) {
+                        const { error: insertError } = await supabase
+                            .from('branches')
+                            .insert(localBranches.map(b => ({
+                                id: b.id,
+                                name: b.name,
+                                address: b.address,
+                                water_cost_per_cycle: b.waterCostPerCycle || 15,
+                                electricity_cost_per_cycle: b.electricityCostPerCycle || 20,
+                                gas_cost_per_cycle: b.gasCostPerCycle || 30
+                            })));
+                        if (!insertError) setBranches(localBranches);
+                    }
+                }
+            } catch (err) {
+                console.error('Error syncing branches:', err);
+                // Fallback to local
+                setBranches(getFromStorage('washouse_branches', INITIAL_BRANCHES));
+            }
+        };
+
+        syncBranches();
+    }, []);
 
     const [staff, setStaff] = useState(() => {
         const defaultStaff = [
@@ -100,27 +136,56 @@ export function AppProvider({ children }) {
         activityLogs,
         logActivity,
         CURRENT_SYSTEM_VERSION,
-        addBranch: (branchData) => {
+        addBranch: async (branchData) => {
             const newBranch = {
                 ...branchData,
                 id: branchData.name.toLowerCase().replace(/\s+/g, '_')
             };
-            setBranches(prev => [...prev, newBranch]);
-            return newBranch;
+
+            const { error } = await supabase.from('branches').insert([{
+                id: newBranch.id,
+                name: newBranch.name,
+                address: newBranch.address,
+                water_cost_per_cycle: newBranch.waterCostPerCycle || 15,
+                electricity_cost_per_cycle: newBranch.electricityCostPerCycle || 20,
+                gas_cost_per_cycle: newBranch.gasCostPerCycle || 30
+            }]);
+
+            if (!error) {
+                setBranches(prev => [...prev, newBranch]);
+                return newBranch;
+            }
         },
         isBranchActive: (branchId) => {
             return isLicenseValid(branchId);
         },
         BRANCH_LICENSES,
-        updateBranch: (id, updates) => {
-            setBranches(prev => prev.map(b => b.id === id ? { ...b, ...updates } : b));
+        updateBranch: async (id, updates) => {
+            const { error } = await supabase
+                .from('branches')
+                .update({
+                    name: updates.name,
+                    address: updates.address,
+                    water_cost_per_cycle: updates.waterCostPerCycle,
+                    electricity_cost_per_cycle: updates.electricityCostPerCycle,
+                    gas_cost_per_cycle: updates.gasCostPerCycle
+                })
+                .eq('id', id);
+
+            if (!error) {
+                setBranches(prev => prev.map(b => b.id === id ? { ...b, ...updates } : b));
+            }
         },
-        deleteBranch: (branchId) => {
+        deleteBranch: async (branchId) => {
             if (branchId === 'main') {
                 alert('No se puede eliminar la sucursal principal');
                 return;
             }
-            setBranches(prev => prev.filter(b => b.id !== branchId));
+
+            const { error } = await supabase.from('branches').delete().eq('id', branchId);
+            if (!error) {
+                setBranches(prev => prev.filter(b => b.id !== branchId));
+            }
         },
         addStaffMember: (data) => {
             const newMember = { ...data, id: Date.now().toString() };
