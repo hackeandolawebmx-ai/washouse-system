@@ -1,5 +1,7 @@
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useApp } from './AppContext';
 import { supabase } from '../lib/supabase';
+import initialDB from '../data/initialState.json';
 
 const EquipmentContext = createContext();
 
@@ -15,7 +17,9 @@ export function EquipmentProvider({ children }) {
         return saved ? JSON.parse(saved) : defaultValue;
     };
 
-    const [machines, setMachines] = useState([]);
+    const [machines, setMachines] = useState(() => {
+        return getFromStorage('washouse_machines', INITIAL_MACHINES);
+    });
 
     // Initial Fetch, Migration & Real-time Subscription
     useEffect(() => {
@@ -27,28 +31,31 @@ export function EquipmentProvider({ children }) {
 
                 if (error) throw error;
 
-                if (remoteMachines.length > 0) {
-                    setMachines(remoteMachines);
-                } else {
-                    // Migrate from localStorage if remote is empty
-                    const localMachines = getFromStorage('washouse_machines', INITIAL_MACHINES);
-                    if (localMachines.length > 0) {
-                        const { error: insertError } = await supabase
-                            .from('machines')
-                            .insert(localMachines.map(m => ({
-                                id: m.id,
-                                branch_id: m.branchId || 'main',
-                                name: m.name,
-                                type: m.type,
-                                status: m.status,
-                                time_left: m.timeLeft
-                            })));
-                        if (!insertError) setMachines(localMachines);
-                    }
+                if (remoteMachines && remoteMachines.length > 0) {
+                    setMachines(remoteMachines.map(m => ({
+                        id: m.id,
+                        branchId: m.branch_id,
+                        name: m.name,
+                        type: m.type,
+                        status: m.status,
+                        timeLeft: m.time_left
+                    })));
+                } else if (machines.length > 0) {
+                    // Migrate from local if remote is empty
+                    const { error: insertError } = await supabase
+                        .from('machines')
+                        .upsert(machines.map(m => ({
+                            id: m.id,
+                            branch_id: m.branchId || 'main',
+                            name: m.name,
+                            type: m.type,
+                            status: m.status,
+                            time_left: m.timeLeft
+                        })));
+                    if (insertError) console.error('Machine migration error:', insertError);
                 }
             } catch (err) {
                 console.error('Error syncing machines:', err);
-                setMachines(getFromStorage('washouse_machines', INITIAL_MACHINES));
             }
         };
 
@@ -58,10 +65,22 @@ export function EquipmentProvider({ children }) {
         const channel = supabase
             .channel('machines_realtime')
             .on('postgres_changes', { event: '*', table: 'machines', schema: 'public' }, (payload) => {
+                const mapMachine = (m) => ({
+                    id: m.id,
+                    branchId: m.branch_id,
+                    name: m.name,
+                    type: m.type,
+                    status: m.status,
+                    timeLeft: m.time_left
+                });
+
                 if (payload.eventType === 'INSERT') {
-                    setMachines(prev => [...prev, payload.new]);
+                    setMachines(prev => {
+                        if (prev.find(m => m.id === payload.new.id)) return prev;
+                        return [...prev, mapMachine(payload.new)];
+                    });
                 } else if (payload.eventType === 'UPDATE') {
-                    setMachines(prev => prev.map(m => m.id === payload.new.id ? payload.new : m));
+                    setMachines(prev => prev.map(m => m.id === payload.new.id ? mapMachine(payload.new) : m));
                 } else if (payload.eventType === 'DELETE') {
                     setMachines(prev => prev.filter(m => m.id !== payload.old.id));
                 }

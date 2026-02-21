@@ -1,3 +1,5 @@
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import initialDB from '../data/initialState.json';
 import { isLicenseValid, BRANCH_LICENSES } from '../data/licenses';
 import { supabase } from '../lib/supabase';
 
@@ -33,7 +35,9 @@ export function AppProvider({ children }) {
         return localStorage.getItem('washouse_admin_branch_filter') || 'all';
     });
 
-    const [branches, setBranches] = useState([]);
+    const [branches, setBranches] = useState(() => {
+        return getFromStorage('washouse_branches', INITIAL_BRANCHES);
+    });
 
     // Initial Fetch & Migration
     useEffect(() => {
@@ -45,29 +49,31 @@ export function AppProvider({ children }) {
 
                 if (error) throw error;
 
-                if (remoteBranches.length > 0) {
-                    setBranches(remoteBranches);
-                } else {
-                    // Migrate from localStorage if remote is empty
-                    const localBranches = getFromStorage('washouse_branches', INITIAL_BRANCHES);
-                    if (localBranches.length > 0) {
-                        const { error: insertError } = await supabase
-                            .from('branches')
-                            .insert(localBranches.map(b => ({
-                                id: b.id,
-                                name: b.name,
-                                address: b.address,
-                                water_cost_per_cycle: b.waterCostPerCycle || 15,
-                                electricity_cost_per_cycle: b.electricityCostPerCycle || 20,
-                                gas_cost_per_cycle: b.gasCostPerCycle || 30
-                            })));
-                        if (!insertError) setBranches(localBranches);
-                    }
+                if (remoteBranches && remoteBranches.length > 0) {
+                    setBranches(remoteBranches.map(b => ({
+                        id: b.id,
+                        name: b.name,
+                        address: b.address,
+                        waterCostPerCycle: b.water_cost_per_cycle,
+                        electricityCostPerCycle: b.electricity_cost_per_cycle,
+                        gasCostPerCycle: b.gas_cost_per_cycle
+                    })));
+                } else if (branches.length > 0) {
+                    // Migrate from local if remote is empty
+                    const { error: insertError } = await supabase
+                        .from('branches')
+                        .upsert(branches.map(b => ({
+                            id: b.id,
+                            name: b.name,
+                            address: b.address,
+                            water_cost_per_cycle: b.waterCostPerCycle || 15,
+                            electricity_cost_per_cycle: b.electricityCostPerCycle || 20,
+                            gas_cost_per_cycle: b.gasCostPerCycle || 30
+                        })));
+                    if (insertError) console.error('Migration error:', insertError);
                 }
             } catch (err) {
                 console.error('Error syncing branches:', err);
-                // Fallback to local
-                setBranches(getFromStorage('washouse_branches', INITIAL_BRANCHES));
             }
         };
 
