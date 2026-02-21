@@ -8,7 +8,7 @@
 
 export const BRANCH_LICENSES = {
     'main': {
-        status: 'suspended',
+        status: 'active',
         expires: '2026-12-31',
         plan: 'Premium'
     },
@@ -18,12 +18,12 @@ export const BRANCH_LICENSES = {
         plan: 'Premium'
     },
     'guadalupe': {
-        status: 'suspended',
+        status: 'active',
         expires: '2026-12-31',
         plan: 'Standard'
     },
     'mitras': {
-        status: 'suspended',
+        status: 'active',
         expires: '2026-12-31',
         plan: 'Standard'
     }
