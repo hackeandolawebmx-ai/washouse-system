@@ -9,12 +9,12 @@ import KanbanColumn from './KanbanColumn';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const STATUS_COLUMNS = [
-    { id: 'RECEIVED', label: 'Recibido', icon: Package, color: 'bg-gray-100 border-gray-200 text-gray-500' },
+    { id: 'RECEIVED', label: 'Recibido', icon: Package, color: 'bg-slate-100 border-slate-200 text-slate-500' },
     { id: 'WASHING', label: 'Lavando', icon: Clock, color: 'bg-blue-100 border-blue-200 text-blue-500' },
     { id: 'DRYING', label: 'Secando', icon: Clock, color: 'bg-orange-100 border-orange-200 text-orange-500' },
     { id: 'IRONING', label: 'Planchando', icon: Clock, color: 'bg-purple-100 border-purple-200 text-purple-500' },
-    { id: 'COMPLETED', label: 'Listo', icon: CheckCircle, color: 'bg-green-100 border-green-200 text-green-500' },
-    { id: 'DELIVERED', label: 'Entregado', icon: Truck, color: 'bg-gray-200 border-gray-300 text-gray-400' }
+    { id: 'COMPLETED', label: 'Listo', icon: CheckCircle, color: 'bg-emerald-100 border-emerald-200 text-emerald-500' },
+    { id: 'DELIVERED', label: 'Entregado', icon: Truck, color: 'bg-slate-200 border-slate-300 text-slate-400' }
 ];
 
 export default function OrderKanban({ searchTerm }) {
@@ -120,28 +120,31 @@ export default function OrderKanban({ searchTerm }) {
 
                 {/* WhatsApp Logic Interception */}
                 {(showWhatsAppPrompt || showDeliveryPrompt) && (
-                    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in duration-300">
+                    <div className="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-xl animate-in fade-in duration-500">
                         <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            className="bg-white p-8 rounded-[32px] shadow-2xl max-w-sm w-full text-center space-y-6 border border-white/20"
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            className="bg-white p-10 rounded-4xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.15)] max-w-sm w-full text-center space-y-8 border border-white/20 relative overflow-hidden"
                         >
-                            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto ${showWhatsAppPrompt ? 'bg-green-50 text-green-500' : 'bg-blue-50 text-blue-500'}`}>
-                                {showWhatsAppPrompt ? <CheckCircle size={40} /> : <Truck size={40} />}
+                            {/* Decorative Background Element */}
+                            <div className={`absolute top-0 left-0 right-0 h-2 opacity-80 ${showWhatsAppPrompt ? 'bg-linear-to-r from-emerald-400 to-emerald-500' : 'bg-linear-to-r from-blue-400 to-blue-500'}`} />
+
+                            <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto shadow-inner ${showWhatsAppPrompt ? 'bg-emerald-50 text-emerald-500' : 'bg-blue-50 text-blue-500'}`}>
+                                {showWhatsAppPrompt ? <CheckCircle size={48} strokeWidth={2.5} /> : <Truck size={48} strokeWidth={2.5} />}
                             </div>
 
-                            <div>
-                                <h3 className="text-2xl font-black text-washouse-navy italic">
+                            <div className="space-y-3">
+                                <h3 className="text-3xl font-black text-washouse-navy italic tracking-tight">
                                     {showWhatsAppPrompt ? '¡Orden Lista!' : '¡Orden Entregada!'}
                                 </h3>
-                                <p className="text-sm text-gray-500 font-bold mt-2 px-4 leading-relaxed">
+                                <p className="text-sm text-slate-500 font-bold px-4 leading-relaxed opacity-80 uppercase tracking-wide">
                                     {showWhatsAppPrompt
-                                        ? 'La orden está lista para entrega. ¿Notificamos al cliente?'
-                                        : 'Se ha registrado la entrega. ¿Enviamos un mensaje de agradecimiento?'}
+                                        ? 'La ropa ya pasó a inspección final. ¿Notificamos al cliente?'
+                                        : 'Se ha registrado la salida. ¿Enviamos un mensaje de cortesía?'}
                                 </p>
                             </div>
 
-                            <div className="flex flex-col gap-3 pt-4">
+                            <div className="flex flex-col gap-4 pt-4">
                                 <a
                                     href={`https://wa.me/52${(showWhatsAppPrompt || showDeliveryPrompt).customerPhone.replace(/\D/g, '')}?text=${encodeURIComponent(
                                         showWhatsAppPrompt
@@ -151,15 +154,15 @@ export default function OrderKanban({ searchTerm }) {
                                     target="_blank"
                                     rel="noreferrer"
                                     onClick={() => { setShowWhatsAppPrompt(null); setShowDeliveryPrompt(null); }}
-                                    className="w-full py-4 rounded-2xl bg-green-500 text-white font-black uppercase tracking-widest text-xs hover:bg-green-600 shadow-lg shadow-green-500/20 flex items-center justify-center gap-3 transition-all active:scale-95"
+                                    className="w-full py-5 rounded-2xl bg-emerald-500 text-white font-black uppercase tracking-[0.2em] text-[11px] hover:bg-emerald-600 shadow-xl shadow-emerald-500/30 flex items-center justify-center gap-3 transition-all active:scale-95"
                                 >
-                                    <MessageCircle size={20} /> Notificar por WhatsApp
+                                    <MessageCircle size={20} strokeWidth={3} /> Enviar WhatsApp
                                 </a>
                                 <button
                                     onClick={() => { setShowWhatsAppPrompt(null); setShowDeliveryPrompt(null); }}
-                                    className="w-full py-4 rounded-2xl bg-gray-50 text-gray-400 font-black uppercase tracking-widest text-[10px] hover:bg-gray-100 transition-all"
+                                    className="w-full py-5 rounded-2xl bg-slate-50 text-slate-400 font-black uppercase tracking-[0.2em] text-[10px] hover:bg-slate-100 transition-all active:scale-95"
                                 >
-                                    No, gracias
+                                    Continuar sin avisar
                                 </button>
                             </div>
                         </motion.div>

@@ -97,9 +97,17 @@
   }
 
   body {
-    @apply bg-gray-50 text-washouse-navy font-sans antialiased;
+    @apply bg-slate-50 text-washouse-navy antialiased min-h-screen relative;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Subtitle grain effect for premium feel */
+  body::before {
+    content: "";
+    @apply fixed inset-0 z-[-1] opacity-[0.03] pointer-events-none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   }
 
   /* Premium Selection Styling */
@@ -165,15 +173,18 @@
   }
 
   .card {
-    @apply bg-white rounded-xl shadow-sm border border-gray-100 p-4 transition-all duration-300;
+    @apply bg-white rounded-3xl border border-slate-100/80 p-6 transition-all duration-300;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.02);
   }
 
   .glass-card {
-    @apply bg-white rounded-2xl border border-gray-100 shadow-xl transition-all duration-500;
+    @apply bg-white/80 backdrop-blur-xl rounded-[2.5rem] border border-white/40 transition-all duration-500;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.04), 0 10px 30px rgba(0, 0, 0, 0.02);
   }
 
   .glass-surface {
-    @apply bg-white border border-gray-100 shadow-sm;
+    @apply bg-white/40 backdrop-blur-md border border-white/20;
+    box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.05);
   }
 
   .signature-glow {
@@ -185,10 +196,24 @@
     box-shadow: 0 0 30px rgba(0, 144, 215, 0.25);
   }
 
+  @keyframes infinite-loading {
+    0% {
+      transform: translateX(-100%);
+    }
+
+    100% {
+      transform: translateX(400%);
+    }
+  }
+
+  .animate-infinite-loading {
+    animation: infinite-loading 2s infinite ease-in-out;
+  }
+
   /* Custom Scrollbar Styling (Visible) */
   .custom-scrollbar::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
@@ -196,10 +221,10 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-gray-400 rounded-full border-2 border-white;
+    @apply bg-slate-200 rounded-full border-2 border-transparent bg-clip-padding;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    @apply bg-gray-500;
+    @apply bg-slate-300;
   }
 }

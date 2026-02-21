@@ -1,5 +1,5 @@
-import { useNavigate, useLocation } from 'react-router-dom';
 import { useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import KpiCard from '../components/ui/KpiCard';
 import { useStorage } from '../context/StorageContext';
@@ -86,12 +86,60 @@ export default function AdminDashboard() {
 
             {!isListView ? (
                 <div className="space-y-10">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        <KpiCard title="Ingresos" value={formatCurrency(metrics.totalIncome)} icon={DollarSign} change="+12.5%" changeType="positive" />
-                        <KpiCard title="Órdenes Totales" value={metrics.orderCount} icon={ClipboardList} change="+5" changeType="positive" />
-                        <KpiCard title="Ticket Promedio" value={formatCurrency(metrics.avgTicketsValue)} icon={Percent} />
-                        <KpiCard title="Productividad" value={`${metrics.avgTurnsPerDay} v/d`} icon={RefreshCw} />
-                    </div>
+                    {metrics.alerts.length > 0 && (
+                        <div className="flex flex-col gap-3 mb-8">
+                            {metrics.alerts.map((alert, i) => (
+                                <div key={i} className={`flex items-center gap-3 p-4 rounded-2xl border ${alert.type === 'marketing' ? 'bg-amber-50 border-amber-100 text-amber-700' : 'bg-red-50 border-red-100 text-red-700'}`}>
+                                    <ArrowUpRight className={alert.type === 'marketing' ? '-rotate-45' : 'rotate-45'} size={18} />
+                                    <span className="text-sm font-black uppercase tracking-widest italic">{alert.message}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    <motion.div
+                        initial="hidden"
+                        animate="visible"
+                        variants={{
+                            visible: {
+                                transition: {
+                                    staggerChildren: 0.1
+                                }
+                            }
+                        }}
+                        className="space-y-8"
+                    >
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                            <KpiCard title="Ingresos" value={formatCurrency(metrics.totalIncome)} icon={DollarSign} change="+12.5%" changeType="positive" />
+                            <KpiCard title="Ingreso p/Máquina (RPMD)" value={formatCurrency(metrics.rpmd)} icon={Activity} />
+                            <KpiCard title="Ticket Promedio" value={formatCurrency(metrics.avgTicketsValue)} icon={Percent} />
+                            <KpiCard title="Utilización (%)" value={`${metrics.utilizationRate}%`} icon={RefreshCw} change={`${metrics.avgTurnsPerDay} v/d`} changeType={metrics.utilizationRate > 40 ? 'positive' : 'neutral'} />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <KpiCard
+                                title="Tiempo de Respuesta"
+                                value={`${metrics.avgTurnaroundTime}h`}
+                                icon={Clock}
+                                change="Meta: 24h"
+                                changeType={metrics.avgTurnaroundTime <= 24 ? 'positive' : 'negative'}
+                            />
+                            <KpiCard
+                                title="Tasa de Retención"
+                                value={`${metrics.retentionRate}%`}
+                                icon={RefreshCw}
+                                change="Clientes recurrentes"
+                                changeType="neutral"
+                            />
+                            <KpiCard
+                                title="Margen Operativo"
+                                value={`${metrics.operatingMargin}%`}
+                                icon={Percent}
+                                change="Ingresos vs Costos Var."
+                                changeType={metrics.operatingMargin > 50 ? 'positive' : 'neutral'}
+                            />
+                        </div>
+                    </motion.div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div className="glass-card p-8 border-white/60 shadow-md group hover:shadow-xl transition-all duration-500">

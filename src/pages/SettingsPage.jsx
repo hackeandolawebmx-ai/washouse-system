@@ -167,6 +167,7 @@ export default function SettingsPage() {
                                         <tr>
                                             <th className="px-6 py-4">Item</th>
                                             <th className="px-6 py-4">Categoría</th>
+                                            <th className="px-6 py-4">Costo</th>
                                             <th className="px-6 py-4">Precio</th>
                                             <th className="px-6 py-4 text-right">Acciones</th>
                                         </tr>
@@ -186,6 +187,9 @@ export default function SettingsPage() {
                                                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${item.isService ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
                                                         {item.category}
                                                     </span>
+                                                </td>
+                                                <td className="px-6 py-4 font-mono text-gray-400">
+                                                    {item.isService ? 'N/A' : `$${item.cost || 0}`}
                                                 </td>
                                                 <td className="px-6 py-4 font-mono font-bold text-washouse-blue">${item.price}</td>
                                                 <td className="px-6 py-4 text-right">

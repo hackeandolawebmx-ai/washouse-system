@@ -121,6 +121,19 @@ export function AppProvider({ children }) {
             }
             setStaff(prev => prev.filter(s => s.id !== id));
             logActivity('PERSONAL_ELIMINADO', `Empleado: ${member?.name}`);
+        },
+        deleteStaffMembers: (ids) => {
+            const membersToDelete = staff.filter(s => ids.includes(s.id));
+            const adminCount = staff.filter(s => s.role === 'admin').length;
+            const adminsToDeleteCount = membersToDelete.filter(s => s.role === 'admin').length;
+
+            if (adminCount - adminsToDeleteCount <= 0) {
+                alert('No se puede eliminar a todos los administradores. Debe quedar al menos uno.');
+                return;
+            }
+
+            setStaff(prev => prev.filter(s => !ids.includes(s.id)));
+            logActivity('PERSONAL_ELIMINADO_MASIVO', `${ids.length} empleados eliminados: ${membersToDelete.map(m => m.name).join(', ')}`);
         }
     };
 

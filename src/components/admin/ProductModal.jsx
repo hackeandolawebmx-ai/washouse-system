@@ -6,6 +6,7 @@ export default function ProductModal({ isOpen, onClose, onSave, productToEdit = 
     const [formData, setFormData] = useState({
         name: '',
         price: '',
+        cost: '',
         stock: '',
         icon: '📦'
     });
@@ -15,6 +16,7 @@ export default function ProductModal({ isOpen, onClose, onSave, productToEdit = 
             setFormData({
                 name: productToEdit.name,
                 price: productToEdit.price,
+                cost: productToEdit.cost || '',
                 stock: productToEdit.stock,
                 icon: productToEdit.icon || '📦'
             });
@@ -22,6 +24,7 @@ export default function ProductModal({ isOpen, onClose, onSave, productToEdit = 
             setFormData({
                 name: '',
                 price: '',
+                cost: '',
                 stock: '',
                 icon: '📦'
             });
@@ -33,6 +36,7 @@ export default function ProductModal({ isOpen, onClose, onSave, productToEdit = 
         onSave({
             ...formData,
             price: parseFloat(formData.price),
+            cost: parseFloat(formData.cost) || 0,
             stock: parseInt(formData.stock, 10)
         });
         onClose();
@@ -76,16 +80,29 @@ export default function ProductModal({ isOpen, onClose, onSave, productToEdit = 
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Stock Inicial</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Costo ($)</label>
                             <input
                                 type="number"
                                 required
                                 min="0"
+                                step="0.1"
                                 className="w-full rounded-lg border-gray-300 shadow-sm focus:border-washouse-blue focus:ring-washouse-blue"
-                                value={formData.stock}
-                                onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                                value={formData.cost || ''}
+                                onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
                             />
                         </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Stock Inicial</label>
+                        <input
+                            type="number"
+                            required
+                            min="0"
+                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-washouse-blue focus:ring-washouse-blue"
+                            value={formData.stock}
+                            onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                        />
                     </div>
 
                     <div>

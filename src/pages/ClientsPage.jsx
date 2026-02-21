@@ -43,6 +43,8 @@ export default function ClientsPage() {
                     firstVisit: order.createdAt,
                     registrationBranchId: override.registrationBranchId || order.branchId, // First order's branch is registration
                     notes: override.notes || '',
+                    weight: override.weight || '',
+                    height: override.height || '',
                     orders: []
                 });
             }
@@ -85,7 +87,12 @@ export default function ClientsPage() {
 
     const startEdit = (client) => {
         setEditingClient(client.phone);
-        setEditForm({ name: client.name, notes: client.notes });
+        setEditForm({
+            name: client.name,
+            notes: client.notes,
+            weight: client.weight || '',
+            height: client.height || ''
+        });
     };
 
     const saveEdit = (phone) => {
@@ -199,17 +206,42 @@ export default function ClientsPage() {
                                             </td>
                                             <td className="px-6 py-4 text-sm">
                                                 {isEditing ? (
-                                                    <input
-                                                        type="text"
-                                                        className="border rounded px-2 py-1 text-sm w-full"
-                                                        placeholder="Agregar nota..."
-                                                        value={editForm.notes}
-                                                        onChange={e => setEditForm({ ...editForm, notes: e.target.value })}
-                                                    />
+                                                    <div className="flex flex-col gap-2">
+                                                        <div className="flex gap-2">
+                                                            <input
+                                                                type="text"
+                                                                className="border rounded px-2 py-1 text-xs w-16"
+                                                                placeholder="KG"
+                                                                value={editForm.weight}
+                                                                onChange={e => setEditForm({ ...editForm, weight: e.target.value })}
+                                                            />
+                                                            <input
+                                                                type="text"
+                                                                className="border rounded px-2 py-1 text-xs w-16"
+                                                                placeholder="CM"
+                                                                value={editForm.height}
+                                                                onChange={e => setEditForm({ ...editForm, height: e.target.value })}
+                                                            />
+                                                        </div>
+                                                        <input
+                                                            type="text"
+                                                            className="border rounded px-2 py-1 text-xs w-full"
+                                                            placeholder="Agregar nota..."
+                                                            value={editForm.notes}
+                                                            onChange={e => setEditForm({ ...editForm, notes: e.target.value })}
+                                                        />
+                                                    </div>
                                                 ) : (
-                                                    <span className={`italic ${!client.notes ? 'text-gray-300' : 'text-gray-500'}`}>
-                                                        {client.notes || 'Sin notas'}
-                                                    </span>
+                                                    <div className="flex flex-col gap-1">
+                                                        {(client.weight || client.height) && (
+                                                            <div className="text-[10px] uppercase font-bold text-gray-400">
+                                                                {client.weight ? `${client.weight}kg` : ''} {client.height ? ` / ${client.height}cm` : ''}
+                                                            </div>
+                                                        )}
+                                                        <span className={`italic ${!client.notes ? 'text-gray-300 text-xs' : 'text-gray-500'}`}>
+                                                            {client.notes || 'Sin notas'}
+                                                        </span>
+                                                    </div>
                                                 )}
                                             </td>
                                             <td className="px-6 py-4">

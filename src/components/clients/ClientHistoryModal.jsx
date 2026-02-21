@@ -11,7 +11,15 @@ export default function ClientHistoryModal({ client, isOpen, onClose }) {
                 {/* Header */}
                 <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
                     <div>
-                        <h2 className="text-xl font-bold text-gray-800">{client.name}</h2>
+                        <div className="flex items-center gap-3">
+                            <h2 className="text-xl font-bold text-gray-800">{client.name}</h2>
+                            {(client.weight || client.height) && (
+                                <div className="flex gap-2">
+                                    {client.weight && <span className="text-[10px] font-black bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full uppercase tracking-widest">{client.weight} KG</span>}
+                                    {client.height && <span className="text-[10px] font-black bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full uppercase tracking-widest">{client.height} CM</span>}
+                                </div>
+                            )}
+                        </div>
                         <div className="text-sm text-gray-500 font-mono">Historial de Servicios</div>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-500">

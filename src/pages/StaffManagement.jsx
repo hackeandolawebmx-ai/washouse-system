@@ -10,12 +10,13 @@ import Button from '../components/ui/Button';
 export default function StaffManagement() {
     const {
         staff, branches, addStaffMember,
-        updateStaffMember, deleteStaffMember
+        updateStaffMember, deleteStaffMember, deleteStaffMembers
     } = useStorage();
 
     const [isAdding, setIsAdding] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedIds, setSelectedIds] = useState([]);
 
     // Form state for new/edit
     const [formData, setFormData] = useState({
@@ -29,6 +30,7 @@ export default function StaffManagement() {
         setFormData({ name: '', role: 'operator', pin: '', branchId: 'main' });
         setIsAdding(false);
         setEditingId(null);
+        setSelectedIds([]);
     };
 
     const handleSave = () => {
@@ -56,6 +58,27 @@ export default function StaffManagement() {
         setIsAdding(true);
     };
 
+    const handleSelectAll = (e) => {
+        if (e.target.checked) {
+            setSelectedIds(filteredStaff.map(s => s.id));
+        } else {
+            setSelectedIds([]);
+        }
+    };
+
+    const handleSelectOne = (id) => {
+        setSelectedIds(prev =>
+            prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+        );
+    };
+
+    const handleBulkDelete = () => {
+        if (confirm(`¿Eliminar ${selectedIds.length} colaboradores seleccionados?`)) {
+            deleteStaffMembers(selectedIds);
+            setSelectedIds([]);
+        }
+    };
+
     const filteredStaff = staff.filter(s =>
         s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         s.role.toLowerCase().includes(searchTerm.toLowerCase())
@@ -73,11 +96,18 @@ export default function StaffManagement() {
                     <p className="text-gray-500 font-medium mt-1">Administra accesos, roles y sucursales de tu equipo.</p>
                 </div>
 
-                {!isAdding && (
-                    <Button onClick={() => setIsAdding(true)} className="flex items-center gap-2">
-                        <UserPlus size={18} /> Nuevo Empleado
-                    </Button>
-                )}
+                <div className="flex items-center gap-3">
+                    {selectedIds.length > 0 && (
+                        <Button variant="outline" onClick={handleBulkDelete} className="flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-50">
+                            <Trash2 size={18} /> Eliminar ({selectedIds.length})
+                        </Button>
+                    )}
+                    {!isAdding && (
+                        <Button onClick={() => setIsAdding(true)} className="flex items-center gap-2">
+                            <UserPlus size={18} /> Nuevo Empleado
+                        </Button>
+                    )}
+                </div>
             </div>
 
             {isAdding ? (
@@ -178,6 +208,14 @@ export default function StaffManagement() {
                         <table className="w-full text-left">
                             <thead className="bg-gray-50/50 border-b border-gray-100">
                                 <tr>
+                                    <th className="px-8 py-5 w-10">
+                                        <input
+                                            type="checkbox"
+                                            className="rounded border-gray-300 text-washouse-blue focus:ring-washouse-blue"
+                                            onChange={handleSelectAll}
+                                            checked={filteredStaff.length > 0 && selectedIds.length === filteredStaff.length}
+                                        />
+                                    </th>
                                     <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Colaborador</th>
                                     <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Rol</th>
                                     <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Sucursal</th>
@@ -187,11 +225,19 @@ export default function StaffManagement() {
                             </thead>
                             <tbody className="divide-y divide-gray-50">
                                 {filteredStaff.map(member => (
-                                    <tr key={member.id} className="hover:bg-gray-50/50 transition-colors group">
+                                    <tr key={member.id} className={`hover:bg-gray-50/50 transition-colors group ${selectedIds.includes(member.id) ? 'bg-blue-50/30' : ''}`}>
+                                        <td className="px-8 py-6">
+                                            <input
+                                                type="checkbox"
+                                                className="rounded border-gray-300 text-washouse-blue focus:ring-washouse-blue"
+                                                checked={selectedIds.includes(member.id)}
+                                                onChange={() => handleSelectOne(member.id)}
+                                            />
+                                        </td>
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-4">
                                                 <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-white ${member.role === 'admin' ? 'bg-washouse-navy' :
-                                                        member.role === 'supervisor' ? 'bg-washouse-blue' : 'bg-washouse-aqua'
+                                                    member.role === 'supervisor' ? 'bg-washouse-blue' : 'bg-washouse-aqua'
                                                     }`}>
                                                     {member.name.charAt(0)}
                                                 </div>
