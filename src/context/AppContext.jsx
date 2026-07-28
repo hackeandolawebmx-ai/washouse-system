@@ -16,7 +16,7 @@ const INITIAL_BRANCHES = initialDB.branches || [
     }
 ];
 
-const CURRENT_SYSTEM_VERSION = '2026_02_18_STAFF_v2';
+const CURRENT_SYSTEM_VERSION = '1.0.1';
 
 export function AppProvider({ children }) {
     // Helper to check version before reading storage
@@ -41,6 +41,28 @@ export function AppProvider({ children }) {
 
     // Initial Fetch & Migration
     useEffect(() => {
+        const checkSchemaVersion = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('system_config')
+                    .select('value')
+                    .eq('key', 'schema_version');
+
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    const remoteVersion = data[0].value.version;
+                    if (remoteVersion !== CURRENT_SYSTEM_VERSION) {
+                        console.warn(`Schema version mismatch! Local: ${CURRENT_SYSTEM_VERSION}, Remote: ${remoteVersion}`);
+                    }
+                } else {
+                    console.warn('Schema version not found in remote config.');
+                }
+            } catch (err) {
+                console.error('Error checking schema version:', err);
+            }
+        };
+
         const syncBranches = async () => {
             try {
                 const { data: remoteBranches, error } = await supabase
@@ -77,6 +99,7 @@ export function AppProvider({ children }) {
             }
         };
 
+        checkSchemaVersion();
         syncBranches();
     }, []);
 

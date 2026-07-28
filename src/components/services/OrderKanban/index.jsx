@@ -10,11 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const STATUS_COLUMNS = [
     { id: 'RECEIVED', label: 'Recibido', icon: Package, color: 'bg-slate-100 border-slate-200 text-slate-500' },
-    { id: 'WASHING', label: 'Lavando', icon: Clock, color: 'bg-blue-100 border-blue-200 text-blue-500' },
-    { id: 'DRYING', label: 'Secando', icon: Clock, color: 'bg-orange-100 border-orange-200 text-orange-500' },
-    { id: 'IRONING', label: 'Planchando', icon: Clock, color: 'bg-purple-100 border-purple-200 text-purple-500' },
-    { id: 'COMPLETED', label: 'Listo', icon: CheckCircle, color: 'bg-emerald-100 border-emerald-200 text-emerald-500' },
-    { id: 'DELIVERED', label: 'Entregado', icon: Truck, color: 'bg-slate-200 border-slate-300 text-slate-400' }
+    { id: 'COMPLETED', label: 'Terminado', icon: CheckCircle, color: 'bg-emerald-100 border-emerald-200 text-emerald-500' }
 ];
 
 export default function OrderKanban({ searchTerm }) {
@@ -54,20 +50,13 @@ export default function OrderKanban({ searchTerm }) {
 
             // Logic Interception for specialized states
             if (nextStatus === 'COMPLETED') {
-                updateOrderStatus(order.id, nextStatus, user?.name || 'Host');
-                setShowWhatsAppPrompt(order);
-                setConfirmingAdvance(null);
-                return;
-            }
-
-            if (nextStatus === 'DELIVERED') {
                 if (order.balanceDue > 0) {
                     setPaymentModalOrder(order);
                     setConfirmingAdvance(null);
                     return;
                 }
                 updateOrderStatus(order.id, nextStatus, user?.name || 'Host');
-                setShowDeliveryPrompt(order);
+                setShowWhatsAppPrompt(order);
                 setConfirmingAdvance(null);
                 return;
             }
@@ -110,8 +99,8 @@ export default function OrderKanban({ searchTerm }) {
                         onPaymentComplete={(amount) => {
                             const remaining = paymentModalOrder.balanceDue - amount;
                             if (remaining <= 0) {
-                                updateOrderStatus(paymentModalOrder.id, 'DELIVERED', user?.name || 'Host');
-                                setShowDeliveryPrompt(paymentModalOrder);
+                                updateOrderStatus(paymentModalOrder.id, 'COMPLETED', user?.name || 'Host');
+                                setShowWhatsAppPrompt(paymentModalOrder);
                                 setPaymentModalOrder(null);
                             }
                         }}
@@ -146,10 +135,10 @@ export default function OrderKanban({ searchTerm }) {
 
                             <div className="flex flex-col gap-4 pt-4">
                                 <a
-                                    href={`https://wa.me/52${(showWhatsAppPrompt || showDeliveryPrompt).customerPhone.replace(/\D/g, '')}?text=${encodeURIComponent(
+                                    href={`https://wa.me/52${((showWhatsAppPrompt || showDeliveryPrompt)?.customerPhone || '').replace(/\D/g, '')}?text=${encodeURIComponent(
                                         showWhatsAppPrompt
-                                            ? `Hola ${(showWhatsAppPrompt).customerName}, tu ropa ya está lista en *${(branches.find(b => b.id === (showWhatsAppPrompt).branchId)?.name) || 'Washouse'}*!\nTotal: ${formatCurrency((showWhatsAppPrompt).totalAmount)}.\nSaldo Pendiente: ${formatCurrency((showWhatsAppPrompt).balanceDue)}.\n¡Te esperamos!`
-                                            : `Hola ${(showDeliveryPrompt).customerName}, ¡gracias por visitarnos en *${(branches.find(b => b.id === (showDeliveryPrompt).branchId)?.name) || 'Washouse'}*!\nEsperamos verte pronto. ✨`
+                                            ? `Hola ${(showWhatsAppPrompt)?.customerName || 'Cliente'}, tu ropa ya está lista en *${(branches.find(b => b.id === (showWhatsAppPrompt)?.branchId)?.name) || 'Washouse'}*!\nTotal: ${formatCurrency((showWhatsAppPrompt)?.totalAmount)}.\nSaldo Pendiente: ${formatCurrency((showWhatsAppPrompt)?.balanceDue)}.\n¡Te esperamos!`
+                                            : `Hola ${(showDeliveryPrompt)?.customerName || 'Cliente'}, ¡gracias por visitarnos en *${(branches.find(b => b.id === (showDeliveryPrompt)?.branchId)?.name) || 'Washouse'}*!\nEsperamos verte pronto. ✨`
                                     )}`}
                                     target="_blank"
                                     rel="noreferrer"

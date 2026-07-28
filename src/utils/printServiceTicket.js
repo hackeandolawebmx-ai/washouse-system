@@ -24,26 +24,29 @@ export const printServiceTicket = (order) => {
     // Build items rows
     const itemsHtml = items.map(item => {
         const isWeight = item.type === 'weight';
+        const basePrice = item.price || item.basePrice || 0;
 
-        let totalDisplay = '0.00';
-
-        // Calculate item total based on stored price or fallback
-        if (item.price) { // Legacy or direct price
-            totalDisplay = (item.price * item.quantity).toFixed(2);
-        }
-
-        // Specialized display for weight vs units
+        let itemTotal = 0;
         if (isWeight) {
-            let itemTotal = 0;
-            if (item.basePrice) {
-                if (item.quantity <= item.baseKg) {
-                    itemTotal = item.basePrice;
-                } else {
-                    itemTotal = item.basePrice + (Math.ceil(item.quantity - item.baseKg) * item.extraPrice);
+            if (item.serviceId === 'self_wash' || item.serviceId === 'wash_std') {
+                const numLoads = Math.ceil(item.quantity / 5.999) || 1;
+                const avgWeightPerLoad = item.quantity / numLoads;
+                itemTotal = numLoads * basePrice;
+                if (avgWeightPerLoad > (item.baseKg || 5)) {
+                    itemTotal += numLoads * (item.extraPrice || 10);
                 }
-                totalDisplay = itemTotal.toFixed(2);
+            } else {
+                if (item.quantity <= (item.baseKg || 5)) {
+                    itemTotal = basePrice;
+                } else {
+                    itemTotal = basePrice + (Math.ceil(item.quantity - (item.baseKg || 5)) * (item.extraPrice || 10));
+                }
             }
+        } else {
+            itemTotal = basePrice * item.quantity;
         }
+
+        const totalDisplay = itemTotal.toFixed(2);
 
         return `
             <div class="item">
@@ -56,6 +59,51 @@ export const printServiceTicket = (order) => {
             </div>
         `;
     }).join('');
+
+    const renderTicket = (isCopy) => `
+        <div class="ticket">
+            <div class="header">
+                ${isCopy
+            ? '<div style="font-size: 16px; font-weight: bold; margin-bottom: 10px; border: 2px solid #000; padding: 4px; display: inline-block;">COPIA - NEGOCIO</div>'
+            : `<img src="${window.location.origin + Logo}" alt="Washouse" style="width: 60px; height: auto; margin-bottom: 10px;" />`
+        }
+                <div class="title">WASHOUSE</div>
+                <div class="info">Orden: #${orderId}</div>
+                <div class="info">${new Date(createdAt).toLocaleString()}</div>
+                <div class="info" style="font-weight:bold; margin-top:5px;">${customerName}</div>
+                ${customerPhone ? `<div class="info">${customerPhone}</div>` : ''}
+            </div>
+            
+            <div class="items">
+                ${itemsHtml}
+            </div>
+     
+            <div class="totals">
+                <div class="total-row final-total">
+                    <span>TOTAL</span>
+                    <span>$${totalAmount.toFixed(2)}</span>
+                </div>
+                <div class="total-row">
+                    <span>Anticipo</span>
+                    <span>-$${advancePayment.toFixed(2)}</span>
+                </div>
+                <div class="total-row balance">
+                    <span>PENDIENTE</span>
+                    <span>$${balanceDue.toFixed(2)}</span>
+                </div>
+            </div>
+     
+            <div class="footer">
+                ${!isCopy ? '<p>¡Gracias por su preferencia!</p>' : '<p>Recibo Interno</p>'}
+                <p style="text-align:left; margin-top:10px;">
+                    <strong>Condiciones:</strong><br/>
+                    1. Reclamos solo dentro de 24h.<br/>
+                    2. No respondemos por botones o cierres.<br/>
+                    3. Ropa abandonada 30 días se donará.
+                </p>
+            </div>
+        </div>
+    `;
 
     const ticketHtml = `
     <html>
@@ -94,8 +142,8 @@ export const printServiceTicket = (order) => {
                 font-size: 14px;
                 margin-bottom: 5px;
             }
-            .qty { width: 45px; vertical-align: top; }
-            .name { flex: 1; text-align: left; vertical-align: top; }
+            .qty { width: 65px; vertical-align: top; }
+            .name { flex: 1; text-align: left; vertical-align: top; padding-right: 5px; }
             .price { text-align: right; vertical-align: top; width: 60px; }
             
             .totals {
@@ -122,6 +170,22 @@ export const printServiceTicket = (order) => {
                 margin-top: 20px;
                 text-align: center;
                 font-size: 11px;
+                margin-bottom: 30px;
+            }
+            .cut-line {
+                border-top: 1px dashed #000;
+                margin: 40px 0;
+                text-align: center;
+                font-size: 10px;
+                position: relative;
+            }
+            .cut-line span {
+                background: #fff;
+                position: absolute;
+                top: -6px;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 0 10px;
             }
             @media print {
                 @page { margin: 0; size: auto; }
@@ -129,47 +193,15 @@ export const printServiceTicket = (order) => {
         </style>
     </head>
     <body>
-        <div class="header">
-            <img src="${window.location.origin + Logo}" alt="Washouse" style="width: 60px; height: auto; margin-bottom: 10px;" />
-            <div class="title">WASHOUSE</div>
-            <div class="info">Orden: #${orderId}</div>
-            <div class="info">${new Date(createdAt).toLocaleString()}</div>
-            <div class="info" style="font-weight:bold; margin-top:5px;">${customerName}</div>
-            <div class="info">${customerPhone}</div>
-        </div>
-        
-        <div class="items">
-            ${itemsHtml}
-        </div>
- 
-        <div class="totals">
-            <div class="total-row final-total">
-                <span>TOTAL</span>
-                <span>$${totalAmount.toFixed(2)}</span>
-            </div>
-            <div class="total-row">
-                <span>Anticipo</span>
-                <span>-$${advancePayment.toFixed(2)}</span>
-            </div>
-            <div class="total-row balance">
-                <span>PENDIENTE</span>
-                <span>$${balanceDue.toFixed(2)}</span>
-            </div>
-        </div>
- 
-        <div class="footer">
-            <p>¡Gracias por su preferencia!</p>
-            <p style="text-align:left; margin-top:10px;">
-                <strong>Condiciones:</strong><br/>
-                1. Reclamos solo dentro de 24h.<br/>
-                2. No respondemos por botones/cierres.<br/>
-                3. Ropa abandonada 30 días se dona.
-            </p>
-        </div>
+        ${renderTicket(false)}
+        <div class="cut-line"><span>-- CORTE AQUI --</span></div>
+        ${renderTicket(true)}
  
         <script>
             window.onload = function() {
-                window.print();
+                setTimeout(function() {
+                    window.print();
+                }, 500);
             }
         </script>
     </body>

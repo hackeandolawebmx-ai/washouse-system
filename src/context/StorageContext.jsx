@@ -81,8 +81,42 @@ function CombinedStorageProvider({ children }) {
                 clientName: orderData.customerName,
                 total: orderData.totalAmount,
                 items: orderData.items,
-                startDate: new Date().toISOString()
+                startDate: new Date().toISOString(),
+                orderId: newOrder.id
             });
+
+            // Auto-start corresponding dryer if it's a washer and order includes drying
+            const targetMachine = equipment.machines?.find(m => m.id === orderData.machineId);
+            const hasDry = orderData.items.some(i => i.serviceId?.includes('dry'));
+
+            if (targetMachine && targetMachine.type === 'lavadora' && hasDry) {
+                // Parse washer number from name, e.g. "W1" -> 1
+                const match = targetMachine.name.match(/\d+/);
+                if (match) {
+                    const washerNum = parseInt(match[0], 10);
+                    const expectedDryerNum = String(washerNum + 10);
+                    const expectedDryerName = `D${expectedDryerNum}`;
+
+                    // Find the dryer in the same branch
+                    const correspondingDryer = equipment.machines?.find(
+                        m => m.branchId === targetMachine.branchId &&
+                            m.type === 'secadora' &&
+                            (m.name === expectedDryerName || m.name.includes(expectedDryerNum))
+                    );
+
+                    if (correspondingDryer) {
+                        equipment.updateMachine(correspondingDryer.id, {
+                            status: 'running',
+                            timeLeft: 30, // Default dryer time
+                            clientName: orderData.customerName + " (Secado auto)",
+                            total: 0, // Prevent duplicating total
+                            items: orderData.items.filter(i => i.serviceId?.includes('dry')),
+                            startDate: new Date().toISOString(),
+                            orderId: newOrder.id
+                        });
+                    }
+                }
+            }
         }
 
         return newOrder;

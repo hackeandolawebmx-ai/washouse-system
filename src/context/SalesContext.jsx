@@ -25,7 +25,15 @@ export function SalesProvider({ children }) {
 
     const [services, setServices] = useState(() => {
         const saved = getFromStorage('washouse_services', null);
-        if (saved && saved.length > 0) return saved;
+        if (saved && saved.length > 0) {
+            // Force refresh of catalog items and strictly remove old size distinctions/services
+            const ghostIds = ['self_wash_s', 'self_wash_l', 'self_dry_s', 'self_dry_l', 'wash_std'];
+            const custom = saved.filter(s =>
+                !SERVICES_CATALOG.some(c => c.id === s.id) &&
+                !ghostIds.includes(s.id)
+            );
+            return [...SERVICES_CATALOG, ...custom];
+        }
         return SERVICES_CATALOG;
     });
 

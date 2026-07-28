@@ -32,14 +32,18 @@ export function EquipmentProvider({ children }) {
                 if (error) throw error;
 
                 if (remoteMachines && remoteMachines.length > 0) {
-                    setMachines(remoteMachines.map(m => ({
-                        id: m.id,
-                        branchId: m.branch_id,
-                        name: m.name,
-                        type: m.type,
-                        status: m.status,
-                        timeLeft: m.time_left
-                    })));
+                    setMachines(prev => remoteMachines.map(m => {
+                        const existing = prev.find(pm => pm.id === m.id) || {};
+                        return {
+                            ...existing,
+                            id: m.id,
+                            branchId: m.branch_id,
+                            name: m.name,
+                            type: m.type,
+                            status: m.status,
+                            timeLeft: m.time_left
+                        };
+                    }));
                 } else if (machines.length > 0) {
                     // Migrate from local if remote is empty
                     const { error: insertError } = await supabase
@@ -61,11 +65,11 @@ export function EquipmentProvider({ children }) {
 
         syncMachines();
 
-        // Real-time subscription
         const channel = supabase
             .channel('machines_realtime')
             .on('postgres_changes', { event: '*', table: 'machines', schema: 'public' }, (payload) => {
-                const mapMachine = (m) => ({
+                const mapMachine = (m, existing = {}) => ({
+                    ...existing,
                     id: m.id,
                     branchId: m.branch_id,
                     name: m.name,
@@ -80,7 +84,7 @@ export function EquipmentProvider({ children }) {
                         return [...prev, mapMachine(payload.new)];
                     });
                 } else if (payload.eventType === 'UPDATE') {
-                    setMachines(prev => prev.map(m => m.id === payload.new.id ? mapMachine(payload.new) : m));
+                    setMachines(prev => prev.map(m => m.id === payload.new.id ? mapMachine(payload.new, m) : m));
                 } else if (payload.eventType === 'DELETE') {
                     setMachines(prev => prev.filter(m => m.id !== payload.old.id));
                 }
@@ -93,6 +97,12 @@ export function EquipmentProvider({ children }) {
     }, []);
 
     const updateMachine = useCallback(async (machineId, updates) => {
+        // Optimistic UI update
+        setMachines(prev => prev.map(m =>
+            m.id === machineId ? { ...m, ...updates } : m
+        ));
+
+        // Attempt remote update
         const { error } = await supabase
             .from('machines')
             .update({
@@ -102,10 +112,9 @@ export function EquipmentProvider({ children }) {
             })
             .eq('id', machineId);
 
-        if (!error) {
-            setMachines(prev => prev.map(m =>
-                m.id === machineId ? { ...m, ...updates } : m
-            ));
+        if (error) {
+            console.error('Failed to update machine remotely:', error);
+            // We keep the local update anyway since some apps run primarily local/offline.
         }
     }, []);
 
@@ -131,6 +140,13 @@ export function EquipmentProvider({ children }) {
 
         return () => clearInterval(interval);
     }, []);
+
+    // Save to local storage whenever machines change
+    useEffect(() => {
+        if (machines && machines.length > 0) {
+            localStorage.setItem('washouse_machines', JSON.stringify(machines));
+        }
+    }, [machines]);
 
     const value = {
         machines,

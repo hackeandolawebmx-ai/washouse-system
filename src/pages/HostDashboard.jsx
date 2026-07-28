@@ -73,7 +73,8 @@ export default function HostDashboard() {
                 clientName: null,
                 total: 0,
                 items: null,
-                startDate: null
+                startDate: null,
+                orderId: null
             });
         }
     };
@@ -114,7 +115,8 @@ export default function HostDashboard() {
             clientName: null,
             total: 0,
             items: null,
-            startDate: null
+            startDate: null,
+            orderId: null
         } : { status: 'maintenance' };
 
         updateMachine(id, updates);
@@ -124,7 +126,12 @@ export default function HostDashboard() {
 
     const getNormalizedItems = (items) => {
         if (!items) return [];
-        if (Array.isArray(items)) return items;
+        if (Array.isArray(items)) {
+            return items.map(item => ({
+                ...item,
+                price: item.price || item.basePrice || 0
+            }));
+        }
         return Object.entries(items).map(([id, qty]) => {
             const service = SERVICES_CATALOG.find(s => s.id === id);
             const product = PRODUCTS_CATALOG.find(p => p.id === id);
@@ -140,7 +147,7 @@ export default function HostDashboard() {
     };
 
     const machineOrder = selectedMachine ? {
-        id: `M-${selectedMachine.id}`,
+        id: selectedMachine.orderId || `M-${selectedMachine.id}`,
         createdAt: selectedMachine.startDate,
         customerName: selectedMachine.clientName || 'Cliente Anónimo',
         customerPhone: '',
@@ -224,29 +231,22 @@ export default function HostDashboard() {
                 machineId={selectedMachineId}
             />
 
-            <Modal
+            <OrderDetailsModal
                 isOpen={isDetailsModalOpen}
                 onClose={() => setIsDetailsModalOpen(false)}
-                title={`Detalles: ${selectedMachine?.name}`}
-            >
-                <OrderDetailsModal
-                    order={machineOrder}
-                    onFinish={() => handleFinishCycle(selectedMachineId)}
-                    onClose={() => setIsDetailsModalOpen(false)}
-                />
-
-                {selectedMachine?.status === 'running' && (
-                    <div className="p-4 border-t flex justify-center bg-gray-50">
+                order={machineOrder}
+                extraActions={
+                    selectedMachine?.status === 'running' ? (
                         <Button
                             variant="danger"
                             onClick={() => handleFinishCycle(selectedMachine.id)}
-                            className="w-full sm:w-auto"
+                            className="w-full h-full shadow-lg shadow-red-500/20"
                         >
-                            <Power className="w-4 h-4 mr-2" /> Forzar Terminado
+                            <Power className="w-4 h-4 mr-2 inline-block shrink-0" /> Forzar Terminado
                         </Button>
-                    </div>
-                )}
-            </Modal>
+                    ) : null
+                }
+            />
 
             <Modal
                 isOpen={isInventoryModalOpen}

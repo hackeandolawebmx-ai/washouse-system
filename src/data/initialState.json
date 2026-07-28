@@ -19,7 +19,7 @@
   "machines": [
     {
       "id": "mitras_w1",
-      "name": "Yo 1",
+      "name": "W1",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
@@ -27,7 +27,7 @@
     },
     {
       "id": "mitras_w2",
-      "name": "Yo 2",
+      "name": "W2",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
@@ -35,7 +35,7 @@
     },
     {
       "id": "mitras_w3",
-      "name": "Yo 3",
+      "name": "W3",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
@@ -43,7 +43,7 @@
     },
     {
       "id": "mitras_w4",
-      "name": "Yo 4",
+      "name": "W4",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
@@ -51,7 +51,7 @@
     },
     {
       "id": "mitras_w5",
-      "name": "Yo 5",
+      "name": "W5",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
@@ -59,7 +59,7 @@
     },
     {
       "id": "mitras_w6",
-      "name": "Yo 6",
+      "name": "W6",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
@@ -67,7 +67,7 @@
     },
     {
       "id": "mitras_d7",
-      "name": "D 7",
+      "name": "D7",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
@@ -75,7 +75,7 @@
     },
     {
       "id": "mitras_d8",
-      "name": "D 8",
+      "name": "D8",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
@@ -83,7 +83,7 @@
     },
     {
       "id": "mitras_d9",
-      "name": "D 9",
+      "name": "D9",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
@@ -91,7 +91,7 @@
     },
     {
       "id": "mitras_d10",
-      "name": "D 10",
+      "name": "D10",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
@@ -99,7 +99,7 @@
     },
     {
       "id": "mitras_d11",
-      "name": "D 11",
+      "name": "D11",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
@@ -107,7 +107,7 @@
     },
     {
       "id": "mitras_d12",
-      "name": "D 12",
+      "name": "D12",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
@@ -115,7 +115,7 @@
     },
     {
       "id": "sem_w1",
-      "name": "Yo 1",
+      "name": "W1",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
@@ -123,7 +123,7 @@
     },
     {
       "id": "sem_w2",
-      "name": "Yo 2",
+      "name": "W2",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
@@ -131,7 +131,7 @@
     },
     {
       "id": "sem_w3",
-      "name": "Yo 3",
+      "name": "W3",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
@@ -139,7 +139,7 @@
     },
     {
       "id": "sem_w4",
-      "name": "Yo 4",
+      "name": "W4",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
@@ -147,7 +147,7 @@
     },
     {
       "id": "sem_w5",
-      "name": "Yo 5",
+      "name": "W5",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
@@ -155,7 +155,7 @@
     },
     {
       "id": "sem_w6",
-      "name": "Yo 6",
+      "name": "W6",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
@@ -163,7 +163,7 @@
     },
     {
       "id": "sem_w7",
-      "name": "Yo 7",
+      "name": "W7",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
@@ -171,7 +171,7 @@
     },
     {
       "id": "sem_w8",
-      "name": "Yo 8",
+      "name": "W8",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
@@ -179,7 +179,7 @@
     },
     {
       "id": "sem_w9",
-      "name": "Yo 9",
+      "name": "W9",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
@@ -187,7 +187,7 @@
     },
     {
       "id": "sem_w10",
-      "name": "Yo 10",
+      "name": "W10",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
@@ -195,7 +195,7 @@
     },
     {
       "id": "sem_d11",
-      "name": "D 11",
+      "name": "D11",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
@@ -203,7 +203,7 @@
     },
     {
       "id": "sem_d12",
-      "name": "D 12",
+      "name": "D12",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
@@ -211,7 +211,7 @@
     },
     {
       "id": "sem_d13",
-      "name": "D 13",
+      "name": "D13",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
@@ -219,7 +219,7 @@
     },
     {
       "id": "sem_d14",
-      "name": "D 14",
+      "name": "D14",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
@@ -227,7 +227,7 @@
     },
     {
       "id": "sem_d15",
-      "name": "D 15",
+      "name": "D15",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
@@ -235,7 +235,7 @@
     },
     {
       "id": "sem_d16",
-      "name": "D 16",
+      "name": "D16",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
@@ -243,7 +243,7 @@
     },
     {
       "id": "sem_d17",
-      "name": "D 17",
+      "name": "D17",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
@@ -251,7 +251,7 @@
     },
     {
       "id": "sem_d18",
-      "name": "D 18",
+      "name": "D18",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
@@ -259,7 +259,7 @@
     },
     {
       "id": "sem_d19",
-      "name": "D 19",
+      "name": "D19",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
@@ -267,7 +267,7 @@
     },
     {
       "id": "sem_d20",
-      "name": "D 20",
+      "name": "D20",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
@@ -275,7 +275,7 @@
     },
     {
       "id": "gpe_w1",
-      "name": "Yo 1",
+      "name": "W1",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
@@ -283,7 +283,7 @@
     },
     {
       "id": "gpe_w2",
-      "name": "Yo 2",
+      "name": "W2",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
@@ -291,7 +291,7 @@
     },
     {
       "id": "gpe_w3",
-      "name": "Yo 3",
+      "name": "W3",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
@@ -299,7 +299,7 @@
     },
     {
       "id": "gpe_w4",
-      "name": "Yo 4",
+      "name": "W4",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
@@ -307,7 +307,7 @@
     },
     {
       "id": "gpe_w5",
-      "name": "Yo 5",
+      "name": "W5",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
@@ -315,7 +315,7 @@
     },
     {
       "id": "gpe_w6",
-      "name": "Yo 6",
+      "name": "W6",
       "type": "lavadora",
       "status": "available",
       "timeLeft": 0,
@@ -323,7 +323,7 @@
     },
     {
       "id": "gpe_d7",
-      "name": "D 7",
+      "name": "D7",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
@@ -331,7 +331,7 @@
     },
     {
       "id": "gpe_d8",
-      "name": "D 8",
+      "name": "D8",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
@@ -339,7 +339,7 @@
     },
     {
       "id": "gpe_d10",
-      "name": "D 10",
+      "name": "D10",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
@@ -347,7 +347,7 @@
     },
     {
       "id": "gpe_d11",
-      "name": "D 11",
+      "name": "D11",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
@@ -355,7 +355,7 @@
     },
     {
       "id": "gpe_d12",
-      "name": "D 12",
+      "name": "D12",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,
@@ -363,7 +363,7 @@
     },
     {
       "id": "gpe_d250",
-      "name": "D 250",
+      "name": "D250",
       "type": "secadora",
       "status": "available",
       "timeLeft": 0,

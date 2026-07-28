@@ -123,7 +123,7 @@ export default function MachineCard({ id, name, type, status, timeLeft, onAction
                         </div>
                     </Tooltip>
                     <div className="min-w-0">
-                        <h3 className="font-black text-2xl text-washouse-navy font-outfit tracking-tight truncate pr-1" title={name}>{name}</h3>
+                        <h3 className="font-black text-xl text-washouse-navy font-outfit tracking-tight truncate pr-1" title={name}>{name}</h3>
                         <p className="text-xs text-slate-400 uppercase font-black tracking-widest mt-1 opacity-70 leading-none">{type}</p>
                     </div>
                 </div>

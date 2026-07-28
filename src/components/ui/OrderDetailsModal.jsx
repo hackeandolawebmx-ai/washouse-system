@@ -5,7 +5,7 @@ import { useStorage } from '../../context/StorageContext';
 import { formatCurrency } from '../../utils/formatCurrency';
 import Modal from './Modal';
 
-export default function OrderDetailsModal({ order, isOpen, onClose }) {
+export default function OrderDetailsModal({ order, isOpen, onClose, extraActions }) {
     if (!order) return null;
 
     return (
@@ -118,8 +118,7 @@ export default function OrderDetailsModal({ order, isOpen, onClose }) {
                     </div>
                 </div>
 
-                {/* Actions Footer */}
-                <div className="flex gap-4 pt-4">
+                <div className="flex gap-4 pt-4 flex-wrap">
                     <a
                         href={`https://wa.me/52${(order.customerPhone || '').replace(/\D/g, '')}?text=${encodeURIComponent(
                             order.status === 'DELIVERED'
@@ -128,16 +127,21 @@ export default function OrderDetailsModal({ order, isOpen, onClose }) {
                         )}`}
                         target="_blank"
                         rel="noreferrer"
-                        className={`flex-[1.5] bg-green-500 text-white px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-green-600 shadow-lg shadow-green-500/20 active:scale-95 transition-all flex items-center justify-center gap-3 ${!order.customerPhone ? 'opacity-50 pointer-events-none' : ''}`}
+                        className={`flex-[1.5] w-full sm:w-auto bg-green-500 text-white px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-green-600 shadow-lg shadow-green-500/20 active:scale-95 transition-all flex items-center justify-center gap-3 ${!order.customerPhone ? 'opacity-50 pointer-events-none' : ''}`}
                     >
                         WhatsApp
                     </a>
                     <button
                         onClick={() => printServiceTicket(order)}
-                        className="flex-1 bg-white text-washouse-navy border border-gray-200 px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-gray-50 transition-all shadow-sm"
+                        className="flex-1 w-full sm:w-auto bg-white text-washouse-navy border border-gray-200 px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-gray-50 transition-all shadow-sm"
                     >
                         Reimprimir
                     </button>
+                    {extraActions && (
+                        <div className="w-full flex-1 min-w-[150px]">
+                            {extraActions}
+                        </div>
+                    )}
                 </div>
             </div>
         </Modal>
