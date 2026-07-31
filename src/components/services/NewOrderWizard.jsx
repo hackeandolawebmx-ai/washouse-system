@@ -568,7 +568,7 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
         </div>
     );
 
-    const handleCreateOrder = () => {
+    const handleCreateOrder = async () => {
         if (!customer.name || !customer.phone) return alert('Datos de cliente incompletos');
         if (items.length === 0) return alert('Orden vacía');
 
@@ -579,7 +579,7 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
             return alert(`El pago mínimo requerido es de ${formatCurrency(minAdvance)}`);
         }
 
-        const newOrder = executeOrder({
+        const newOrder = await executeOrder({
             customerName: customer.name,
             customerPhone: customer.phone,
             items,

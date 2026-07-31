@@ -252,7 +252,7 @@ export default function ReportsPage() {
                     title="Utilidad Neta (Est.)"
                     value={formatCurrency(reportData.netProfit)}
                     icon={DollarSign}
-                    change={(reportData.netProfit / (reportData.totalIncome || 1) * 100).toFixed(1) + "%"}
+                    change={reportData.totalIncome > 0 ? (reportData.netProfit / reportData.totalIncome * 100).toFixed(1) + "%" : "Sin ingresos"}
                     changeType={reportData.netProfit >= 0 ? "positive" : "negative"}
                     description="Beneficio real estimado tras deducir todos los costos."
                 />
@@ -282,6 +282,12 @@ export default function ReportsPage() {
                         </div>
                     </div>
                     <div className="h-80 w-full">
+                        {reportData.dailyTrends.length === 0 ? (
+                            <div className="h-full w-full flex flex-col items-center justify-center text-center">
+                                <Activity size={28} className="text-gray-300 mb-3" strokeWidth={1.5} />
+                                <p className="text-sm font-bold text-gray-400">Sin ventas registradas en este periodo</p>
+                            </div>
+                        ) : (
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={reportData.dailyTrends}>
                                 <defs>
@@ -329,6 +335,7 @@ export default function ReportsPage() {
                                 />
                             </AreaChart>
                         </ResponsiveContainer>
+                        )}
                     </div>
                 </div>
 
@@ -346,6 +353,9 @@ export default function ReportsPage() {
                             <span className="text-2xl font-black text-washouse-navy font-outfit leading-none">{formatCurrency(reportData.totalIncome)}</span>
                         </div>
 
+                        {reportData.revenueByType.length === 0 ? (
+                            <div className="h-full w-full rounded-full border-16 border-gray-100" />
+                        ) : (
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie
@@ -383,6 +393,7 @@ export default function ReportsPage() {
                                 />
                             </PieChart>
                         </ResponsiveContainer>
+                        )}
                     </div>
 
                     <div className="mt-6 pt-6 border-t border-gray-100/50">
@@ -541,7 +552,9 @@ export default function ReportsPage() {
                             <div className="inline-flex items-center gap-2 px-6 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
                                 <span className={`w-2 h-2 rounded-full ${reportData.netProfit >= 0 ? 'bg-green-400' : 'bg-orange-400'} animate-pulse`} />
                                 <span className="text-xs font-black uppercase tracking-widest">
-                                    {((reportData.netProfit / (reportData.totalIncome || 1)) * 100).toFixed(1)}% Margen
+                                    {reportData.totalIncome > 0
+                                        ? ((reportData.netProfit / reportData.totalIncome) * 100).toFixed(1) + "% Margen"
+                                        : "Sin ingresos registrados"}
                                 </span>
                             </div>
                         </div>

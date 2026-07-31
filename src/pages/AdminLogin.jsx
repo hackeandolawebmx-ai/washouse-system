@@ -11,10 +11,10 @@ export default function AdminLogin() {
     const { loginAdmin } = useAuth();
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // loginAdmin now validates against the staff database via AuthContext
-        if (loginAdmin(pin)) {
+        // loginAdmin now validates server-side against Supabase via AuthContext
+        if (await loginAdmin(pin)) {
             navigate('/admin/dashboard');
         } else {
             setError('PIN de Administrador Incorrecto o No Autorizado');

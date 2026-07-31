@@ -111,10 +111,14 @@ export function useMetrics() {
         const capacityPerDay = 8;
         const utilizationRate = (totalCycles / (totalMachinesCount * days * capacityPerDay)) * 100;
 
-        // Alerts based on Diseño.md rules
+        // Alerts based on Diseño.md rules.
+        // Skip when there's no operational history yet (totalCycles === 0) --
+        // otherwise a brand-new/empty branch always shows a false "low demand" alert.
         const alerts = [];
-        if (utilizationRate < 20) alerts.push({ type: 'marketing', message: 'Baja demanda: Alerta marketing (< 20%)' });
-        if (utilizationRate > 80) alerts.push({ type: 'expansion', message: 'Saturación: Alerta expansión (> 80%)' });
+        if (totalCycles > 0) {
+            if (utilizationRate < 20) alerts.push({ type: 'marketing', message: 'Baja demanda: Alerta marketing (< 20%)' });
+            if (utilizationRate > 80) alerts.push({ type: 'expansion', message: 'Saturación: Alerta expansión (> 80%)' });
+        }
 
         return {
             totalIncome,

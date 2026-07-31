@@ -1,4 +1,4 @@
-import Logo from '../assets/logo.png';
+import Logo from '../assets/logo_bw.png';
 
 export const printTicket = (order) => {
     if (!order || !order.items) {
@@ -103,8 +103,7 @@ export const printTicket = (order) => {
     </head>
     <body>
         <div class="header">
-            <img src="${window.location.origin + Logo}" alt="Washouse" style="width: 60px; height: auto; margin-bottom: 10px;" />
-            <div class="title">WASHOUSE</div>
+            <img src="${window.location.origin + Logo}" alt="Washouse" style="width: 150px; height: auto; margin-bottom: 10px;" />
             <div class="info">Lavandería y Tintorería</div>
             <div class="info">Fecha: ${new Date(finalDate).toLocaleString()}</div>
             <div class="info">Orden: #${orderId}</div>

@@ -50,9 +50,9 @@ function CombinedStorageProvider({ children }) {
         return newBranch;
     }, [app, equipment, inventory]);
 
-    const executeOrder = useCallback((orderData, userLabel = 'Host') => {
+    const executeOrder = useCallback(async (orderData, userLabel = 'Host') => {
         // 1. Create the order
-        const newOrder = orders.createOrder(orderData, userLabel);
+        const newOrder = await orders.createOrder(orderData, userLabel);
 
         // 2. Deduct stock for supplies
         if (orderData.items && Array.isArray(orderData.items)) {

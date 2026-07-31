@@ -16,7 +16,7 @@ const INITIAL_BRANCHES = initialDB.branches || [
     }
 ];
 
-const CURRENT_SYSTEM_VERSION = '1.0.1';
+const CURRENT_SYSTEM_VERSION = '2.0.0';
 
 export function AppProvider({ children }) {
     // Helper to check version before reading storage
@@ -103,17 +103,43 @@ export function AppProvider({ children }) {
         syncBranches();
     }, []);
 
-    const [staff, setStaff] = useState(() => {
-        const defaultStaff = [
-            { id: 'admin_master', name: 'Admin Principal', role: 'admin', pin: '1234', branchId: 'all' },
-            { id: 'carlos_host', name: 'Carlos', role: 'host', pin: '0000', branchId: 'all' }
-        ];
-        return getFromStorage('washouse_staff', defaultStaff);
-    });
+    // Staff now lives exclusively in Supabase (staff table), accessed only via
+    // RPC functions (list_staff / upsert_staff / delete_staff). PINs are hashed
+    // server-side and never sent to or stored in the client.
+    const [staff, setStaff] = useState([]);
 
-    const [activityLogs, setActivityLogs] = useState(() => {
-        return getFromStorage('washouse_logs', initialDB.activityLogs || []);
-    });
+    const refreshStaff = useCallback(async () => {
+        const { data, error } = await supabase.rpc('list_staff');
+        if (error) {
+            console.error('Error fetching staff:', error);
+            return;
+        }
+        setStaff((data || []).map(s => ({ id: s.id, name: s.name, role: s.role, branchId: s.branch_id })));
+    }, []);
+
+    useEffect(() => {
+        refreshStaff();
+    }, [refreshStaff]);
+
+    const [activityLogs, setActivityLogs] = useState([]);
+
+    useEffect(() => {
+        const fetchLogs = async () => {
+            const { data, error } = await supabase
+                .from('activity_logs')
+                .select('*')
+                .order('timestamp', { ascending: false })
+                .limit(500);
+            if (error) {
+                console.error('Error fetching activity logs:', error);
+                return;
+            }
+            setActivityLogs((data || []).map(l => ({
+                id: l.id, action: l.action, details: l.details, user: l.user_name, branchId: l.branch_id, timestamp: l.timestamp
+            })));
+        };
+        fetchLogs();
+    }, []);
 
     // Sync state to LocalStorage
     useEffect(() => {
@@ -128,14 +154,6 @@ export function AppProvider({ children }) {
         localStorage.setItem('washouse_branches', JSON.stringify(branches));
     }, [branches]);
 
-    useEffect(() => {
-        localStorage.setItem('washouse_staff', JSON.stringify(staff));
-    }, [staff]);
-
-    useEffect(() => {
-        localStorage.setItem('washouse_logs', JSON.stringify(activityLogs));
-    }, [activityLogs]);
-
     const logActivity = useCallback((action, details, user = 'Sistema', branchId = 'main') => {
         const newLog = {
             id: Date.now(),
@@ -146,6 +164,12 @@ export function AppProvider({ children }) {
             branchId
         };
         setActivityLogs(prev => [newLog, ...prev]);
+
+        supabase.from('activity_logs').insert([{
+            action, details, user_name: user, branch_id: branchId, timestamp: newLog.timestamp
+        }]).then(({ error }) => {
+            if (error) console.error('Error saving activity log remotely:', error);
+        });
     }, []);
 
     const setDeviceBranch = useCallback((branchId) => {
@@ -216,26 +240,60 @@ export function AppProvider({ children }) {
                 setBranches(prev => prev.filter(b => b.id !== branchId));
             }
         },
-        addStaffMember: (data) => {
-            const newMember = { ...data, id: Date.now().toString() };
-            setStaff(prev => [...prev, newMember]);
+        refreshStaff,
+        addStaffMember: async (data) => {
+            if (!data.pin) {
+                alert('El PIN es obligatorio para crear un colaborador.');
+                return;
+            }
+            const { data: result, error } = await supabase.rpc('upsert_staff', {
+                p_id: null,
+                p_name: data.name,
+                p_role: data.role,
+                p_pin: data.pin,
+                p_branch_id: data.branchId || 'all'
+            });
+            if (error) {
+                console.error('Error creating staff member:', error);
+                alert('No se pudo crear el colaborador.');
+                return;
+            }
+            await refreshStaff();
             logActivity('PERSONAL_AGREGADO', `Empleado: ${data.name} (${data.role})`);
-            return newMember;
+            return result?.[0];
         },
-        updateStaffMember: (id, updates) => {
-            setStaff(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
+        updateStaffMember: async (id, updates) => {
+            const { error } = await supabase.rpc('upsert_staff', {
+                p_id: id,
+                p_name: updates.name,
+                p_role: updates.role,
+                p_pin: updates.pin || null, // empty/omitted pin keeps the existing one
+                p_branch_id: updates.branchId || 'all'
+            });
+            if (error) {
+                console.error('Error updating staff member:', error);
+                alert('No se pudo actualizar el colaborador.');
+                return;
+            }
+            await refreshStaff();
             logActivity('PERSONAL_ACTUALIZADO', `ID: ${id}`);
         },
-        deleteStaffMember: (id) => {
+        deleteStaffMember: async (id) => {
             const member = staff.find(s => s.id === id);
             if (member?.role === 'admin' && staff.filter(s => s.role === 'admin').length <= 1) {
                 alert('No se puede eliminar al último administrador');
                 return;
             }
-            setStaff(prev => prev.filter(s => s.id !== id));
+            const { error } = await supabase.rpc('delete_staff', { p_id: id });
+            if (error) {
+                console.error('Error deleting staff member:', error);
+                alert('No se pudo eliminar el colaborador.');
+                return;
+            }
+            await refreshStaff();
             logActivity('PERSONAL_ELIMINADO', `Empleado: ${member?.name}`);
         },
-        deleteStaffMembers: (ids) => {
+        deleteStaffMembers: async (ids) => {
             const membersToDelete = staff.filter(s => ids.includes(s.id));
             const adminCount = staff.filter(s => s.role === 'admin').length;
             const adminsToDeleteCount = membersToDelete.filter(s => s.role === 'admin').length;
@@ -245,7 +303,11 @@ export function AppProvider({ children }) {
                 return;
             }
 
-            setStaff(prev => prev.filter(s => !ids.includes(s.id)));
+            for (const id of ids) {
+                const { error } = await supabase.rpc('delete_staff', { p_id: id });
+                if (error) console.error(`Error deleting staff member ${id}:`, error);
+            }
+            await refreshStaff();
             logActivity('PERSONAL_ELIMINADO_MASIVO', `${ids.length} empleados eliminados: ${membersToDelete.map(m => m.name).join(', ')}`);
         }
     };

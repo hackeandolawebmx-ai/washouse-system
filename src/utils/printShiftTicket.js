@@ -1,5 +1,4 @@
-
-import Logo from '../assets/logo.png';
+import Logo from '../assets/logo_bw.png';
 
 export const printShiftTicket = (shiftData) => {
     if (!shiftData) return;
@@ -73,7 +72,7 @@ export const printShiftTicket = (shiftData) => {
     </head>
     <body>
         <div class="header">
-            <img src="${window.location.origin + Logo}" alt="Washouse" style="width: 40px; margin-bottom: 5px;" />
+            <img src="${window.location.origin + Logo}" alt="Washouse" style="width: 100px; margin-bottom: 5px;" />
             <div class="title">CORTE DE CAJA</div>
             <div class="info">Responsable: ${closedBy || 'N/A'}</div>
             <div class="info">Inicio: ${new Date(startTime).toLocaleString()}</div>

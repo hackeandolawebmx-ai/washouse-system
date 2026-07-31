@@ -16,7 +16,8 @@ export default function SettingsPage() {
         inventory, addProduct, updateProduct, deleteProduct, loadStandardInventoryInAllBranches,
         services, addService, updateService, deleteService,
         deviceBranchId, setDeviceBranch,
-        syncData, logActivity, BRANCH_LICENSES, isBranchActive
+        syncData, logActivity, BRANCH_LICENSES, isBranchActive,
+        machines, sales, shifts, orders, expenses, customerOverrides, activityLogs
     } = useStorage();
 
     const [isBranchModalOpen, setIsBranchModalOpen] = useState(false);
@@ -29,17 +30,19 @@ export default function SettingsPage() {
     const [selectedInventoryBranch, setSelectedInventoryBranch] = useState('all');
 
     const handleExportBackup = () => {
-        const data = {};
-        const keys = [
-            'washouse_branches', 'washouse_machines', 'washouse_sales',
-            'washouse_shifts', 'washouse_logs', 'washouse_inventory',
-            'washouse_orders', 'washouse_expenses', 'washouse_customer_overrides'
-        ];
-
-        keys.forEach(key => {
-            const val = localStorage.getItem(key);
-            if (val) data[key] = JSON.parse(val);
-        });
+        // Data now lives in Supabase; export straight from context state
+        // rather than localStorage, which only holds branches/machines cache.
+        const data = {
+            washouse_branches: branches,
+            washouse_machines: machines,
+            washouse_sales: sales,
+            washouse_shifts: shifts,
+            washouse_logs: activityLogs,
+            washouse_inventory: inventory,
+            washouse_orders: orders,
+            washouse_expenses: expenses,
+            washouse_customer_overrides: customerOverrides
+        };
 
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -53,7 +56,10 @@ export default function SettingsPage() {
     };
 
     const handleResetSystem = () => {
-        if (window.confirm('¿ESTÁS SEGURO? Esta acción eliminará permanentemente todos los datos de ventas, clientes y turnos de este navegador. Las sucursales se mantendrán.')) {
+        // Ventas, órdenes, inventario, gastos, turnos y personal viven en Supabase;
+        // esto solo limpia la caché local del navegador (sesión, filtros, etc.),
+        // no borra datos del negocio.
+        if (window.confirm('Esto cerrará la sesión y limpiará la caché local de este navegador. Los datos del negocio (ventas, órdenes, inventario, etc.) están en la nube y no se verán afectados. ¿Continuar?')) {
             const currentDeviceBranch = localStorage.getItem('washouse_device_branch');
             localStorage.clear();
             if (currentDeviceBranch) localStorage.setItem('washouse_device_branch', currentDeviceBranch);

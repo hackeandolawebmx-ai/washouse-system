@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useStorage } from './StorageContext';
 import { formatCurrency } from '../utils/formatCurrency';
+import { supabase } from '../lib/supabase';
 
 const AuthContext = createContext();
 
@@ -82,9 +83,15 @@ export function AuthProvider({ children }) {
         return sessionStorage.getItem('washouse_admin') ? true : false;
     });
 
-    const loginAdmin = (pin) => {
-        // Find admin in staff list
-        const adminFound = staff.find(s => s.role === 'admin' && s.pin === pin);
+    const loginAdmin = async (pin) => {
+        // PIN is verified server-side via RPC; the plaintext PIN never gets
+        // compared against staff data held in the browser.
+        const { data, error } = await supabase.rpc('verify_pin', { p_pin: pin, p_branch_id: null });
+        if (error) {
+            console.error('Error verifying admin PIN:', error);
+            return false;
+        }
+        const adminFound = data?.find(s => s.role === 'admin');
         if (adminFound) {
             setAdminUser(true);
             sessionStorage.setItem('washouse_admin', 'true');
@@ -95,19 +102,21 @@ export function AuthProvider({ children }) {
     };
 
 
-    const loginHost = (pin) => {
-        const staffFound = staff.find(s => s.pin === pin);
-        if (staffFound) {
-            // Check if branch is active/paid
-            if (!isBranchActive(deviceBranchId)) {
-                return { success: false, error: 'Esta sucursal se encuentra temporalmente suspendida por falta de pago. Contacte al administrador.' };
-            }
+    const loginHost = async (pin) => {
+        // Check if branch is active/paid before even hitting the network.
+        if (!isBranchActive(deviceBranchId)) {
+            return { success: false, error: 'Esta sucursal se encuentra temporalmente suspendida por falta de pago. Contacte al administrador.' };
+        }
 
-            // Check if staff belongs to current branch or is global (all)
-            if (staffFound.branchId !== 'all' && staffFound.branchId !== deviceBranchId) {
-                return { success: false, error: 'Acceso no autorizado para esta sucursal.' };
-            }
-            return { success: true, userData: staffFound };
+        const { data, error } = await supabase.rpc('verify_pin', { p_pin: pin, p_branch_id: deviceBranchId });
+        if (error) {
+            console.error('Error verifying host PIN:', error);
+            return { success: false, error: 'Error de conexión al verificar el PIN.' };
+        }
+
+        const staffFound = data?.[0];
+        if (staffFound) {
+            return { success: true, userData: { id: staffFound.id, name: staffFound.name, role: staffFound.role, branchId: staffFound.branch_id } };
         }
         return { success: false, error: 'PIN incorrecto.' };
     };

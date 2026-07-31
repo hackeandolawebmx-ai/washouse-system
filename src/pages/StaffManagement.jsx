@@ -33,16 +33,16 @@ export default function StaffManagement() {
         setSelectedIds([]);
     };
 
-    const handleSave = () => {
-        if (!formData.name || !formData.pin) {
+    const handleSave = async () => {
+        if (!formData.name || (!editingId && !formData.pin)) {
             alert('Por favor completa el nombre y el PIN');
             return;
         }
 
         if (editingId) {
-            updateStaffMember(editingId, formData);
+            await updateStaffMember(editingId, formData);
         } else {
-            addStaffMember(formData);
+            await addStaffMember(formData);
         }
         resetForm();
     };
@@ -51,7 +51,7 @@ export default function StaffManagement() {
         setFormData({
             name: member.name,
             role: member.role,
-            pin: member.pin,
+            pin: '', // PINs are hashed server-side and never sent to the client; leave blank to keep it unchanged
             branchId: member.branchId
         });
         setEditingId(member.id);
@@ -135,7 +135,9 @@ export default function StaffManagement() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">PIN de Seguridad (4 dígitos)</label>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">
+                                    PIN de Seguridad (4 dígitos){editingId && ' — dejar en blanco para no cambiar'}
+                                </label>
                                 <div className="relative">
                                     <Key className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                                     <input

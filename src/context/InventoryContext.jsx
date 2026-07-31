@@ -1,127 +1,157 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useApp } from './AppContext';
+import { supabase } from '../lib/supabase';
 import { PRODUCTS_CATALOG } from '../data/catalog';
-import initialDB from '../data/initialState.json';
 
 const InventoryContext = createContext();
 
+const mapProduct = (p) => ({ ...p.metadata, id: p.id, branchId: p.branch_id, name: p.name, category: p.category, stock: p.stock, price: p.price });
+
+const toRow = (p) => {
+    const { id, branchId, name, category, stock, price, ...metadata } = p;
+    return { id, branch_id: branchId, name, category, stock, price, metadata };
+};
+
 export function InventoryProvider({ children }) {
-    const { CURRENT_SYSTEM_VERSION, logActivity } = useApp();
+    const { logActivity, branches } = useApp();
 
-    const getFromStorage = (key, defaultValue) => {
-        const savedVersion = localStorage.getItem('washouse_system_version');
-        if (savedVersion !== CURRENT_SYSTEM_VERSION) return defaultValue;
-        const saved = localStorage.getItem(key);
-        return saved ? JSON.parse(saved) : defaultValue;
-    };
-
-    const [inventory, setInventory] = useState(() => {
-        const data = getFromStorage('washouse_inventory', null);
-        if (data && data.length > 0) return data.map(p => ({ ...p, branchId: p.branchId || 'main' }));
-        return PRODUCTS_CATALOG.map(p => ({ ...p, branchId: 'main' }));
-    });
+    const [inventory, setInventory] = useState([]);
 
     useEffect(() => {
-        localStorage.setItem('washouse_inventory', JSON.stringify(inventory));
-    }, [inventory]);
+        const syncInventory = async () => {
+            const { data, error } = await supabase.from('inventory').select('*');
+            if (error) {
+                console.error('Error fetching inventory:', error);
+                return;
+            }
+            if (data && data.length > 0) {
+                setInventory(data.map(mapProduct));
+            } else {
+                // Seed a fresh project with the default catalog for the main branch
+                const seed = PRODUCTS_CATALOG.map(p => ({ ...p, branchId: 'main' }));
+                const { error: insertError } = await supabase.from('inventory').upsert(seed.map(toRow));
+                if (insertError) console.error('Inventory seed error:', insertError);
+                setInventory(seed);
+            }
+        };
+        syncInventory();
+    }, []);
 
-    const updateInventoryStock = useCallback((productId, change, branchId = 'main') => {
+    const updateInventoryStock = useCallback(async (productId, change, branchId = 'main') => {
+        let newStock = null;
         setInventory(prev => prev.map(p => {
             if (p.id === productId && p.branchId === branchId) {
-                return { ...p, stock: Math.max(0, p.stock + change) };
+                newStock = Math.max(0, p.stock + change);
+                return { ...p, stock: newStock };
             }
             return p;
         }));
+        if (newStock !== null) {
+            const { error } = await supabase.from('inventory').update({ stock: newStock }).eq('id', productId);
+            if (error) console.error('Error updating stock remotely:', error);
+        }
     }, []);
 
-    const addProduct = useCallback((product, user = 'Admin', branchId = 'main') => {
+    const addProduct = useCallback(async (product, user = 'Admin', branchId = 'main') => {
         const newProduct = { ...product, id: Date.now().toString(), branchId };
         setInventory(prev => [...prev, newProduct]);
+
+        const { error } = await supabase.from('inventory').insert([toRow(newProduct)]);
+        if (error) console.error('Error saving product remotely:', error);
+
         logActivity('PRODUCTO_AGREGADO', `Producto: ${product.name} (${branchId})`, user, branchId);
         return newProduct;
     }, [logActivity]);
 
-    const updateProduct = useCallback((id, updates, user = 'Admin') => {
+    const updateProduct = useCallback(async (id, updates, user = 'Admin') => {
+        let updatedProduct = null;
         setInventory(prev => prev.map(p => {
             if (p.id === id) {
+                updatedProduct = { ...p, ...updates };
                 logActivity('PRODUCTO_ACTUALIZADO', `Actualizado: ${p.name}`, user);
-                return { ...p, ...updates };
+                return updatedProduct;
             }
             return p;
         }));
+        if (updatedProduct) {
+            const { error } = await supabase.from('inventory').update(toRow(updatedProduct)).eq('id', id);
+            if (error) console.error('Error updating product remotely:', error);
+        }
     }, [logActivity]);
 
-    const deleteProduct = useCallback((id, user = 'Admin') => {
-        setInventory(prev => {
-            const product = prev.find(p => p.id === id);
-            if (product) {
-                logActivity('PRODUCTO_ELIMINADO', `Eliminado: ${product.name}`, user);
-            }
-            return prev.filter(p => p.id !== id);
-        });
-    }, [logActivity]);
+    const deleteProduct = useCallback(async (id, user = 'Admin') => {
+        const product = inventory.find(p => p.id === id);
+        setInventory(prev => prev.filter(p => p.id !== id));
 
-    const importInventory = useCallback((newProducts, user = 'Admin') => {
+        const { error } = await supabase.from('inventory').delete().eq('id', id);
+        if (error) console.error('Error deleting product remotely:', error);
+
+        if (product) {
+            logActivity('PRODUCTO_ELIMINADO', `Eliminado: ${product.name}`, user);
+        }
+    }, [logActivity, inventory]);
+
+    const importInventory = useCallback(async (newProducts, user = 'Admin') => {
         let addedCount = 0;
         let updatedCount = 0;
+        const currentMap = new Map(inventory.map(p => [p.id, p]));
 
-        setInventory(prev => {
-            const currentMap = new Map(prev.map(p => [p.id, p]));
-
-            newProducts.forEach(p => {
-                if (p.id && currentMap.has(p.id)) {
-                    currentMap.set(p.id, { ...currentMap.get(p.id), ...p });
-                    updatedCount++;
-                } else {
-                    const newId = p.id || Date.now().toString() + Math.random().toString(36).substr(2, 5);
-                    currentMap.set(newId, { ...p, id: newId });
-                    addedCount++;
-                }
-            });
-
-            return Array.from(currentMap.values());
+        newProducts.forEach(p => {
+            if (p.id && currentMap.has(p.id)) {
+                currentMap.set(p.id, { ...currentMap.get(p.id), ...p });
+                updatedCount++;
+            } else {
+                const newId = p.id || Date.now().toString() + Math.random().toString(36).substr(2, 5);
+                currentMap.set(newId, { ...p, id: newId });
+                addedCount++;
+            }
         });
+
+        const nextInventory = Array.from(currentMap.values());
+        setInventory(nextInventory);
+
+        const { error } = await supabase.from('inventory').upsert(nextInventory.map(toRow));
+        if (error) console.error('Error importing inventory remotely:', error);
 
         logActivity('IMPORTACION_MASIVA', `Agregados: ${addedCount}, Actualizados: ${updatedCount}`, user);
         return { added: addedCount, updated: updatedCount };
-    }, [logActivity]);
+    }, [logActivity, inventory]);
 
-    const loadStandardInventoryInAllBranches = useCallback((user = 'Admin') => {
-        const branches = JSON.parse(localStorage.getItem('washouse_branches') || '[]');
+    const loadStandardInventoryInAllBranches = useCallback(async (user = 'Admin') => {
         if (branches.length === 0) return;
 
-        let totalAdded = 0;
-        setInventory(prev => {
-            let currentInventory = [...prev];
+        const currentInventory = [...inventory];
+        const newItems = [];
 
-            branches.forEach(branch => {
-                const currentBranchProducts = new Set(
-                    currentInventory.filter(p => p.branchId === branch.id)
-                        .map(p => p.name.toLowerCase().trim())
-                );
+        branches.forEach(branch => {
+            const currentBranchProducts = new Set(
+                currentInventory.filter(p => p.branchId === branch.id)
+                    .map(p => p.name.toLowerCase().trim())
+            );
 
-                PRODUCTS_CATALOG.forEach(catalogItem => {
-                    if (!currentBranchProducts.has(catalogItem.name.toLowerCase().trim())) {
-                        currentInventory.push({
-                            ...catalogItem,
-                            id: `${catalogItem.id}_${branch.id}_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
-                            branchId: branch.id
-                        });
-                        totalAdded++;
-                    }
-                });
+            PRODUCTS_CATALOG.forEach(catalogItem => {
+                if (!currentBranchProducts.has(catalogItem.name.toLowerCase().trim())) {
+                    newItems.push({
+                        ...catalogItem,
+                        id: `${catalogItem.id}_${branch.id}_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+                        branchId: branch.id
+                    });
+                }
             });
-
-            return currentInventory;
         });
 
-        if (totalAdded > 0) {
-            logActivity('INVENTARIO_MASIVO', `Se inicializaron ${totalAdded} productos en todas las sucursales.`, user);
-            alert(`Se agregaron ${totalAdded} productos en total a todas las sucursales.`);
+        if (newItems.length > 0) {
+            setInventory([...currentInventory, ...newItems]);
+
+            const { error } = await supabase.from('inventory').upsert(newItems.map(toRow));
+            if (error) console.error('Error seeding standard inventory remotely:', error);
+
+            logActivity('INVENTARIO_MASIVO', `Se inicializaron ${newItems.length} productos en todas las sucursales.`, user);
+            alert(`Se agregaron ${newItems.length} productos en total a todas las sucursales.`);
         } else {
             alert('Todas las sucursales ya tienen el catálogo completo.');
         }
-    }, [logActivity]);
+    }, [logActivity, inventory, branches]);
 
     const value = {
         inventory,

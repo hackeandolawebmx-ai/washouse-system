@@ -31,14 +31,14 @@ export default function SelectStaffModal({ isOpen, onClose, onAuthenticated }) {
         s && (s.branchId === 'all' || s.branchId === deviceBranchId)
     );
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
 
         if (!selectedStaff || !pin) return;
 
         // Use the new loginHost logic from AuthContext
-        const result = loginHost(pin);
+        const result = await loginHost(pin);
 
         if (result.success && result.userData.id === selectedStaff.id) {
             onAuthenticated(result.userData);

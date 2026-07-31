@@ -1,4 +1,4 @@
-import Logo from '../assets/logo.png';
+import Logo from '../assets/logo_bw.png';
 
 export const printServiceTicket = (order) => {
     if (!order || !order.items) {
@@ -65,9 +65,8 @@ export const printServiceTicket = (order) => {
             <div class="header">
                 ${isCopy
             ? '<div style="font-size: 16px; font-weight: bold; margin-bottom: 10px; border: 2px solid #000; padding: 4px; display: inline-block;">COPIA - NEGOCIO</div>'
-            : `<img src="${window.location.origin + Logo}" alt="Washouse" style="width: 60px; height: auto; margin-bottom: 10px;" />`
+            : `<img src="${window.location.origin + Logo}" alt="Washouse" style="width: 150px; height: auto; margin-bottom: 10px;" />`
         }
-                <div class="title">WASHOUSE</div>
                 <div class="info">Orden: #${orderId}</div>
                 <div class="info">${new Date(createdAt).toLocaleString()}</div>
                 <div class="info" style="font-weight:bold; margin-top:5px;">${customerName}</div>
