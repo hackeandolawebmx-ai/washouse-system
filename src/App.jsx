@@ -9,6 +9,7 @@ import ReportsPage from './pages/ReportsPage';
 import SettingsPage from './pages/SettingsPage';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminLogin from './pages/AdminLogin';
+import InvoicesPage from './pages/InvoicesPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { StorageProvider } from './context/StorageContext';
 import { AuthProvider } from './context/AuthContext';
@@ -41,6 +42,7 @@ function AppRoutes() {
           </Route>
           <Route path="staff" element={<StaffManagement />} />
           <Route path="clients" element={<ClientsPage />} />
+          <Route path="invoices" element={<InvoicesPage />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>

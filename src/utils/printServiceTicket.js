@@ -1,6 +1,6 @@
 import Logo from '../assets/logo_bw.png';
 
-export const printServiceTicket = (order) => {
+export const printServiceTicket = (order, invoice = null) => {
     if (!order || !order.items) {
         alert("No hay detalles para imprimir.");
         return;
@@ -92,6 +92,38 @@ export const printServiceTicket = (order) => {
                 </div>
             </div>
      
+            ${invoice ? `
+            <div class="invoice-section">
+                <div style="border-top: 1px dashed #000; margin-top: 10px; padding-top: 10px; font-weight: bold;">FACTURA FISCAL (CFDI)</div>
+                <div class="info">Número: #${invoice.invoice_number}</div>
+                <div class="total-row" style="margin-top: 5px;">
+                    <span>Subtotal:</span>
+                    <span>$${(invoice.subtotal || 0).toFixed(2)}</span>
+                </div>
+                <div class="total-row">
+                    <span>IVA (16%):</span>
+                    <span>$${(invoice.iva_amount || 0).toFixed(2)}</span>
+                </div>
+                ${invoice.discount_amount > 0 ? `
+                <div class="total-row">
+                    <span>Descuento:</span>
+                    <span>-$${(invoice.discount_amount || 0).toFixed(2)}</span>
+                </div>
+                ` : ''}
+                <div class="total-row" style="font-weight: bold; border-top: 1px solid #000; padding-top: 5px; margin-top: 5px;">
+                    <span>Total Factura:</span>
+                    <span>$${(invoice.total_amount || 0).toFixed(2)}</span>
+                </div>
+                <div class="info" style="margin-top: 5px;">Pago: ${
+                    invoice.payment_method === 'cash' ? 'Efectivo' :
+                    invoice.payment_method === 'card' ? 'Tarjeta' :
+                    invoice.payment_method === 'transfer' ? 'Transferencia' :
+                    invoice.payment_method === 'check' ? 'Cheque' : invoice.payment_method
+                }</div>
+                ${invoice.cfdi_uuid ? `<div class="info" style="font-size: 10px;">CFDI: ${invoice.cfdi_uuid.substring(0, 8)}...</div>` : ''}
+            </div>
+            ` : ''}
+
             <div class="footer">
                 ${!isCopy ? '<p>¡Gracias por su preferencia!</p>' : '<p>Recibo Interno</p>'}
                 <p style="text-align:left; margin-top:10px;">

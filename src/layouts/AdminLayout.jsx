@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { ChevronDown, ChevronRight, LayoutDashboard, Settings, Users, ClipboardList } from 'lucide-react';
+import { ChevronDown, ChevronRight, LayoutDashboard, Settings, Users, ClipboardList, FileText } from 'lucide-react';
 import logo from '../assets/WasHouse CYMK.png';
 
 export default function AdminLayout() {
@@ -79,6 +79,7 @@ export default function AdminLayout() {
                     <div className="text-gray-500/80 text-[9px] uppercase tracking-[0.25em] font-black mt-10 mb-3 px-4">
                         Sistema
                     </div>
+                    <NavLink to="/admin/invoices" label="Facturación" icon={FileText} />
                     <NavLink to="/admin/reports" label="Reportes" icon={ClipboardList} />
                     <NavLink to="/admin/settings" label="Configuración" icon={Settings} />
                 </nav>
