@@ -1,10 +1,11 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 import { useStorage } from './StorageContext';
 
 const InvoiceContext = createContext();
 
 export function InvoiceProvider({ children }) {
-  const { supabase, selectedBranch } = useStorage();
+  const { selectedBranch } = useStorage();
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -28,7 +29,7 @@ export function InvoiceProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  }, [supabase, selectedBranch]);
+  }, [selectedBranch]);
 
   // Fetch on mount or when branch changes
   useEffect(() => {
@@ -50,7 +51,7 @@ export function InvoiceProvider({ children }) {
       console.error('Failed to get next invoice number:', err);
       return '000001';
     }
-  }, [supabase]);
+  }, []);
 
   // Calculate invoice totals (subtotal, iva, total)
   const calculateTotals = useCallback((items, discountAmount = 0) => {
@@ -68,7 +69,6 @@ export function InvoiceProvider({ children }) {
   // Create new invoice (draft)
   const createInvoice = useCallback(async (invoiceData) => {
     try {
-      setError(null);
 
       // Get next invoice number
       const nextNumber = await getNextInvoiceNumber(invoiceData.branch_id);
