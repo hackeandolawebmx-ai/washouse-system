@@ -1,12 +1,23 @@
+import { useState } from 'react';
 import { X, Phone, Clock, DollarSign, Package } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import { printServiceTicket } from '../../utils/printServiceTicket';
 import { useStorage } from '../../context/StorageContext';
+import { useInvoice } from '../../context/InvoiceContext';
 import { formatCurrency } from '../../utils/formatCurrency';
 import Modal from './Modal';
+import NewInvoiceModal from '../admin/NewInvoiceModal';
 
 export default function OrderDetailsModal({ order, isOpen, onClose, extraActions }) {
+    const { selectedBranch } = useStorage();
+    const { getInvoicesByOrderId } = useInvoice();
+    const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+
     if (!order) return null;
+
+    // Check if order already has invoice
+    const existingInvoices = getInvoicesByOrderId(order.id);
+    const hasInvoice = existingInvoices.length > 0;
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title={`Detalle de Orden #${order.id.split('-')[1]}`}>
@@ -131,6 +142,22 @@ export default function OrderDetailsModal({ order, isOpen, onClose, extraActions
                     >
                         WhatsApp
                     </a>
+                    {order.status === 'COMPLETED' && !hasInvoice && (
+                        <button
+                            onClick={() => setIsInvoiceModalOpen(true)}
+                            className="flex-1 w-full sm:w-auto bg-washouse-blue text-white px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-blue-700 shadow-lg shadow-blue-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+                        >
+                            💰 Generar Factura
+                        </button>
+                    )}
+                    {hasInvoice && (
+                        <button
+                            disabled
+                            className="flex-1 w-full sm:w-auto bg-green-50 text-green-600 border border-green-200 px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px]"
+                        >
+                            ✓ Facturada
+                        </button>
+                    )}
                     <button
                         onClick={() => printServiceTicket(order)}
                         className="flex-1 w-full sm:w-auto bg-white text-washouse-navy border border-gray-200 px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-gray-50 transition-all shadow-sm"
@@ -143,6 +170,24 @@ export default function OrderDetailsModal({ order, isOpen, onClose, extraActions
                         </div>
                     )}
                 </div>
+
+                {/* Invoice Modal */}
+                <NewInvoiceModal
+                    isOpen={isInvoiceModalOpen}
+                    onClose={() => setIsInvoiceModalOpen(false)}
+                    orderId={order.id}
+                    orderData={{
+                        customerName: order.customerName,
+                        customerPhone: order.customerPhone,
+                        items: (Array.isArray(order.items) ? order.items : []).map(item => ({
+                            name: item.name,
+                            description: item.name,
+                            qty: item.quantity || 1,
+                            price: item.price || 0
+                        })),
+                        total: order.totalAmount
+                    }}
+                />
             </div>
         </Modal>
     );

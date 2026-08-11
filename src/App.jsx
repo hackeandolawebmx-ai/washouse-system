@@ -12,6 +12,7 @@ import AdminLogin from './pages/AdminLogin';
 import ProtectedRoute from './components/ProtectedRoute';
 import { StorageProvider } from './context/StorageContext';
 import { AuthProvider } from './context/AuthContext';
+import { InvoiceProvider } from './context/InvoiceContext';
 import PageTransition from './components/PageTransition';
 
 import StaffManagement from './pages/StaffManagement';
@@ -53,11 +54,13 @@ function AppRoutes() {
 function App() {
   return (
     <StorageProvider>
-      <AuthProvider>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </AuthProvider>
+      <InvoiceProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </AuthProvider>
+      </InvoiceProvider>
     </StorageProvider>
   );
 }
