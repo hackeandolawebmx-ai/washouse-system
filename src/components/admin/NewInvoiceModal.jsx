@@ -229,34 +229,58 @@ export default function NewInvoiceModal({ isOpen, onClose, orderId, orderData })
                             onChange={(e) => handleUpdateItem(idx, 'description', e.target.value)}
                             className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm font-bold focus:ring-2 focus:ring-washouse-blue focus:border-transparent"
                           />
-                          <div className="grid grid-cols-4 gap-2">
-                            <input
-                              type="number"
-                              min="1"
-                              placeholder="Qty"
-                              value={item.qty}
-                              onChange={(e) => handleUpdateItem(idx, 'qty', parseFloat(e.target.value) || 0)}
-                              className="px-2 py-2 rounded-lg border border-gray-200 bg-white text-sm font-bold focus:ring-2 focus:ring-washouse-blue focus:border-transparent"
-                            />
-                            <input
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              placeholder="Precio"
-                              value={item.unit_price}
-                              onChange={(e) => handleUpdateItem(idx, 'unit_price', parseFloat(e.target.value) || 0)}
-                              className="px-2 py-2 rounded-lg border border-gray-200 bg-white text-sm font-bold focus:ring-2 focus:ring-washouse-blue focus:border-transparent"
-                            />
-                            <div className="px-2 py-2 bg-blue-50 rounded-lg text-sm font-bold text-washouse-blue text-right">
-                              {formatCurrency(item.total)}
+                          <div className="grid grid-cols-12 gap-2">
+                            {/* Cantidad */}
+                            <div className="col-span-2">
+                              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                                Cantidad
+                              </label>
+                              <input
+                                type="number"
+                                min="1"
+                                placeholder="1"
+                                value={item.qty}
+                                onChange={(e) => handleUpdateItem(idx, 'qty', parseFloat(e.target.value) || 0)}
+                                className="w-full px-2 py-2 rounded-lg border border-gray-200 bg-white text-sm font-bold focus:ring-2 focus:ring-washouse-blue focus:border-transparent"
+                              />
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveItem(idx)}
-                              className="px-2 py-2 bg-red-50 hover:bg-red-100 rounded-lg text-xs font-black text-red-600 transition-colors"
-                            >
-                              Quitar
-                            </button>
+
+                            {/* Precio Unitario */}
+                            <div className="col-span-3">
+                              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                                Precio Unitario
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                placeholder="0.00"
+                                value={item.unit_price}
+                                onChange={(e) => handleUpdateItem(idx, 'unit_price', parseFloat(e.target.value) || 0)}
+                                className="w-full px-2 py-2 rounded-lg border border-gray-200 bg-white text-sm font-bold focus:ring-2 focus:ring-washouse-blue focus:border-transparent"
+                              />
+                            </div>
+
+                            {/* Total */}
+                            <div className="col-span-3">
+                              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                                Total
+                              </label>
+                              <div className="px-2 py-2 bg-blue-50 rounded-lg text-sm font-bold text-washouse-blue text-right">
+                                {formatCurrency(item.total)}
+                              </div>
+                            </div>
+
+                            {/* Quitar */}
+                            <div className="col-span-4 flex items-end">
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveItem(idx)}
+                                className="w-full px-2 py-2 bg-red-50 hover:bg-red-100 rounded-lg text-xs font-black text-red-600 transition-colors"
+                              >
+                                ✕ Quitar
+                              </button>
+                            </div>
                           </div>
                         </div>
                       ))}
