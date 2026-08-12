@@ -77,6 +77,7 @@ export function InvoiceProvider({ children }) {
       const totals = calculateTotals(invoiceData.items, invoiceData.discount_amount || 0);
 
       // Prepare invoice record
+      console.log('Creating invoice with branch_id:', invoiceData.branch_id);
       const newInvoice = {
         branch_id: invoiceData.branch_id,
         order_id: invoiceData.order_id || null,

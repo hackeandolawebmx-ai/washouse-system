@@ -93,6 +93,7 @@ export default function NewInvoiceModal({ isOpen, onClose, orderId, orderData })
 
     setLoading(true);
     try {
+      console.log('Modal: selectedBranch =', selectedBranch);
       const invoiceData = {
         branch_id: selectedBranch,
         order_id: orderId || null,
