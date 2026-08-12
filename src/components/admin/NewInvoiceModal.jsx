@@ -8,7 +8,7 @@ import { X } from 'lucide-react';
 
 export default function NewInvoiceModal({ isOpen, onClose, orderId, orderData }) {
   const { createInvoice, updateInvoice } = useInvoice();
-  const { selectedBranch, user } = useStorage();
+  const { selectedBranch, deviceBranchId, user } = useStorage();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -93,9 +93,12 @@ export default function NewInvoiceModal({ isOpen, onClose, orderId, orderData })
 
     setLoading(true);
     try {
-      console.log('Modal: selectedBranch =', selectedBranch);
+      // Use deviceBranchId if selectedBranch is 'all' (filter-only mode)
+      const branchId = selectedBranch === 'all' ? deviceBranchId : selectedBranch;
+      console.log('Modal: selectedBranch =', selectedBranch, ', using branchId =', branchId);
+
       const invoiceData = {
-        branch_id: selectedBranch,
+        branch_id: branchId,
         order_id: orderId || null,
         customer_name: customerName,
         customer_phone: customerPhone || null,

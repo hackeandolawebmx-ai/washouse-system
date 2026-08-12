@@ -9,7 +9,7 @@ import Modal from './Modal';
 import NewInvoiceModal from '../admin/NewInvoiceModal';
 
 export default function OrderDetailsModal({ order, isOpen, onClose, extraActions }) {
-    const { selectedBranch } = useStorage();
+    const { selectedBranch, deviceBranchId } = useStorage();
     const { getInvoicesByOrderId } = useInvoice();
     const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
 
