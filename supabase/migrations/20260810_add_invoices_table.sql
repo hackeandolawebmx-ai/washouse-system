@@ -45,6 +45,7 @@ create index if not exists idx_invoices_date on invoices(invoice_date);
 
 -- Row Level Security
 alter table invoices enable row level security;
+drop policy if exists "anon full access" on invoices;
 create policy "anon full access" on invoices for all using (true) with check (true);
 
 -- RPC: Generate next invoice number for a branch

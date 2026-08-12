@@ -111,7 +111,13 @@ export function InvoiceProvider({ children }) {
       return newInvoice;
     } catch (err) {
       const errorMsg = err.message || 'Failed to create invoice';
-      console.error('Create invoice error:', err);
+      console.error('Create invoice error:', {
+        message: err.message,
+        code: err.code,
+        details: err.details,
+        hint: err.hint,
+        fullError: err
+      });
       setError(errorMsg);
       throw err;
     }
