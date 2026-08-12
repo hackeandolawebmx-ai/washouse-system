@@ -5,7 +5,7 @@ import { useStorage } from './StorageContext';
 const InvoiceContext = createContext();
 
 export function InvoiceProvider({ children }) {
-  const { selectedBranch } = useStorage();
+  const { selectedBranch, deviceBranchId } = useStorage();
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -15,10 +15,14 @@ export function InvoiceProvider({ children }) {
     setLoading(true);
     setError(null);
     try {
+      // Use deviceBranchId if selectedBranch is 'all' (filter-only mode)
+      const branchId = selectedBranch === 'all' ? deviceBranchId : selectedBranch;
+      console.log('fetchInvoices: selectedBranch =', selectedBranch, ', using branchId =', branchId);
+
       const { data, error: err } = await supabase
         .from('invoices')
         .select('*')
-        .eq('branch_id', selectedBranch)
+        .eq('branch_id', branchId)
         .order('created_at', { ascending: false });
 
       if (err) throw err;
@@ -29,7 +33,7 @@ export function InvoiceProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  }, [selectedBranch]);
+  }, [selectedBranch, deviceBranchId]);
 
   // Fetch on mount or when branch changes
   useEffect(() => {
