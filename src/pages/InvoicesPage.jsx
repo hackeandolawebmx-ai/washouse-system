@@ -5,11 +5,11 @@ import { formatCurrency } from '../utils/formatCurrency';
 import Button from '../components/ui/Button';
 import NewInvoiceModal from '../components/admin/NewInvoiceModal';
 import InvoicePreview from '../components/admin/InvoicePreview';
-import { Download, Eye, Trash2, X, FileText, Filter } from 'lucide-react';
+import { Download, Eye, Trash2, X, FileText, Filter, Send } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function InvoicesPage() {
-  const { invoices, loading, cancelInvoice, deleteInvoice } = useInvoice();
+  const { invoices, loading, cancelInvoice, deleteInvoice, issueInvoice } = useInvoice();
   const { user } = useStorage();
   const [isNewInvoiceOpen, setIsNewInvoiceOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
@@ -19,6 +19,7 @@ export default function InvoicesPage() {
   const [searchCustomer, setSearchCustomer] = useState('');
   const [deletingId, setDeletingId] = useState(null);
   const [cancelingId, setCancelingId] = useState(null);
+  const [issuingId, setIssuingId] = useState(null);
 
   // Filter invoices
   const filteredInvoices = useMemo(() => {
@@ -79,6 +80,19 @@ export default function InvoicesPage() {
       alert('Error: ' + err.message);
     } finally {
       setCancelingId(null);
+    }
+  };
+
+  // Handle issue (send CFDI to Facturama)
+  const handleIssue = async (id) => {
+    if (!confirm('¿Emitir esta factura? Se enviará a Facturama para timbrado SAT.')) return;
+    setIssuingId(id);
+    try {
+      await issueInvoice(id);
+    } catch (err) {
+      alert('Error al emitir: ' + err.message);
+    } finally {
+      setIssuingId(null);
     }
   };
 
@@ -323,6 +337,18 @@ export default function InvoicesPage() {
                         >
                           <Eye size={16} />
                         </button>
+
+                        {/* Issue (only draft) */}
+                        {invoice.status === 'draft' && (
+                          <button
+                            onClick={() => handleIssue(invoice.id)}
+                            disabled={issuingId === invoice.id}
+                            className="p-2 hover:bg-green-50 rounded-lg transition-colors text-green-600 disabled:opacity-50"
+                            title="Emitir factura (timbrar con Facturama)"
+                          >
+                            <Send size={16} />
+                          </button>
+                        )}
 
                         {/* Delete (only draft) */}
                         {invoice.status === 'draft' && (
