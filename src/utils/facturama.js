@@ -75,8 +75,15 @@ export async function createCFDI(invoiceData) {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(`Facturama error ${response.status}: ${error.message || error.error}`);
+      const text = await response.text();
+      let message = text;
+      try {
+        const parsed = JSON.parse(text);
+        message = parsed.Message || parsed.message || parsed.error || text;
+      } catch {
+        // response wasn't JSON, use raw text
+      }
+      throw new Error(`Facturama error ${response.status}: ${message}`);
     }
 
     const result = await response.json();
