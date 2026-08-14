@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s \"https://apisandbox.facturama.mx/Docs\")",
+      "Bash(curl -s \"https://apisandbox.facturama.mx/guias\")",
+      "Bash(curl -s \"https://apisandbox.facturama.mx/docs/guias/authentication\")",
+      "Bash(curl -sL \"https://dev.facturama.mx/api/login\")"
+    ]
+  }
+}

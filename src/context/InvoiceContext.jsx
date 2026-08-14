@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useStorage } from './StorageContext';
+import { createCFDI, downloadCFDI } from '../utils/facturama';
 
 const InvoiceContext = createContext();
 
@@ -175,17 +176,45 @@ export function InvoiceProvider({ children }) {
   }, [supabase, invoices, calculateTotals]);
 
   // Issue invoice (draft → issued)
+  // Sends CFDI to Facturama for validation
   const issueInvoice = useCallback(async (invoiceId) => {
     try {
       setError(null);
 
+      // Get invoice from local state
+      const invoice = invoices.find(inv => inv.id === invoiceId);
+      if (!invoice) throw new Error('Invoice not found');
+
+      console.log('Issuing invoice to Facturama:', invoice);
+
+      // Send to Facturama for CFDI validation
+      const cfdiResult = await createCFDI({
+        invoice_number: invoice.invoice_number,
+        order_id: invoice.order_id,
+        customer_name: invoice.customer_name,
+        customer_rfc: invoice.customer_rfc,
+        payment_method: invoice.payment_method,
+        items: invoice.items,
+        subtotal: invoice.subtotal,
+        iva_amount: invoice.iva_amount,
+        total_amount: invoice.total_amount,
+        discount_amount: invoice.discount_amount
+      });
+
+      // Update invoice with CFDI UUID
       const { data, error: err } = await supabase
         .from('invoices')
-        .update({ status: 'issued', updated_at: new Date().toISOString() })
+        .update({
+          status: 'issued',
+          cfdi_uuid: cfdiResult.cfdi_uuid,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', invoiceId)
         .select();
 
       if (err) throw err;
+
+      console.log('Invoice issued with CFDI UUID:', cfdiResult.cfdi_uuid);
 
       if (data && data.length > 0) {
         setInvoices(invoices.map(inv => inv.id === invoiceId ? data[0] : inv));
@@ -197,7 +226,7 @@ export function InvoiceProvider({ children }) {
       setError(errorMsg);
       throw err;
     }
-  }, [supabase, invoices]);
+  }, [invoices]);
 
   // Cancel invoice (any status → cancelled)
   const cancelInvoice = useCallback(async (invoiceId) => {
