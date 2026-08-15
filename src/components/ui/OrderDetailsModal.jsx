@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Phone, Clock, DollarSign, Package } from 'lucide-react';
+import { X, Phone, Clock, DollarSign, Package, Check } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import { printServiceTicket } from '../../utils/printServiceTicket';
 import { useStorage } from '../../context/StorageContext';
