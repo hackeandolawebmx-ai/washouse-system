@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { ChevronDown, ChevronRight, LayoutDashboard, Settings, Users, ClipboardList, FileText } from 'lucide-react';
+import { ChevronDown, ChevronRight, LayoutDashboard, Settings, Users, ClipboardList, FileText, Menu, X } from 'lucide-react';
 import logo from '../assets/WasHouse CYMK.png';
 
 export default function AdminLayout() {
@@ -11,11 +11,17 @@ export default function AdminLayout() {
     };
 
     const [isDashboardOpen, setIsDashboardOpen] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    // Close mobile sidebar on route change
+    useEffect(() => {
+        setIsSidebarOpen(false);
+    }, [location.pathname]);
 
     const NavLink = ({ to, label, icon: Icon, isSubItem = false }) => (
         <Link
             to={to}
-            className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 
+            className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all duration-200
                 ${isSubItem ? 'ml-9 text-sm py-2' : ''}
                 ${isActive(to)
                     ? 'bg-white/10 text-white shadow-sm border border-white/10 ring-1 ring-white/20'
@@ -29,8 +35,41 @@ export default function AdminLayout() {
 
     return (
         <div className="min-h-screen flex">
-            {/* Standard Sidebar - Stripped for Debugging */}
-            <aside className="w-72 bg-washouse-navy flex flex-col border-r border-white/5 relative">
+            {/* Mobile top bar */}
+            <div className="md:hidden fixed top-0 inset-x-0 z-30 h-16 bg-washouse-navy flex items-center justify-between px-4 border-b border-white/5">
+                <img src={logo} alt="Washouse Admin" className="h-9 w-auto object-contain bg-white rounded-lg p-1" />
+                <button
+                    onClick={() => setIsSidebarOpen(true)}
+                    className="p-2 text-white hover:bg-white/10 rounded-xl transition-colors"
+                    aria-label="Abrir menú"
+                >
+                    <Menu size={24} />
+                </button>
+            </div>
+
+            {/* Mobile backdrop */}
+            {isSidebarOpen && (
+                <div
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="md:hidden fixed inset-0 bg-black/50 z-40"
+                />
+            )}
+
+            {/* Sidebar - off-canvas drawer on mobile, static on desktop */}
+            <aside
+                className={`w-72 bg-washouse-navy flex flex-col border-r border-white/5 fixed inset-y-0 left-0 z-50 overflow-y-auto
+                    transition-transform duration-300 ease-in-out
+                    ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+                    md:translate-x-0 md:static md:z-auto`}
+            >
+                <button
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="md:hidden absolute top-4 right-4 p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
+                    aria-label="Cerrar menú"
+                >
+                    <X size={20} />
+                </button>
+
                 {/* Brand Identity Section */}
                 <div className="p-8 mb-6 flex flex-col items-center">
                     <img
@@ -93,8 +132,8 @@ export default function AdminLayout() {
                     </div>
                 </div>
             </aside>
-            <main className="flex-1 bg-white overflow-y-auto">
-                <div className="p-8 md:p-12 max-w-7xl mx-auto">
+            <main className="flex-1 bg-white overflow-y-auto pt-16 md:pt-0">
+                <div className="p-6 md:p-12 max-w-7xl mx-auto">
                     <Outlet />
                 </div>
             </main>

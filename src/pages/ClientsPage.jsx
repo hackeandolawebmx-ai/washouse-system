@@ -303,17 +303,23 @@ export default function ClientsPage() {
                             <div className="text-sm text-gray-500">Clientes Únicos</div>
                         </div>
                     </div>
-                    <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-center gap-4">
-                        <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-red-600">
-                            <DollarSign size={24} />
-                        </div>
-                        <div>
-                            <div className="text-2xl font-bold text-red-600">
-                                {formatCurrency(clients.reduce((sum, c) => sum + c.debt, 0))}
+                    {(() => {
+                        const totalDebt = clients.reduce((sum, c) => sum + c.debt, 0);
+                        const hasDebt = totalDebt > 0;
+                        return (
+                            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-center gap-4">
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${hasDebt ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-400'}`}>
+                                    <DollarSign size={24} />
+                                </div>
+                                <div>
+                                    <div className={`text-2xl font-bold ${hasDebt ? 'text-red-600' : 'text-gray-800'}`}>
+                                        {formatCurrency(totalDebt)}
+                                    </div>
+                                    <div className="text-sm text-gray-500">Deuda Total Pendiente</div>
+                                </div>
                             </div>
-                            <div className="text-sm text-gray-500">Deuda Total Pendiente</div>
-                        </div>
-                    </div>
+                        );
+                    })()}
                 </div>
 
                 <ClientHistoryModal

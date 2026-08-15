@@ -11,20 +11,22 @@ export function InvoiceProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch all invoices for selected branch
+  // Fetch invoices — 'all' means every branch, matching the convention
+  // used across ClientsPage/ReportsPage/AdminDashboard/useMetrics.
   const fetchInvoices = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      // Use deviceBranchId if selectedBranch is 'all' (filter-only mode)
-      const branchId = selectedBranch === 'all' ? deviceBranchId : selectedBranch;
-      console.log('fetchInvoices: selectedBranch =', selectedBranch, ', using branchId =', branchId);
-
-      const { data, error: err } = await supabase
+      let query = supabase
         .from('invoices')
         .select('*')
-        .eq('branch_id', branchId)
         .order('created_at', { ascending: false });
+
+      if (selectedBranch !== 'all') {
+        query = query.eq('branch_id', selectedBranch);
+      }
+
+      const { data, error: err } = await query;
 
       if (err) throw err;
       setInvoices(data || []);
@@ -34,7 +36,7 @@ export function InvoiceProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  }, [selectedBranch, deviceBranchId]);
+  }, [selectedBranch]);
 
   // Fetch on mount or when branch changes
   useEffect(() => {

@@ -6,6 +6,8 @@
 const FACTURAMA_USER = import.meta.env.VITE_FACTURAMA_USER;
 const FACTURAMA_PASSWORD = import.meta.env.VITE_FACTURAMA_PASSWORD;
 const FACTURAMA_API_URL = import.meta.env.VITE_FACTURAMA_API_URL;
+const FACTURAMA_ISSUER_RFC = import.meta.env.VITE_FACTURAMA_ISSUER_RFC;
+const FACTURAMA_ISSUER_NAME = import.meta.env.VITE_FACTURAMA_ISSUER_NAME;
 
 // Generate HTTP Basic Auth header
 function getAuthHeader() {
@@ -32,9 +34,8 @@ export async function createCFDI(invoiceData) {
       paymentForm: 'PUE', // Pago Único en Especie (single payment)
 
       // Issuer (Washouse)
-      issuerRfc: invoiceData.issuer_rfc || 'PEND41EAF8FF9', // Default RFC
-      issuerName: invoiceData.issuer_name || 'Washouse',
-      issuerEmail: invoiceData.issuer_email || 'contact@washouse.com',
+      issuerRfc: invoiceData.issuer_rfc || FACTURAMA_ISSUER_RFC,
+      issuerName: invoiceData.issuer_name || FACTURAMA_ISSUER_NAME,
 
       // Receiver (Customer)
       receiverRfc: invoiceData.customer_rfc || 'XAXX010101000', // Generic RFC if not provided

@@ -424,6 +424,12 @@ export default function ReportsPage() {
                     </div>
 
                     <div className="h-64 w-full">
+                        {reportData.sales.length === 0 ? (
+                            <div className="h-full w-full flex flex-col items-center justify-center text-center">
+                                <BarIcon size={28} className="text-gray-300 mb-3" strokeWidth={1.5} />
+                                <p className="text-sm font-bold text-gray-400">Sin ciclos registrados en este periodo</p>
+                            </div>
+                        ) : (
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={reportData.productivity} layout="vertical" margin={{ left: 20 }}>
                                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" opacity={0.5} />
@@ -459,6 +465,7 @@ export default function ReportsPage() {
                                 </Bar>
                             </BarChart>
                         </ResponsiveContainer>
+                        )}
                     </div>
                     <div className="mt-4 p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
                         <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-loose text-center">Promedio de utilización diaria por unidad en el periodo seleccionado.</p>
@@ -472,6 +479,12 @@ export default function ReportsPage() {
                         <h3 className="text-xl font-black text-washouse-navy font-outfit mb-8">Tráfico por Hora</h3>
                     </div>
                     <div className="h-64 w-full">
+                        {reportData.sales.length === 0 ? (
+                            <div className="h-full w-full flex flex-col items-center justify-center text-center">
+                                <BarIcon size={28} className="text-gray-300 mb-3" strokeWidth={1.5} />
+                                <p className="text-sm font-bold text-gray-400">Sin órdenes registradas en este periodo</p>
+                            </div>
+                        ) : (
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={reportData.hourlyTraffic}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" opacity={0.5} />
@@ -499,6 +512,7 @@ export default function ReportsPage() {
                                 <Bar dataKey="orders" name="Órdenes" fill="#0090D7" radius={[6, 6, 0, 0]} barSize={24} />
                             </BarChart>
                         </ResponsiveContainer>
+                        )}
                     </div>
                 </div>
             </div>
@@ -583,6 +597,14 @@ export default function ReportsPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100/50 whitespace-nowrap">
+                            {reportData.topMachines.length === 0 && (
+                                <tr>
+                                    <td colSpan={3} className="px-8 py-16 text-center">
+                                        <TrendingUp size={28} className="text-gray-300 mb-3 mx-auto" strokeWidth={1.5} />
+                                        <p className="text-sm font-bold text-gray-400">Sin ingresos por máquina en este periodo</p>
+                                    </td>
+                                </tr>
+                            )}
                             {reportData.topMachines.map((m, idx) => (
                                 <tr key={m.id} className="group hover:bg-gray-50/80 transition-all duration-300">
                                     <td className="px-8 py-6">
