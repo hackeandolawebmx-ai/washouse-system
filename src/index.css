@@ -94,6 +94,8 @@
   html {
     -webkit-tap-highlight-color: transparent;
     scroll-behavior: smooth;
+    font-size: 87.5%;
+    /* Compact UI density: scales all rem-based spacing/typography down uniformly */
   }
 
   body {
