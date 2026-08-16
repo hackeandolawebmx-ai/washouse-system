@@ -71,11 +71,8 @@ export function OrderProvider({ children }) {
 
     const updateCustomerOverride = useCallback(async (phone, data, user = 'Admin') => {
         const standardPhone = phone.replace(/\D/g, '');
-        let merged = null;
-        setCustomerOverrides(prev => {
-            merged = { ...(prev[standardPhone] || {}), ...data };
-            return { ...prev, [standardPhone]: merged };
-        });
+        const merged = { ...(customerOverrides[standardPhone] || {}), ...data };
+        setCustomerOverrides(prev => ({ ...prev, [standardPhone]: merged }));
 
         const { registrationBranchId, ...rest } = merged;
         const { error } = await supabase.from('customer_overrides').upsert([{
@@ -86,7 +83,7 @@ export function OrderProvider({ children }) {
         if (error) console.error('Error saving customer override remotely:', error);
 
         logActivity('CLIENTE_ACTUALIZADO', `Actualización datos cliente ${standardPhone}`, user);
-    }, [logActivity]);
+    }, [logActivity, customerOverrides]);
 
     const createOrder = useCallback(async (orderData, user = 'Host') => {
         const newOrder = {

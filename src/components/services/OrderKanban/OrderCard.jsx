@@ -99,7 +99,7 @@ export default function OrderCard({ order, onSelect, onAdvance, confirmingAdvanc
                         </div>
                     ) : (
                         <button
-                            onClick={(e) => onAdvance(e, order, false)}
+                            onClick={(e) => { e.stopPropagation(); onAdvance(e, order, false); }}
                             className={`
                                 w-full py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.25em]
                                 flex items-center justify-center gap-2 transition-all duration-500

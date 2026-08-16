@@ -402,11 +402,11 @@ export default function SettingsPage() {
                                     </div>
                                     <div>
                                         <h3 className="text-lg font-bold text-red-900">Reset de Fábrica</h3>
-                                        <p className="text-sm text-red-700">Zona de peligro: Borra todos los datos del navegador.</p>
+                                        <p className="text-sm text-red-700">Limpia la sesión y caché local de este dispositivo.</p>
                                     </div>
                                 </div>
                                 <p className="text-xs text-red-600/70 mb-6 leading-relaxed">
-                                    Utiliza esta opción solo si necesitas limpiar completamente el historial de ventas o si el sistema presenta errores graves de sincronización.
+                                    Los datos del negocio (ventas, órdenes, inventario, facturas) viven en Supabase y no se ven afectados. Utiliza esta opción solo si este dispositivo presenta errores de sesión o sincronización local.
                                 </p>
                                 <button
                                     onClick={handleResetSystem}
