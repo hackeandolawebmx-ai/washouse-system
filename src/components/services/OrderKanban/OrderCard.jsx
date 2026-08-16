@@ -63,7 +63,10 @@ export default function OrderCard({ order, onSelect, onAdvance, confirmingAdvanc
             {/* Order Meta */}
             <div className="flex items-center justify-between mb-5 px-3 py-2 bg-slate-50/80 rounded-2xl border border-slate-100/50 group-hover:bg-blue-50/30 group-hover:border-blue-100/30 transition-colors">
                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                    {order.items.length} {order.items.length === 1 ? 'Item' : 'Items'}
+                    {(() => {
+                        const billableCount = order.items.filter(i => (i.price || i.basePrice || 0) > 0).length;
+                        return `${billableCount} ${billableCount === 1 ? 'Item' : 'Items'}`;
+                    })()}
                 </span>
                 <div className="w-1.5 h-1.5 bg-slate-200 rounded-full" />
                 <span className="text-sm font-black text-washouse-blue">
