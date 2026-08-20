@@ -85,36 +85,43 @@ function CombinedStorageProvider({ children }) {
                 orderId: newOrder.id
             });
 
-            // Auto-start corresponding dryer if it's a washer and order includes drying
+            // Auto-start corresponding dryer if it's a washer and order includes drying.
+            // Branches don't share a common washer->dryer numbering offset (Mitras/Guadalupe
+            // are W1-6/D7-12, a +6 offset; Semillero is W1-10/D11-20, a +10 offset), so instead
+            // of assuming an offset we pair by position: the Nth washer maps to the Nth dryer
+            // in that same branch.
             const targetMachine = equipment.machines?.find(m => m.id === orderData.machineId);
             const hasDry = orderData.items.some(i => i.serviceId?.includes('dry'));
 
             if (targetMachine && targetMachine.type === 'lavadora' && hasDry) {
-                // Parse washer number from name, e.g. "W1" -> 1
-                const match = targetMachine.name.match(/\d+/);
-                if (match) {
-                    const washerNum = parseInt(match[0], 10);
-                    const expectedDryerNum = String(washerNum + 10);
-                    const expectedDryerName = `D${expectedDryerNum}`;
+                const sortByNumber = (a, b) => {
+                    const na = parseInt(a.name.match(/\d+/)?.[0] || '0', 10);
+                    const nb = parseInt(b.name.match(/\d+/)?.[0] || '0', 10);
+                    return na - nb;
+                };
 
-                    // Find the dryer in the same branch
-                    const correspondingDryer = equipment.machines?.find(
-                        m => m.branchId === targetMachine.branchId &&
-                            m.type === 'secadora' &&
-                            (m.name === expectedDryerName || m.name.includes(expectedDryerNum))
-                    );
+                const branchWashers = (equipment.machines || [])
+                    .filter(m => m.branchId === targetMachine.branchId && m.type === 'lavadora')
+                    .sort(sortByNumber);
+                const branchDryers = (equipment.machines || [])
+                    .filter(m => m.branchId === targetMachine.branchId && m.type === 'secadora')
+                    .sort(sortByNumber);
 
-                    if (correspondingDryer) {
-                        equipment.updateMachine(correspondingDryer.id, {
-                            status: 'running',
-                            timeLeft: 30, // Default dryer time
-                            clientName: orderData.customerName + " (Secado auto)",
-                            total: 0, // Prevent duplicating total
-                            items: orderData.items.filter(i => i.serviceId?.includes('dry')),
-                            startDate: new Date().toISOString(),
-                            orderId: newOrder.id
-                        });
-                    }
+                const washerIndex = branchWashers.findIndex(m => m.id === targetMachine.id);
+                const correspondingDryer = washerIndex !== -1 ? branchDryers[washerIndex] : undefined;
+
+                // Only auto-start if that dryer is actually free, so we don't hijack
+                // another customer's cycle if the positional match happens to be busy.
+                if (correspondingDryer && correspondingDryer.status === 'available') {
+                    equipment.updateMachine(correspondingDryer.id, {
+                        status: 'running',
+                        timeLeft: 30, // Default dryer time
+                        clientName: orderData.customerName + " (Secado auto)",
+                        total: 0, // Prevent duplicating total
+                        items: orderData.items.filter(i => i.serviceId?.includes('dry')),
+                        startDate: new Date().toISOString(),
+                        orderId: newOrder.id
+                    });
                 }
             }
         }
