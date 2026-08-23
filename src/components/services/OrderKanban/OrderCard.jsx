@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Clock, Package, CheckCircle, AlertCircle, MessageCircle, MoreVertical } from 'lucide-react';
+import { Clock, Package, CheckCircle, AlertCircle, MessageCircle } from 'lucide-react';
 import { formatCurrency } from '../../../utils/formatCurrency';
 
 export default function OrderCard({ order, onSelect, onAdvance, confirmingAdvance, onCancelAdvance }) {
@@ -41,9 +41,6 @@ export default function OrderCard({ order, onSelect, onAdvance, confirmingAdvanc
                             Express
                         </motion.span>
                     )}
-                    <button className="text-slate-300 hover:text-washouse-blue transition-colors p-1">
-                        <MoreVertical size={16} />
-                    </button>
                 </div>
             </div>
 

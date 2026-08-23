@@ -117,20 +117,16 @@ export function SalesProvider({ children }) {
     }, []);
 
     const updateService = useCallback(async (id, updates) => {
-        let updated = null;
-        setServices(prev => prev.map(s => {
-            if (s.id === id) {
-                updated = { ...s, ...updates };
-                return updated;
-            }
-            return s;
-        }));
-        if (updated) {
-            const { id: sid, name, category, price, ...metadata } = updated;
-            const { error } = await supabase.from('services').update({ name, category, price, metadata }).eq('id', sid);
-            if (error) console.error('Error updating service remotely:', error);
-        }
-    }, []);
+        const current = services.find(s => s.id === id);
+        if (!current) return;
+
+        const updated = { ...current, ...updates };
+        setServices(prev => prev.map(s => s.id === id ? updated : s));
+
+        const { id: sid, name, category, price, ...metadata } = updated;
+        const { error } = await supabase.from('services').update({ name, category, price, metadata }).eq('id', sid);
+        if (error) console.error('Error updating service remotely:', error);
+    }, [services]);
 
     const deleteService = useCallback(async (id) => {
         setServices(prev => prev.filter(s => s.id !== id));

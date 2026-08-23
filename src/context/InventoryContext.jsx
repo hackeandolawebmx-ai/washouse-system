@@ -38,19 +38,15 @@ export function InventoryProvider({ children }) {
     }, []);
 
     const updateInventoryStock = useCallback(async (productId, change, branchId = 'main') => {
-        let newStock = null;
-        setInventory(prev => prev.map(p => {
-            if (p.id === productId && p.branchId === branchId) {
-                newStock = Math.max(0, p.stock + change);
-                return { ...p, stock: newStock };
-            }
-            return p;
-        }));
-        if (newStock !== null) {
-            const { error } = await supabase.from('inventory').update({ stock: newStock }).eq('id', productId);
-            if (error) console.error('Error updating stock remotely:', error);
-        }
-    }, []);
+        const current = inventory.find(p => p.id === productId && p.branchId === branchId);
+        if (!current) return;
+
+        const newStock = Math.max(0, current.stock + change);
+        setInventory(prev => prev.map(p => (p.id === productId && p.branchId === branchId) ? { ...p, stock: newStock } : p));
+
+        const { error } = await supabase.from('inventory').update({ stock: newStock }).eq('id', productId);
+        if (error) console.error('Error updating stock remotely:', error);
+    }, [inventory]);
 
     const addProduct = useCallback(async (product, user = 'Admin', branchId = 'main') => {
         const newProduct = { ...product, id: Date.now().toString(), branchId };
@@ -64,20 +60,16 @@ export function InventoryProvider({ children }) {
     }, [logActivity]);
 
     const updateProduct = useCallback(async (id, updates, user = 'Admin') => {
-        let updatedProduct = null;
-        setInventory(prev => prev.map(p => {
-            if (p.id === id) {
-                updatedProduct = { ...p, ...updates };
-                logActivity('PRODUCTO_ACTUALIZADO', `Actualizado: ${p.name}`, user);
-                return updatedProduct;
-            }
-            return p;
-        }));
-        if (updatedProduct) {
-            const { error } = await supabase.from('inventory').update(toRow(updatedProduct)).eq('id', id);
-            if (error) console.error('Error updating product remotely:', error);
-        }
-    }, [logActivity]);
+        const current = inventory.find(p => p.id === id);
+        if (!current) return;
+
+        const updatedProduct = { ...current, ...updates };
+        setInventory(prev => prev.map(p => p.id === id ? updatedProduct : p));
+        logActivity('PRODUCTO_ACTUALIZADO', `Actualizado: ${current.name}`, user);
+
+        const { error } = await supabase.from('inventory').update(toRow(updatedProduct)).eq('id', id);
+        if (error) console.error('Error updating product remotely:', error);
+    }, [inventory, logActivity]);
 
     const deleteProduct = useCallback(async (id, user = 'Admin') => {
         const product = inventory.find(p => p.id === id);

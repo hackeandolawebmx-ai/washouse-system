@@ -127,31 +127,26 @@ export function OrderProvider({ children }) {
     }, [customerOverrides, updateCustomerOverride, machines, addSale, logActivity]);
 
     const updateOrderStatus = useCallback(async (orderId, newStatus, user = 'Host') => {
-        let updatedOrder = null;
-        setOrders(prev => prev.map(o => {
-            if (o.id === orderId) {
-                updatedOrder = {
-                    ...o,
-                    status: newStatus,
-                    statusHistory: [
-                        ...o.statusHistory,
-                        { status: newStatus, timestamp: new Date().toISOString(), user }
-                    ]
-                };
-                return updatedOrder;
-            }
-            return o;
-        }));
+        const current = orders.find(o => o.id === orderId);
+        if (!current) return;
 
-        if (updatedOrder) {
-            const { error } = await supabase.from('orders')
-                .update({ status: updatedOrder.status, status_history: updatedOrder.statusHistory })
-                .eq('id', orderId);
-            if (error) console.error('Error updating order status remotely:', error);
-        }
+        const updatedOrder = {
+            ...current,
+            status: newStatus,
+            statusHistory: [
+                ...current.statusHistory,
+                { status: newStatus, timestamp: new Date().toISOString(), user }
+            ]
+        };
+        setOrders(prev => prev.map(o => o.id === orderId ? updatedOrder : o));
+
+        const { error } = await supabase.from('orders')
+            .update({ status: updatedOrder.status, status_history: updatedOrder.statusHistory })
+            .eq('id', orderId);
+        if (error) console.error('Error updating order status remotely:', error);
 
         logActivity('ORDEN_ACTUALIZADA', `Orden ${orderId} a ${newStatus}`, user);
-    }, [logActivity]);
+    }, [orders, logActivity]);
 
     const addOrderPayment = useCallback(async (orderId, amount, method, user = 'Host') => {
         const order = orders.find(o => o.id === orderId);
