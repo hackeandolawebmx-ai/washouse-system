@@ -4,11 +4,13 @@ import StatusBadge from '../ui/StatusBadge';
 import OrderDetailsModal from '../ui/OrderDetailsModal';
 import { printServiceTicket } from '../../utils/printServiceTicket';
 import { useStorage } from '../../context/StorageContext';
+import { useInvoice } from '../../context/InvoiceContext';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ServicesTable({ orders }) {
     const { branches } = useStorage();
+    const { getInvoicesByOrderId } = useInvoice();
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -117,7 +119,7 @@ export default function ServicesTable({ orders }) {
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <button
-                                                    onClick={() => printServiceTicket(order)}
+                                                    onClick={() => printServiceTicket(order, getInvoicesByOrderId(order.id)[0] || null)}
                                                     className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-100"
                                                     title="Imprimir Ticket"
                                                 >

@@ -182,7 +182,7 @@ export default function OrderDetailsModal({ order, isOpen, onClose, extraActions
                         </button>
                     )}
                     <button
-                        onClick={() => printServiceTicket(order)}
+                        onClick={() => printServiceTicket(order, existingInvoices[0] || null)}
                         className="flex-1 w-full sm:w-auto bg-white text-washouse-navy border border-gray-200 px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-gray-50 transition-all shadow-sm"
                     >
                         Reimprimir
