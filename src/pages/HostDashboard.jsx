@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import MachineCard from '../components/ui/MachineCard';
 import Button from '../components/ui/Button';
@@ -45,9 +45,31 @@ export default function HostDashboard() {
     const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
     const [selectedMachineId, setSelectedMachineId] = useState(null);
     const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'compact'
+    const [typeFilter, setTypeFilter] = useState('all'); // 'all' | 'lavadora' | 'secadora'
+    const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'running' | 'finished' | 'available' | 'maintenance'
 
     // Filter machines by branch
     const branchMachines = machines.filter(m => m.branchId === currentBranch);
+
+    // Washers and dryers shown together, sorted so machines needing attention
+    // (in use, finished/needs pickup, in maintenance) come first and freed-up
+    // available machines sink to the bottom.
+    const STATUS_PRIORITY = { running: 0, finished: 1, maintenance: 2, available: 3 };
+    const extractNumber = (name) => parseInt(name?.match(/\d+/)?.[0] || '0', 10);
+
+    const visibleMachines = useMemo(() => {
+        return branchMachines
+            .filter(m => typeFilter === 'all' || m.type === typeFilter)
+            .filter(m => statusFilter === 'all' || m.status === statusFilter)
+            .slice()
+            .sort((a, b) => {
+                const pa = STATUS_PRIORITY[a.status] ?? 99;
+                const pb = STATUS_PRIORITY[b.status] ?? 99;
+                if (pa !== pb) return pa - pb;
+                if (a.type !== b.type) return a.type.localeCompare(b.type);
+                return extractNumber(a.name) - extractNumber(b.name);
+            });
+    }, [branchMachines, typeFilter, statusFilter]);
 
     const { isShiftOpen } = useAuth(); // Consume shift status
 
@@ -205,6 +227,60 @@ export default function HostDashboard() {
                 </div>
             </div>
 
+            {/* Filters: machine type + status */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
+                <div className="flex items-center gap-2 bg-gray-100/50 p-1 rounded-xl border border-gray-200/50 w-fit">
+                    {[
+                        { id: 'all', label: 'Todas' },
+                        { id: 'lavadora', label: 'Lavadoras' },
+                        { id: 'secadora', label: 'Secadoras' }
+                    ].map(opt => (
+                        <button
+                            key={opt.id}
+                            onClick={() => setTypeFilter(opt.id)}
+                            className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${typeFilter === opt.id
+                                ? 'bg-white shadow-sm text-washouse-blue ring-1 ring-gray-100'
+                                : 'text-gray-400 hover:text-gray-600'
+                                }`}
+                        >
+                            {opt.label}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="flex items-center gap-2 bg-gray-100/50 p-1 rounded-xl border border-gray-200/50 w-fit overflow-x-auto">
+                    {[
+                        { id: 'all', label: 'Todos' },
+                        { id: 'running', label: 'En Uso' },
+                        { id: 'finished', label: 'Terminado' },
+                        { id: 'available', label: 'Disponible' },
+                        { id: 'maintenance', label: 'Mantenimiento' }
+                    ].map(opt => (
+                        <button
+                            key={opt.id}
+                            onClick={() => setStatusFilter(opt.id)}
+                            className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${statusFilter === opt.id
+                                ? 'bg-white shadow-sm text-washouse-blue ring-1 ring-gray-100'
+                                : 'text-gray-400 hover:text-gray-600'
+                                }`}
+                        >
+                            {opt.label}
+                        </button>
+                    ))}
+                </div>
+
+                <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest ml-auto">
+                    {visibleMachines.length} equipo{visibleMachines.length !== 1 ? 's' : ''}
+                </span>
+            </div>
+
+            {visibleMachines.length === 0 ? (
+                <div className="glass-card p-12 text-center border-white/60">
+                    <p className="text-gray-400 font-black uppercase tracking-widest text-sm">
+                        Sin equipos con estos filtros
+                    </p>
+                </div>
+            ) : (
             <motion.div
                 className={`grid gap-4 sm:gap-6 md:gap-8 ${viewMode === 'grid'
                     ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3'
@@ -212,7 +288,7 @@ export default function HostDashboard() {
                     }`}
                 variants={containerVariants}
             >
-                {branchMachines.map((machine) => (
+                {visibleMachines.map((machine) => (
                     <motion.div key={machine.id} variants={itemVariants} layout className="h-full">
                         <MachineCard
                             {...machine}
@@ -223,6 +299,7 @@ export default function HostDashboard() {
                     </motion.div>
                 ))}
             </motion.div>
+            )}
 
             {/* Modals */}
             <NewOrderWizard
