@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { ChevronDown, ChevronRight, LayoutDashboard, Settings, Users, ClipboardList, FileText, Menu, X } from 'lucide-react';
+import { useInvoice } from '../context/InvoiceContext';
 import logo from '../assets/WasHouse CYMK.png';
 
 export default function AdminLayout() {
     const location = useLocation();
+    const { invoiceRequests } = useInvoice();
+    const pendingInvoiceRequests = invoiceRequests.filter(r => r.status === 'pending').length;
 
     const isActive = (path) => {
         return location.pathname === path || location.pathname.startsWith(path + '/');
@@ -18,7 +21,7 @@ export default function AdminLayout() {
         setIsSidebarOpen(false);
     }, [location.pathname]);
 
-    const NavLink = ({ to, label, icon: Icon, isSubItem = false }) => (
+    const NavLink = ({ to, label, icon: Icon, isSubItem = false, badge = 0 }) => (
         <Link
             to={to}
             className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all duration-200
@@ -29,7 +32,12 @@ export default function AdminLayout() {
                 }`}
         >
             {Icon && <Icon size={isSubItem ? 16 : 20} className={isActive(to) ? 'text-washouse-sky' : ''} />}
-            {label}
+            <span className="flex-1">{label}</span>
+            {badge > 0 && (
+                <span className="min-w-5 h-5 px-1.5 flex items-center justify-center rounded-full bg-amber-500 text-white text-[10px] font-black">
+                    {badge}
+                </span>
+            )}
         </Link>
     );
 
@@ -40,10 +48,13 @@ export default function AdminLayout() {
                 <img src={logo} alt="Washouse Admin" className="h-9 w-auto object-contain bg-white rounded-lg p-1" />
                 <button
                     onClick={() => setIsSidebarOpen(true)}
-                    className="p-2 text-white hover:bg-white/10 rounded-xl transition-colors"
+                    className="relative p-2 text-white hover:bg-white/10 rounded-xl transition-colors"
                     aria-label="Abrir menú"
                 >
                     <Menu size={24} />
+                    {pendingInvoiceRequests > 0 && (
+                        <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-amber-500 ring-2 ring-washouse-navy" />
+                    )}
                 </button>
             </div>
 
@@ -118,7 +129,7 @@ export default function AdminLayout() {
                     <div className="text-gray-500/80 text-[9px] uppercase tracking-[0.25em] font-black mt-10 mb-3 px-4">
                         Sistema
                     </div>
-                    <NavLink to="/admin/invoices" label="Facturación" icon={FileText} />
+                    <NavLink to="/admin/invoices" label="Facturación" icon={FileText} badge={pendingInvoiceRequests} />
                     <NavLink to="/admin/reports" label="Reportes" icon={ClipboardList} />
                     <NavLink to="/admin/settings" label="Configuración" icon={Settings} />
                 </nav>
