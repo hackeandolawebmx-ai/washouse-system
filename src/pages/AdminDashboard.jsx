@@ -84,7 +84,7 @@ export default function AdminDashboard() {
             const daySales = metrics.filteredSales.filter(s => s.date.startsWith(dateStr));
             return {
                 name: days[d.getDay()],
-                sales: daySales.reduce((acc, s) => acc + (s.total || 0), 0),
+                sales: daySales.reduce((acc, s) => acc + (s.amount || 0), 0),
                 count: daySales.length
             };
         });

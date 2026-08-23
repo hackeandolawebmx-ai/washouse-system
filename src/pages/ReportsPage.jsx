@@ -64,24 +64,28 @@ export default function ReportsPage() {
             return date >= start && date <= end && (selectedBranch === 'all' || e.branchId === selectedBranch);
         });
 
-        const totalIncome = filteredSales.reduce((acc, s) => acc + (s.total || 0), 0);
+        const totalIncome = filteredSales.reduce((acc, s) => acc + (s.amount || 0), 0);
         const totalExpenses = filteredExpenses.reduce((acc, e) => acc + (e.amount || 0), 0);
 
         // --- 1. Daily Trends ---
+        // Group by the raw ISO day (sortable as a plain string) and only convert
+        // to a locale label for display — re-parsing an already-localized string
+        // like "20/8/2026" with `new Date()` produces Invalid Date, which made
+        // the chronological sort below a no-op.
         const dailyMap = new Map();
         filteredSales.forEach(s => {
-            const day = new Date(s.date).toLocaleDateString();
-            dailyMap.set(day, (dailyMap.get(day) || 0) + (s.total || 0));
+            const isoDay = s.date.split('T')[0];
+            dailyMap.set(isoDay, (dailyMap.get(isoDay) || 0) + (s.amount || 0));
         });
         const dailyTrends = Array.from(dailyMap.entries())
-            .map(([date, total]) => ({ date, total }))
-            .sort((a, b) => new Date(a.date) - new Date(b.date));
+            .sort((a, b) => a[0].localeCompare(b[0]))
+            .map(([isoDay, total]) => ({ date: new Date(`${isoDay}T00:00:00`).toLocaleDateString(), total }));
 
         // --- 2. Revenue by Machine Type ---
         const typeMap = new Map();
         filteredSales.forEach(s => {
             const type = s.machineType || 'Otros';
-            typeMap.set(type, (typeMap.get(type) || 0) + (s.total || 0));
+            typeMap.set(type, (typeMap.get(type) || 0) + (s.amount || 0));
         });
         const revenueByType = Array.from(typeMap.entries()).map(([name, value]) => ({ name, value }));
 
@@ -115,7 +119,7 @@ export default function ReportsPage() {
         const machineIncomeMap = new Map();
         filteredSales.forEach(s => {
             if (s.machineId) {
-                machineIncomeMap.set(s.machineId, (machineIncomeMap.get(s.machineId) || 0) + (s.total || 0));
+                machineIncomeMap.set(s.machineId, (machineIncomeMap.get(s.machineId) || 0) + (s.amount || 0));
             }
         });
         const topMachines = Array.from(machineIncomeMap.entries())
@@ -210,7 +214,7 @@ export default function ReportsPage() {
                                         Tipo: 'INGRESO',
                                         Descripcion: s.description || (s.items ? `Venta: ${Object.keys(s.items).length} items` : 'Venta General'),
                                         Sucursal: branches.find(b => b.id === s.branchId)?.name || 'N/A',
-                                        Monto: s.total || 0
+                                        Monto: s.amount || 0
                                     })),
                                     ...reportData.expenses.map(e => ({
                                         Fecha: new Date(e.timestamp).toLocaleDateString(),

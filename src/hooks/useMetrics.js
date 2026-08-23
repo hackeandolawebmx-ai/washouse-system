@@ -19,7 +19,7 @@ export function useMetrics() {
         );
 
         // 2. Core Totals & Variable Costs
-        const totalIncome = filteredSales.reduce((acc, s) => acc + (s.total || 0), 0);
+        const totalIncome = filteredSales.reduce((acc, s) => acc + (s.amount || 0), 0);
         const totalExpenses = filteredExpenses.reduce((acc, e) => acc + (e.amount || 0), 0);
 
         // Calculate Variable Costs based on Branch-Specific Settings

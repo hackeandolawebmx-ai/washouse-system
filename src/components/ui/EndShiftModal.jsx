@@ -32,11 +32,11 @@ export default function EndShiftModal({ isOpen, onClose }) {
         };
 
         shiftSales.forEach(sale => {
-            const amount = parseFloat(sale.total);
+            const amount = parseFloat(sale.amount) || 0;
             summary.totalSales += amount;
 
-            if (sale.paymentMethod === 'cash') summary.cashSales += amount;
-            else if (sale.paymentMethod === 'card') summary.cardSales += amount;
+            if (sale.method === 'cash') summary.cashSales += amount;
+            else if (sale.method === 'card') summary.cardSales += amount;
             else summary.transferSales += amount;
         });
 
