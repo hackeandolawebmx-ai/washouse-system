@@ -123,17 +123,33 @@ export function EquipmentProvider({ children }) {
         const interval = setInterval(() => {
             setMachines(prevMachines => {
                 let hasChanges = false;
+                const justFinished = [];
                 const nextMachines = prevMachines.map(m => {
                     if (m.status === 'running' && m.timeLeft > 0) {
                         hasChanges = true;
                         const newTime = m.timeLeft - 1;
                         if (newTime <= 0) {
+                            justFinished.push(m.id);
                             return { ...m, timeLeft: 0, status: 'finished' };
                         }
                         return { ...m, timeLeft: newTime };
                     }
                     return m;
                 });
+
+                // The countdown itself is local-only (harmless if a refresh shows a
+                // slightly stale minute count), but the running->finished transition
+                // must be persisted, or a refresh silently reverts a finished machine
+                // back to "running" with a stale timer.
+                justFinished.forEach(id => {
+                    supabase.from('machines')
+                        .update({ status: 'finished', time_left: 0 })
+                        .eq('id', id)
+                        .then(({ error }) => {
+                            if (error) console.error('Error persisting machine finish remotely:', error);
+                        });
+                });
+
                 return hasChanges ? nextMachines : prevMachines;
             });
         }, 60000);
