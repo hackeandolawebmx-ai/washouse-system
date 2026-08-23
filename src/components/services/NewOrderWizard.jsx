@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useStorage } from '../../context/StorageContext';
 import { useAuth } from '../../context/AuthContext';
 import { SERVICES_CATALOG, PRODUCTS_CATALOG } from '../../data/catalog';
-import { X, Search, ShoppingBag, Truck, DollarSign, User, Phone, Check, Weight, Usb, ArrowRight, ArrowLeft } from 'lucide-react';
+import { X, Search, ShoppingBag, Store, Truck, DollarSign, User, Phone, Check, Weight, Usb, ArrowRight, ArrowLeft } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { useScale } from '../../hooks/useScale';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -632,11 +632,11 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
                     </motion.div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl px-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl px-6">
                     <motion.button
                         whileHover={{ y: -5 }}
                         whileTap={{ scale: 0.95 }}
-                        onClick={() => import('../../utils/printServiceTicket').then(m => m.printServiceTicket(createdOrder))}
+                        onClick={() => import('../../utils/printServiceTicket').then(m => m.printServiceTicket(createdOrder, null, 'client'))}
                         className="flex items-center gap-6 p-8 bg-white border-2 border-gray-50 rounded-[40px] hover:border-washouse-blue hover:bg-blue-50/30 transition-all font-black text-gray-700 shadow-xl shadow-gray-200/50"
                     >
                         <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-washouse-blue">
@@ -644,7 +644,22 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
                         </div>
                         <div className="text-left">
                             <div className="text-xs text-gray-400 uppercase tracking-widest">Ticket Físico</div>
-                            <div className="text-lg">Imprimir Recibo</div>
+                            <div className="text-lg">Imprimir Cliente</div>
+                        </div>
+                    </motion.button>
+
+                    <motion.button
+                        whileHover={{ y: -5 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => import('../../utils/printServiceTicket').then(m => m.printServiceTicket(createdOrder, null, 'business'))}
+                        className="flex items-center gap-6 p-8 bg-white border-2 border-gray-50 rounded-[40px] hover:border-washouse-blue hover:bg-blue-50/30 transition-all font-black text-gray-700 shadow-xl shadow-gray-200/50"
+                    >
+                        <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-washouse-blue">
+                            <Store size={32} />
+                        </div>
+                        <div className="text-left">
+                            <div className="text-xs text-gray-400 uppercase tracking-widest">Ticket Físico</div>
+                            <div className="text-lg">Imprimir Negocio</div>
                         </div>
                     </motion.button>
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, Printer, MapPin, Search, Inbox } from 'lucide-react';
+import { Eye, Printer, Store, MapPin, Search, Inbox } from 'lucide-react';
 import StatusBadge from '../ui/StatusBadge';
 import OrderDetailsModal from '../ui/OrderDetailsModal';
 import { printServiceTicket } from '../../utils/printServiceTicket';
@@ -119,11 +119,18 @@ export default function ServicesTable({ orders }) {
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <button
-                                                    onClick={() => printServiceTicket(order, getInvoicesByOrderId(order.id)[0] || null)}
+                                                    onClick={() => printServiceTicket(order, getInvoicesByOrderId(order.id)[0] || null, 'client')}
                                                     className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-100"
-                                                    title="Imprimir Ticket"
+                                                    title="Imprimir Ticket Cliente"
                                                 >
                                                     <Printer size={16} />
+                                                </button>
+                                                <button
+                                                    onClick={() => printServiceTicket(order, getInvoicesByOrderId(order.id)[0] || null, 'business')}
+                                                    className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-100"
+                                                    title="Imprimir Ticket Negocio"
+                                                >
+                                                    <Store size={16} />
                                                 </button>
                                                 <button
                                                     onClick={() => setSelectedOrder(order)}

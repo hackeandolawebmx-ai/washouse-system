@@ -1,7 +1,10 @@
 import Logo from '../assets/logo_bw.png';
 import { calculateOrderItemTotal } from './orderPricing';
 
-export const printServiceTicket = (order, invoice = null) => {
+// copyType: 'client' prints only the customer-facing copy, 'business' prints
+// only the internal copy, 'both' (default) prints both with a cut line, kept
+// for any caller that still wants the combined single print job.
+export const printServiceTicket = (order, invoice = null, copyType = 'both') => {
     if (!order || !order.items) {
         alert("No hay detalles para imprimir.");
         return;
@@ -127,6 +130,12 @@ export const printServiceTicket = (order, invoice = null) => {
         </div>
     `;
 
+    const bodyContent = copyType === 'client'
+        ? renderTicket(false)
+        : copyType === 'business'
+            ? renderTicket(true)
+            : `${renderTicket(false)}<div class="cut-line"><span>-- CORTE AQUI --</span></div>${renderTicket(true)}`;
+
     const ticketHtml = `
     <html>
     <head>
@@ -215,10 +224,8 @@ export const printServiceTicket = (order, invoice = null) => {
         </style>
     </head>
     <body>
-        ${renderTicket(false)}
-        <div class="cut-line"><span>-- CORTE AQUI --</span></div>
-        ${renderTicket(true)}
- 
+        ${bodyContent}
+
         <script>
             window.onload = function() {
                 setTimeout(function() {
