@@ -1,4 +1,5 @@
 import Logo from '../assets/logo_bw.png';
+import { calculateOrderItemTotal } from './orderPricing';
 
 export const printServiceTicket = (order, invoice = null) => {
     if (!order || !order.items) {
@@ -24,28 +25,7 @@ export const printServiceTicket = (order, invoice = null) => {
     // Build items rows
     const itemsHtml = items.map(item => {
         const isWeight = item.type === 'weight';
-        const basePrice = item.price || item.basePrice || 0;
-
-        let itemTotal = 0;
-        if (isWeight) {
-            if (item.serviceId === 'self_wash' || item.serviceId === 'wash_std') {
-                const numLoads = Math.ceil(item.quantity / 5.999) || 1;
-                const avgWeightPerLoad = item.quantity / numLoads;
-                itemTotal = numLoads * basePrice;
-                if (avgWeightPerLoad > (item.baseKg || 5)) {
-                    itemTotal += numLoads * (item.extraPrice || 10);
-                }
-            } else {
-                if (item.quantity <= (item.baseKg || 5)) {
-                    itemTotal = basePrice;
-                } else {
-                    itemTotal = basePrice + (Math.ceil(item.quantity - (item.baseKg || 5)) * (item.extraPrice || 10));
-                }
-            }
-        } else {
-            itemTotal = basePrice * item.quantity;
-        }
-
+        const itemTotal = calculateOrderItemTotal(item);
         const totalDisplay = itemTotal.toFixed(2);
 
         return `
@@ -92,6 +72,17 @@ export const printServiceTicket = (order, invoice = null) => {
                 </div>
             </div>
      
+            ${!invoice ? `
+            <div class="invoice-cta">
+                <div style="border-top: 1px dashed #000; margin-top: 10px; padding-top: 10px; text-align: center; font-size: 11px;">
+                    <p style="font-weight: bold;">¿Necesitas factura?</p>
+                    <p>Solicítala en:</p>
+                    <p style="font-weight: bold; word-break: break-all;">${window.location.origin}/solicitar-factura</p>
+                    <p>con el folio #${orderId}</p>
+                </div>
+            </div>
+            ` : ''}
+
             ${invoice ? `
             <div class="invoice-section">
                 <div style="border-top: 1px dashed #000; margin-top: 10px; padding-top: 10px; font-weight: bold;">FACTURA FISCAL (CFDI)</div>

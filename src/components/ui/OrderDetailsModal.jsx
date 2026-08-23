@@ -5,6 +5,7 @@ import { printServiceTicket } from '../../utils/printServiceTicket';
 import { useStorage } from '../../context/StorageContext';
 import { useInvoice } from '../../context/InvoiceContext';
 import { formatCurrency } from '../../utils/formatCurrency';
+import { calculateOrderItemTotal, orderItemsToInvoiceItems } from '../../utils/orderPricing';
 import Modal from './Modal';
 import NewInvoiceModal from '../admin/NewInvoiceModal';
 
@@ -50,37 +51,14 @@ export default function OrderDetailsModal({ order, isOpen, onClose, extraActions
                         <Package size={14} className="text-washouse-blue" /> Detalle de Carga
                     </h3>
                     <div className="space-y-2 bg-gray-50/30 rounded-2xl p-4 border border-gray-100/50">
-                        {(Array.isArray(order.items) ? order.items : []).map((item, i) => {
-                            const isWeight = item.type === 'weight';
-                            const basePrice = item.price || item.basePrice || 0;
-
-                            let itemTotal;
-                            if (isWeight) {
-                                if (item.serviceId === 'self_wash' || item.serviceId === 'wash_std') {
-                                    const numLoads = Math.ceil(item.quantity / 5.999) || 1;
-                                    const avgWeightPerLoad = item.quantity / numLoads;
-                                    itemTotal = numLoads * basePrice;
-                                    if (avgWeightPerLoad > (item.baseKg || 5)) {
-                                        itemTotal += numLoads * (item.extraPrice || 10);
-                                    }
-                                } else if (item.quantity <= (item.baseKg || 5)) {
-                                    itemTotal = basePrice;
-                                } else {
-                                    itemTotal = basePrice + (Math.ceil(item.quantity - (item.baseKg || 5)) * (item.extraPrice || 10));
-                                }
-                            } else {
-                                itemTotal = basePrice * item.quantity;
-                            }
-
-                            return (
-                                <div key={i} className="flex justify-between items-center py-2 border-b border-gray-100/50 last:border-0 group">
-                                    <span className="text-sm font-bold text-gray-600 group-hover:text-washouse-navy transition-colors">
-                                        {item.quantity} {isWeight ? 'kg' : 'pz'} <span className="text-gray-300 mx-2">/</span> {item.name}
-                                    </span>
-                                    <span className="text-sm font-black text-washouse-blue">{formatCurrency(itemTotal)}</span>
-                                </div>
-                            );
-                        })}
+                        {(Array.isArray(order.items) ? order.items : []).map((item, i) => (
+                            <div key={i} className="flex justify-between items-center py-2 border-b border-gray-100/50 last:border-0 group">
+                                <span className="text-sm font-bold text-gray-600 group-hover:text-washouse-navy transition-colors">
+                                    {item.quantity} {item.type === 'weight' ? 'kg' : 'pz'} <span className="text-gray-300 mx-2">/</span> {item.name}
+                                </span>
+                                <span className="text-sm font-black text-washouse-blue">{formatCurrency(calculateOrderItemTotal(item))}</span>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
@@ -200,39 +178,10 @@ export default function OrderDetailsModal({ order, isOpen, onClose, extraActions
                     onClose={() => setIsInvoiceModalOpen(false)}
                     orderId={order.id}
                     orderData={{
+                        branchId: order.branchId,
                         customerName: order.customerName,
                         customerPhone: order.customerPhone,
-                        items: (Array.isArray(order.items) ? order.items : []).map(item => {
-                            const isWeight = item.type === 'weight';
-                            const basePrice = item.price || item.basePrice || 0;
-
-                            let itemTotal;
-                            if (isWeight) {
-                                if (item.serviceId === 'self_wash' || item.serviceId === 'wash_std') {
-                                    const numLoads = Math.ceil(item.quantity / 5.999) || 1;
-                                    const avgWeightPerLoad = item.quantity / numLoads;
-                                    itemTotal = numLoads * basePrice;
-                                    if (avgWeightPerLoad > (item.baseKg || 5)) {
-                                        itemTotal += numLoads * (item.extraPrice || 10);
-                                    }
-                                } else if (item.quantity <= (item.baseKg || 5)) {
-                                    itemTotal = basePrice;
-                                } else {
-                                    itemTotal = basePrice + (Math.ceil(item.quantity - (item.baseKg || 5)) * (item.extraPrice || 10));
-                                }
-                            } else {
-                                itemTotal = basePrice * item.quantity;
-                            }
-
-                            // Weight-tiered pricing isn't linear per kg, so each order line
-                            // becomes a single invoice line at its already-computed total.
-                            return {
-                                name: item.name,
-                                description: item.name,
-                                qty: 1,
-                                price: itemTotal
-                            };
-                        }),
+                        items: orderItemsToInvoiceItems(order.items),
                         total: order.totalAmount
                     }}
                 />

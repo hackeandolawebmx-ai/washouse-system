@@ -10,6 +10,7 @@ export function InvoiceProvider({ children }) {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [invoiceRequests, setInvoiceRequests] = useState([]);
 
   // Fetch invoices — 'all' means every branch, matching the convention
   // used across ClientsPage/ReportsPage/AdminDashboard/useMetrics.
@@ -44,6 +45,71 @@ export function InvoiceProvider({ children }) {
       fetchInvoices();
     }
   }, [selectedBranch, fetchInvoices]);
+
+  // Self-service invoice requests, submitted by customers from the public
+  // /solicitar-factura page and reviewed by staff in the admin Facturación queue.
+  const fetchInvoiceRequests = useCallback(async () => {
+    try {
+      const { data, error: err } = await supabase
+        .from('invoice_requests')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (err) throw err;
+      setInvoiceRequests(data || []);
+    } catch (err) {
+      console.error('Failed to fetch invoice requests:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchInvoiceRequests();
+  }, [fetchInvoiceRequests]);
+
+  // Public: customer submits a request from their ticket folio (no auth required)
+  const submitInvoiceRequest = useCallback(async ({ orderId, branchId, rfc, razonSocial, email }) => {
+    const { data, error: err } = await supabase
+      .from('invoice_requests')
+      .insert([{
+        order_id: orderId,
+        branch_id: branchId || null,
+        customer_rfc: rfc,
+        customer_razon_social: razonSocial,
+        customer_email: email || null
+      }])
+      .select();
+
+    if (err) throw err;
+    return data?.[0];
+  }, []);
+
+  // Staff: mark a request as processed once its invoice has been generated
+  const markInvoiceRequestProcessed = useCallback(async (requestId, invoiceId) => {
+    const { data, error: err } = await supabase
+      .from('invoice_requests')
+      .update({ status: 'processed', invoice_id: invoiceId || null, processed_at: new Date().toISOString() })
+      .eq('id', requestId)
+      .select();
+
+    if (err) throw err;
+    if (data && data.length > 0) {
+      setInvoiceRequests(prev => prev.map(r => r.id === requestId ? data[0] : r));
+    }
+  }, []);
+
+  // Staff: dismiss a request without generating an invoice
+  const rejectInvoiceRequest = useCallback(async (requestId) => {
+    const { data, error: err } = await supabase
+      .from('invoice_requests')
+      .update({ status: 'rejected', processed_at: new Date().toISOString() })
+      .eq('id', requestId)
+      .select();
+
+    if (err) throw err;
+    if (data && data.length > 0) {
+      setInvoiceRequests(prev => prev.map(r => r.id === requestId ? data[0] : r));
+    }
+  }, []);
 
   // Get next invoice number for branch (RPC call)
   const getNextInvoiceNumber = useCallback(async (branchId) => {
@@ -317,7 +383,12 @@ export function InvoiceProvider({ children }) {
         getInvoicesByStatus,
         searchByInvoiceNumber,
         getNextInvoiceNumber,
-        calculateTotals
+        calculateTotals,
+        invoiceRequests,
+        fetchInvoiceRequests,
+        submitInvoiceRequest,
+        markInvoiceRequestProcessed,
+        rejectInvoiceRequest
       }}
     >
       {children}

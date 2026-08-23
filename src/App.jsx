@@ -10,6 +10,7 @@ import SettingsPage from './pages/SettingsPage';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminLogin from './pages/AdminLogin';
 import InvoicesPage from './pages/InvoicesPage';
+import RequestInvoicePage from './pages/RequestInvoicePage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { StorageProvider } from './context/StorageContext';
 import { AuthProvider } from './context/AuthContext';
@@ -27,6 +28,9 @@ function AppRoutes() {
         <Route path="services" element={<ServiceReception />} />
         <Route path="host" element={<Navigate to="/" replace />} />
       </Route>
+
+      {/* Public Routes */}
+      <Route path="/solicitar-factura" element={<RequestInvoicePage />} />
 
       {/* Admin Routes */}
       <Route path="/admin/login" element={<AdminLogin />} />

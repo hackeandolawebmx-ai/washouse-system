@@ -2,15 +2,16 @@ import { useState, useMemo } from 'react';
 import { useInvoice } from '../context/InvoiceContext';
 import { useStorage } from '../context/StorageContext';
 import { formatCurrency } from '../utils/formatCurrency';
+import { orderItemsToInvoiceItems } from '../utils/orderPricing';
 import Button from '../components/ui/Button';
 import NewInvoiceModal from '../components/admin/NewInvoiceModal';
 import InvoicePreview from '../components/admin/InvoicePreview';
-import { Download, Eye, Trash2, X, FileText, Filter, Send } from 'lucide-react';
+import { Download, Eye, Trash2, X, FileText, Filter, Send, Inbox, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function InvoicesPage() {
-  const { invoices, loading, cancelInvoice, deleteInvoice, issueInvoice } = useInvoice();
-  const { user } = useStorage();
+  const { invoices, loading, cancelInvoice, deleteInvoice, issueInvoice, invoiceRequests, markInvoiceRequestProcessed, rejectInvoiceRequest } = useInvoice();
+  const { user, orders } = useStorage();
   const [isNewInvoiceOpen, setIsNewInvoiceOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
@@ -20,6 +21,13 @@ export default function InvoicesPage() {
   const [deletingId, setDeletingId] = useState(null);
   const [cancelingId, setCancelingId] = useState(null);
   const [issuingId, setIssuingId] = useState(null);
+  const [activeRequest, setActiveRequest] = useState(null);
+  const [rejectingId, setRejectingId] = useState(null);
+
+  const pendingRequests = useMemo(
+    () => invoiceRequests.filter(r => r.status === 'pending'),
+    [invoiceRequests]
+  );
 
   // Filter invoices
   const filteredInvoices = useMemo(() => {
@@ -96,6 +104,38 @@ export default function InvoicesPage() {
     }
   };
 
+  // Handle reject a pending invoice request
+  const handleRejectRequest = async (id) => {
+    if (!confirm('¿Descartar esta solicitud de factura?')) return;
+    setRejectingId(id);
+    try {
+      await rejectInvoiceRequest(id);
+    } catch (err) {
+      alert('Error: ' + err.message);
+    } finally {
+      setRejectingId(null);
+    }
+  };
+
+  // Build the NewInvoiceModal orderData for a pending request, from its linked order
+  const openRequestAsInvoice = (request) => {
+    const order = orders.find(o => o.id === request.order_id);
+    if (!order) {
+      alert('No se encontró la orden asociada a esta solicitud.');
+      return;
+    }
+    setActiveRequest({
+      request,
+      orderData: {
+        branchId: order.branchId,
+        customerName: request.customer_razon_social,
+        customerPhone: order.customerPhone,
+        items: orderItemsToInvoiceItems(order.items),
+        total: order.totalAmount
+      }
+    });
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-12">
       {/* Header */}
@@ -129,6 +169,62 @@ export default function InvoicesPage() {
           </Button>
         </div>
       </div>
+
+      {/* Pending Invoice Requests (submitted by customers from /solicitar-factura) */}
+      {pendingRequests.length > 0 && (
+        <div className="glass-card p-6 rounded-2xl border-amber-100/60 shadow-lg">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-amber-50 rounded-lg text-amber-500">
+              <Inbox size={18} strokeWidth={2.5} />
+            </div>
+            <h3 className="text-lg font-black text-washouse-navy font-outfit">
+              Solicitudes de Factura Pendientes
+            </h3>
+            <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-amber-50 text-amber-600 border border-amber-100">
+              {pendingRequests.length}
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            {pendingRequests.map(req => (
+              <div
+                key={req.id}
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-amber-50/30 rounded-2xl border border-amber-100/50"
+              >
+                <div className="text-sm">
+                  <p className="font-black text-washouse-navy">
+                    Orden #{(req.order_id || '').split('-')[1] || req.order_id}
+                  </p>
+                  <p className="text-gray-500">
+                    {req.customer_razon_social} · RFC {req.customer_rfc}
+                    {req.customer_email ? ` · ${req.customer_email}` : ''}
+                  </p>
+                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">
+                    {new Date(req.created_at).toLocaleString('es-MX')}
+                  </p>
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <Button
+                    variant="primary"
+                    className="rounded-xl px-4 py-2.5 text-xs"
+                    onClick={() => openRequestAsInvoice(req)}
+                  >
+                    <Check size={14} className="mr-1.5" /> Generar Factura
+                  </Button>
+                  <button
+                    onClick={() => handleRejectRequest(req.id)}
+                    disabled={rejectingId === req.id}
+                    className="p-2.5 hover:bg-red-50 rounded-xl transition-colors text-red-500 disabled:opacity-50 border border-transparent hover:border-red-100"
+                    title="Descartar"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -388,6 +484,24 @@ export default function InvoicesPage() {
         isOpen={isNewInvoiceOpen}
         onClose={() => setIsNewInvoiceOpen(false)}
       />
+
+      {/* Invoice Modal for a pending customer request */}
+      {activeRequest && (
+        <NewInvoiceModal
+          isOpen={!!activeRequest}
+          onClose={() => setActiveRequest(null)}
+          orderId={activeRequest.request.order_id}
+          orderData={activeRequest.orderData}
+          initialRfc={activeRequest.request.customer_rfc}
+          onInvoiceCreated={async (invoice) => {
+            try {
+              await markInvoiceRequestProcessed(activeRequest.request.id, invoice?.id);
+            } catch (err) {
+              console.error('Failed to mark invoice request as processed:', err);
+            }
+          }}
+        />
+      )}
 
       {/* Preview Modal */}
       {selectedInvoice && (

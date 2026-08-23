@@ -6,7 +6,7 @@ import { useStorage } from '../../context/StorageContext';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { X } from 'lucide-react';
 
-export default function NewInvoiceModal({ isOpen, onClose, orderId, orderData }) {
+export default function NewInvoiceModal({ isOpen, onClose, orderId, orderData, initialRfc, onInvoiceCreated }) {
   const { createInvoice, updateInvoice } = useInvoice();
   const { selectedBranch, deviceBranchId, user } = useStorage();
   const [loading, setLoading] = useState(false);
@@ -15,7 +15,7 @@ export default function NewInvoiceModal({ isOpen, onClose, orderId, orderData })
   // Form state
   const [customerName, setCustomerName] = useState(orderData?.customerName || '');
   const [customerPhone, setCustomerPhone] = useState(orderData?.customerPhone || '');
-  const [customerRfc, setCustomerRfc] = useState('');
+  const [customerRfc, setCustomerRfc] = useState(initialRfc || '');
   const [items, setItems] = useState(orderData?.items || []);
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [discountAmount, setDiscountAmount] = useState(0);
@@ -25,6 +25,7 @@ export default function NewInvoiceModal({ isOpen, onClose, orderId, orderData })
     if (orderData) {
       setCustomerName(orderData.customerName || '');
       setCustomerPhone(orderData.customerPhone || '');
+      setCustomerRfc(initialRfc || '');
 
       // Convert order items to invoice format
       if (orderData.items && Array.isArray(orderData.items)) {
@@ -37,7 +38,7 @@ export default function NewInvoiceModal({ isOpen, onClose, orderId, orderData })
         setItems(formattedItems);
       }
     }
-  }, [orderData, isOpen]);
+  }, [orderData, initialRfc, isOpen]);
 
   // Calculate totals
   const subtotal = items.reduce((acc, item) => acc + (item.total || 0), 0);
@@ -93,9 +94,10 @@ export default function NewInvoiceModal({ isOpen, onClose, orderId, orderData })
 
     setLoading(true);
     try {
-      // Use deviceBranchId if selectedBranch is 'all' (filter-only mode)
-      const branchId = selectedBranch === 'all' ? deviceBranchId : selectedBranch;
-      console.log('Modal: selectedBranch =', selectedBranch, ', using branchId =', branchId);
+      // The order's own branch is the authoritative source when known (e.g. reviewing
+      // a request for an order from a different branch than the admin's current filter).
+      // Otherwise fall back to deviceBranchId if selectedBranch is 'all' (filter-only mode).
+      const branchId = orderData?.branchId || (selectedBranch === 'all' ? deviceBranchId : selectedBranch);
 
       const invoiceData = {
         branch_id: branchId,
@@ -109,7 +111,7 @@ export default function NewInvoiceModal({ isOpen, onClose, orderId, orderData })
         created_by: user?.name || 'system'
       };
 
-      await createInvoice(invoiceData);
+      const created = await createInvoice(invoiceData);
 
       // Reset form
       setCustomerName('');
@@ -119,6 +121,7 @@ export default function NewInvoiceModal({ isOpen, onClose, orderId, orderData })
       setPaymentMethod('cash');
       setDiscountAmount(0);
 
+      if (onInvoiceCreated) onInvoiceCreated(created);
       onClose();
     } catch (err) {
       setError(err.message || 'Error al generar la factura');
