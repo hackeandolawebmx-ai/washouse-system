@@ -19,11 +19,17 @@ export const printServiceTicket = (order, invoice = null, copyType = 'both') => 
         balanceDue,
         items,
         createdAt,
-        serviceLevel
+        serviceLevel,
+        requiresInvoice
     } = order;
 
     const orderId = id.split('-')[1] || id; // Extract readable part
     const isExpress = serviceLevel === 'express';
+
+    // When the customer opted into a factura, IVA was added on top of the line
+    // items at checkout — show it so the printed lines add up to the total.
+    const itemsSum = items.reduce((acc, item) => acc + calculateOrderItemTotal(item), 0);
+    const taxCharged = requiresInvoice ? parseFloat((totalAmount - itemsSum).toFixed(2)) : 0;
 
     // Build items rows
     const itemsHtml = items.map(item => {
@@ -61,6 +67,16 @@ export const printServiceTicket = (order, invoice = null, copyType = 'both') => 
             </div>
      
             <div class="totals">
+                ${taxCharged > 0 ? `
+                <div class="total-row">
+                    <span>Subtotal</span>
+                    <span>$${itemsSum.toFixed(2)}</span>
+                </div>
+                <div class="total-row">
+                    <span>IVA (16%)</span>
+                    <span>$${taxCharged.toFixed(2)}</span>
+                </div>
+                ` : ''}
                 <div class="total-row final-total">
                     <span>TOTAL</span>
                     <span>$${totalAmount.toFixed(2)}</span>
@@ -82,6 +98,9 @@ export const printServiceTicket = (order, invoice = null, copyType = 'both') => 
                     <p>Solicítala en:</p>
                     <p style="font-weight: bold; word-break: break-all;">${window.location.origin}/solicitar-factura</p>
                     <p>con el folio #${orderId}</p>
+                    ${order.requiresInvoice
+            ? '<p style="margin-top:6px;">Este servicio ya incluye IVA.</p>'
+            : '<p style="margin-top:6px;">Facturar despues causa un ajuste de IVA (16%).</p>'}
                 </div>
             </div>
             ` : ''}

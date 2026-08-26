@@ -8,7 +8,7 @@ import { X } from 'lucide-react';
 
 export default function NewInvoiceModal({ isOpen, onClose, orderId, orderData, initialRfc, onInvoiceCreated }) {
   const { createInvoice, updateInvoice } = useInvoice();
-  const { selectedBranch, deviceBranchId, user } = useStorage();
+  const { selectedBranch, deviceBranchId, user, taxConfig } = useStorage();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -19,6 +19,10 @@ export default function NewInvoiceModal({ isOpen, onClose, orderId, orderData, i
   const [items, setItems] = useState(orderData?.items || []);
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [discountAmount, setDiscountAmount] = useState(0);
+  // When true the line totals are treated as already containing IVA, so the tax
+  // is broken out of them instead of added on top. Used to absorb the tax on an
+  // order that was collected without it (see the mismatch warning below).
+  const [taxIncluded, setTaxIncluded] = useState(taxConfig.mode === 'included');
 
   // Auto-fill from order if provided
   useEffect(() => {
@@ -26,6 +30,7 @@ export default function NewInvoiceModal({ isOpen, onClose, orderId, orderData, i
       setCustomerName(orderData.customerName || '');
       setCustomerPhone(orderData.customerPhone || '');
       setCustomerRfc(initialRfc || '');
+      setTaxIncluded(taxConfig.mode === 'included');
 
       // Convert order items to invoice format
       if (orderData.items && Array.isArray(orderData.items)) {
@@ -38,12 +43,24 @@ export default function NewInvoiceModal({ isOpen, onClose, orderId, orderData, i
         setItems(formattedItems);
       }
     }
-  }, [orderData, initialRfc, isOpen]);
+  }, [orderData, initialRfc, isOpen, taxConfig.mode]);
 
   // Calculate totals
-  const subtotal = items.reduce((acc, item) => acc + (item.total || 0), 0);
-  const ivaAmount = parseFloat((subtotal * 0.16).toFixed(2));
+  const rate = taxConfig.rate;
+  const gross = items.reduce((acc, item) => acc + (item.total || 0), 0);
+  const subtotal = taxIncluded ? parseFloat((gross / (1 + rate)).toFixed(2)) : parseFloat(gross.toFixed(2));
+  const ivaAmount = taxIncluded ? parseFloat((gross - subtotal).toFixed(2)) : parseFloat((subtotal * rate).toFixed(2));
   const totalAmount = parseFloat((subtotal + ivaAmount - discountAmount).toFixed(2));
+
+  // The order's line items are always pre-tax, so an invoice adds IVA on top.
+  // If the customer never opted into a factura at the counter, they only paid
+  // the pre-tax amount — so the CFDI total would exceed what was collected
+  // unless staff either charge the difference or absorb it.
+  const collectedAmount = orderData?.total;
+  const paidWithoutTax = Boolean(orderId) && orderData?.requiresInvoice === false && taxConfig.mode === 'added_on_invoice';
+  const shortfall = paidWithoutTax && !taxIncluded && collectedAmount != null
+    ? parseFloat((totalAmount - collectedAmount).toFixed(2))
+    : 0;
 
   // Handle add item
   const handleAddItem = () => {
@@ -108,6 +125,7 @@ export default function NewInvoiceModal({ isOpen, onClose, orderId, orderData, i
         items: items,
         payment_method: paymentMethod,
         discount_amount: discountAmount,
+        tax_included: taxIncluded,
         created_by: user?.name || 'system'
       };
 
@@ -295,6 +313,38 @@ export default function NewInvoiceModal({ isOpen, onClose, orderId, orderData, i
                   )}
                 </div>
 
+                {/* Tax mismatch warning: order was collected without IVA */}
+                {shortfall > 0 && (
+                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl space-y-3">
+                    <p className="text-sm font-bold text-amber-700">
+                      Esta orden se cobró sin IVA ({formatCurrency(collectedAmount)}). La factura suma{' '}
+                      {formatCurrency(ivaAmount)} de IVA, quedando {formatCurrency(shortfall)} por encima de lo cobrado.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setTaxIncluded(true)}
+                      className="text-xs font-black text-amber-800 uppercase tracking-widest underline hover:no-underline"
+                    >
+                      Absorber el IVA y facturar por {formatCurrency(collectedAmount)}
+                    </button>
+                  </div>
+                )}
+
+                {taxIncluded && taxConfig.mode === 'added_on_invoice' && (
+                  <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-center justify-between gap-3">
+                    <p className="text-xs font-bold text-gray-600">
+                      IVA desglosado del total cobrado (el negocio lo absorbe).
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setTaxIncluded(false)}
+                      className="text-[10px] font-black text-washouse-blue uppercase tracking-widest underline hover:no-underline shrink-0"
+                    >
+                      Deshacer
+                    </button>
+                  </div>
+                )}
+
                 {/* Totals Section */}
                 <div className="space-y-3 p-4 bg-blue-50 rounded-2xl border border-blue-100">
                   <div className="flex justify-between items-center">
@@ -302,7 +352,9 @@ export default function NewInvoiceModal({ isOpen, onClose, orderId, orderData, i
                     <span className="text-lg font-black text-washouse-navy">{formatCurrency(subtotal)}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-bold text-gray-600">IVA (16%):</span>
+                    <span className="text-sm font-bold text-gray-600">
+                      IVA ({Math.round(rate * 100)}%){taxIncluded ? ' — incluido' : ''}:
+                    </span>
                     <span className="text-lg font-black text-washouse-blue">{formatCurrency(ivaAmount)}</span>
                   </div>
 

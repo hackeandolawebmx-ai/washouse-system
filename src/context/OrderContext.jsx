@@ -19,6 +19,7 @@ const mapOrder = (o) => ({
     paymentMethod: o.payment_method,
     status: o.status,
     statusHistory: o.status_history || [],
+    requiresInvoice: o.requires_invoice || false,
     createdAt: o.created_at
 });
 
@@ -35,6 +36,7 @@ const orderToRow = (o) => ({
     payment_method: o.paymentMethod,
     status: o.status,
     status_history: o.statusHistory || [],
+    requires_invoice: o.requiresInvoice || false,
     created_at: o.createdAt
 });
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useStorage } from '../context/StorageContext';
 import {
-    Building, Package, Smartphone, Database,
+    Building, Package, Smartphone, Database, Receipt,
     Plus, Edit2, Trash2, Download, RefreshCcw,
     ShieldCheck, MapPin, CheckCircle2, Zap
 } from 'lucide-react';
@@ -16,6 +16,7 @@ export default function SettingsPage() {
         inventory, addProduct, updateProduct, deleteProduct, loadStandardInventoryInAllBranches,
         services, addService, updateService, deleteService,
         deviceBranchId, setDeviceBranch,
+        taxConfig, updateTaxConfig,
         syncData, logActivity, BRANCH_LICENSES, isBranchActive,
         machines, sales, shifts, orders, expenses, customerOverrides, activityLogs
     } = useStorage();
@@ -98,6 +99,13 @@ export default function SettingsPage() {
                         icon={Package}
                         label="Insumos"
                         desc="Stock por Sucursal"
+                    />
+                    <TabButton
+                        active={activeTab === 'tax'}
+                        onClick={() => setActiveTab('tax')}
+                        icon={Receipt}
+                        label="Facturación"
+                        desc="Modelo de IVA"
                     />
                     <TabButton
                         active={activeTab === 'device'}
@@ -338,6 +346,74 @@ export default function SettingsPage() {
                                             ))}
                                     </tbody>
                                 </table>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'tax' && (
+                        <div className="max-w-2xl py-2">
+                            <h2 className="text-2xl font-black text-washouse-navy mb-1">Modelo de IVA</h2>
+                            <p className="text-gray-500 mb-8">Define cómo se cobra el IVA en el mostrador.</p>
+
+                            <div className="space-y-4">
+                                <button
+                                    onClick={() => updateTaxConfig({ mode: 'added_on_invoice' })}
+                                    className={`w-full text-left p-6 rounded-3xl border-2 transition-all ${taxConfig.mode === 'added_on_invoice'
+                                        ? 'border-washouse-blue bg-blue-50/50 ring-4 ring-blue-500/10'
+                                        : 'border-gray-100 hover:border-gray-200 bg-white'}`}
+                                >
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="font-black text-washouse-navy">Se agrega al facturar</span>
+                                        {taxConfig.mode === 'added_on_invoice' && (
+                                            <span className="text-[10px] font-black uppercase tracking-widest bg-washouse-blue text-white px-3 py-1 rounded-full">Activo</span>
+                                        )}
+                                    </div>
+                                    <p className="text-sm text-gray-500 leading-relaxed">
+                                        Los precios del catálogo son sin IVA. En el paso de pago se pregunta si el
+                                        cliente requiere factura y, de ser así, se le suma el {Math.round(taxConfig.rate * 100)}%.
+                                    </p>
+                                </button>
+
+                                <button
+                                    onClick={() => updateTaxConfig({ mode: 'included' })}
+                                    className={`w-full text-left p-6 rounded-3xl border-2 transition-all ${taxConfig.mode === 'included'
+                                        ? 'border-washouse-blue bg-blue-50/50 ring-4 ring-blue-500/10'
+                                        : 'border-gray-100 hover:border-gray-200 bg-white'}`}
+                                >
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="font-black text-washouse-navy">IVA incluido en los precios</span>
+                                        {taxConfig.mode === 'included' && (
+                                            <span className="text-[10px] font-black uppercase tracking-widest bg-washouse-blue text-white px-3 py-1 rounded-full">Activo</span>
+                                        )}
+                                    </div>
+                                    <p className="text-sm text-gray-500 leading-relaxed">
+                                        Un solo precio para todos. Las facturas desglosan el IVA hacia atrás, sin
+                                        cambiar el monto que paga el cliente.
+                                    </p>
+                                </button>
+
+                                <div className="p-6 rounded-3xl border border-gray-100 bg-white">
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">
+                                        Tasa de IVA
+                                    </label>
+                                    <div className="flex items-center gap-3">
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="100"
+                                            step="0.5"
+                                            value={Math.round(taxConfig.rate * 1000) / 10}
+                                            onChange={e => {
+                                                const pct = parseFloat(e.target.value);
+                                                if (!isNaN(pct) && pct >= 0 && pct <= 100) {
+                                                    updateTaxConfig({ rate: pct / 100 });
+                                                }
+                                            }}
+                                            className="w-32 px-5 py-3 rounded-2xl bg-gray-50 border border-gray-100 focus:outline-none focus:ring-2 focus:ring-washouse-blue/20 font-black text-lg"
+                                        />
+                                        <span className="font-black text-gray-400 text-lg">%</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     )}

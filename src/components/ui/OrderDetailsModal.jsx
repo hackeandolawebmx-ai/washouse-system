@@ -188,7 +188,8 @@ export default function OrderDetailsModal({ order, isOpen, onClose, extraActions
                         customerName: order.customerName,
                         customerPhone: order.customerPhone,
                         items: orderItemsToInvoiceItems(order.items),
-                        total: order.totalAmount
+                        total: order.totalAmount,
+                        requiresInvoice: order.requiresInvoice
                     }}
                 />
             </div>

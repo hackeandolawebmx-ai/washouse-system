@@ -6,7 +6,7 @@ import { createCFDI, downloadCFDI } from '../utils/facturama';
 const InvoiceContext = createContext();
 
 export function InvoiceProvider({ children }) {
-  const { selectedBranch, deviceBranchId } = useStorage();
+  const { selectedBranch, deviceBranchId, taxConfig } = useStorage();
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -126,18 +126,34 @@ export function InvoiceProvider({ children }) {
     }
   }, []);
 
-  // Calculate invoice totals (subtotal, iva, total)
-  const calculateTotals = useCallback((items, discountAmount = 0) => {
-    const subtotal = items.reduce((acc, item) => acc + (item.total || 0), 0);
-    const ivaAmount = parseFloat((subtotal * 0.16).toFixed(2)); // IVA 16%
-    const totalAmount = parseFloat((subtotal + ivaAmount - discountAmount).toFixed(2));
+  // Calculate invoice totals (subtotal, iva, total).
+  //
+  // taxIncluded=false: the line totals are pre-tax, so IVA is added on top.
+  // taxIncluded=true:  the line totals are what was already collected from the
+  //                    customer (IVA inside), so the tax is broken out backwards
+  //                    — otherwise the CFDI total wouldn't match the money taken.
+  const calculateTotals = useCallback((items, discountAmount = 0, options = {}) => {
+    const rate = options.rate ?? taxConfig.rate;
+    const taxIncluded = options.taxIncluded ?? (taxConfig.mode === 'included');
+    const gross = items.reduce((acc, item) => acc + (item.total || 0), 0);
 
+    if (taxIncluded) {
+      const subtotal = parseFloat((gross / (1 + rate)).toFixed(2));
+      return {
+        subtotal,
+        iva_amount: parseFloat((gross - subtotal).toFixed(2)),
+        total_amount: parseFloat((gross - discountAmount).toFixed(2))
+      };
+    }
+
+    const subtotal = parseFloat(gross.toFixed(2));
+    const ivaAmount = parseFloat((subtotal * rate).toFixed(2));
     return {
-      subtotal: parseFloat(subtotal.toFixed(2)),
+      subtotal,
       iva_amount: ivaAmount,
-      total_amount: totalAmount
+      total_amount: parseFloat((subtotal + ivaAmount - discountAmount).toFixed(2))
     };
-  }, []);
+  }, [taxConfig]);
 
   // Create new invoice (draft)
   const createInvoice = useCallback(async (invoiceData) => {
@@ -147,7 +163,9 @@ export function InvoiceProvider({ children }) {
       const nextNumber = await getNextInvoiceNumber(invoiceData.branch_id);
 
       // Calculate totals
-      const totals = calculateTotals(invoiceData.items, invoiceData.discount_amount || 0);
+      const totals = calculateTotals(invoiceData.items, invoiceData.discount_amount || 0, {
+        taxIncluded: invoiceData.tax_included
+      });
 
       // Prepare invoice record
       console.log('Creating invoice with branch_id:', invoiceData.branch_id);

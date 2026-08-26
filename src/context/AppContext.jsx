@@ -121,6 +121,30 @@ export function AppProvider({ children }) {
         refreshStaff();
     }, [refreshStaff]);
 
+    // Tax model. 'added_on_invoice': listed prices are pre-IVA and the tax is
+    // added only when the customer opts into a factura at checkout.
+    // 'included': listed prices already contain IVA and invoices break it out
+    // of the total instead. Lives in system_config so it can be switched
+    // without a code change.
+    const [taxConfig, setTaxConfig] = useState({ mode: 'added_on_invoice', rate: 0.16 });
+
+    useEffect(() => {
+        const fetchTaxConfig = async () => {
+            const { data, error } = await supabase
+                .from('system_config')
+                .select('value')
+                .eq('key', 'tax_config')
+                .maybeSingle();
+
+            if (error) {
+                console.error('Error fetching tax config:', error);
+                return;
+            }
+            if (data?.value) setTaxConfig(prev => ({ ...prev, ...data.value }));
+        };
+        fetchTaxConfig();
+    }, []);
+
     const [activityLogs, setActivityLogs] = useState([]);
 
     useEffect(() => {
@@ -172,6 +196,18 @@ export function AppProvider({ children }) {
         });
     }, []);
 
+    const updateTaxConfig = useCallback(async (updates, user = 'Admin') => {
+        const next = { ...taxConfig, ...updates };
+        setTaxConfig(next);
+
+        const { error } = await supabase
+            .from('system_config')
+            .upsert([{ key: 'tax_config', value: next, updated_at: new Date().toISOString() }]);
+        if (error) console.error('Error saving tax config remotely:', error);
+
+        logActivity('CONFIG_IVA_ACTUALIZADA', `Modo: ${next.mode}, Tasa: ${next.rate}`, user);
+    }, [taxConfig, logActivity]);
+
     const setDeviceBranch = useCallback((branchId) => {
         setDeviceBranchId(branchId);
         localStorage.setItem('washouse_device_branch', branchId);
@@ -188,6 +224,8 @@ export function AppProvider({ children }) {
         setStaff,
         activityLogs,
         logActivity,
+        taxConfig,
+        updateTaxConfig,
         CURRENT_SYSTEM_VERSION,
         addBranch: async (branchData) => {
             const newBranch = {

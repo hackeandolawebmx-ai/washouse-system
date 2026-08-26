@@ -131,7 +131,8 @@ export default function InvoicesPage() {
         customerName: request.customer_razon_social,
         customerPhone: order.customerPhone,
         items: orderItemsToInvoiceItems(order.items),
-        total: order.totalAmount
+        total: order.totalAmount,
+        requiresInvoice: order.requiresInvoice
       }
     });
   };

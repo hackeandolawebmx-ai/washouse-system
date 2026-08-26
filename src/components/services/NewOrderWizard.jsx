@@ -2,17 +2,18 @@ import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useStorage } from '../../context/StorageContext';
 import { useAuth } from '../../context/AuthContext';
 import { SERVICES_CATALOG, PRODUCTS_CATALOG } from '../../data/catalog';
-import { X, Search, ShoppingBag, Store, Truck, DollarSign, User, Phone, Check, Weight, Usb, ArrowRight, ArrowLeft } from 'lucide-react';
+import { X, Search, ShoppingBag, Store, Truck, DollarSign, User, Phone, Check, Weight, Usb, ArrowRight, ArrowLeft, Receipt } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { useScale } from '../../hooks/useScale';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function NewOrderWizard({ isOpen, onClose, machineId }) {
-    const { executeOrder, deviceBranchId, branches, machines, inventory, services } = useStorage();
+    const { executeOrder, deviceBranchId, branches, machines, inventory, services, taxConfig } = useStorage();
     const { user } = useAuth();
     const [step, setStep] = useState(1);
     const [selectedMachineId, setSelectedMachineId] = useState(machineId);
     const [createdOrder, setCreatedOrder] = useState(null);
+    const [requiresInvoice, setRequiresInvoice] = useState(false);
     const containerRef = useRef(null);
 
     // Reset state when opening
@@ -23,16 +24,13 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
             setItems([]);
             setPayment({ advance: 0, method: 'cash' });
             setCreatedOrder(null);
+            setRequiresInvoice(false);
             setSelectedMachineId(machineId);
         }
     }, [isOpen, machineId]);
 
-    // Update payment when moving to payment step and auto-focus container
+    // Ensure container has focus for keyboard navigation on each step
     useEffect(() => {
-        if (step === 4) {
-            setPayment(prev => ({ ...prev, advance: totals.total }));
-        }
-        // Ensure container has focus for keyboard navigation
         if (containerRef.current) {
             containerRef.current.focus();
         }
@@ -172,10 +170,24 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
         setItems(prev => prev.filter((_, i) => i !== index));
     };
 
+    // Público en general pays the listed price. A customer who wants a factura
+    // opts in here and pays the listed price + IVA, so the collected amount and
+    // the CFDI always match. In 'included' mode listed prices already carry the
+    // tax, so nothing is added regardless of the invoice choice.
     const totals = useMemo(() => {
         const subtotal = items.reduce((acc, item) => acc + calculateItemTotal(item), 0);
-        return { subtotal, total: subtotal };
-    }, [items]);
+        const addsTax = requiresInvoice && taxConfig.mode === 'added_on_invoice';
+        const tax = addsTax ? parseFloat((subtotal * taxConfig.rate).toFixed(2)) : 0;
+        return { subtotal, tax, total: parseFloat((subtotal + tax).toFixed(2)) };
+    }, [items, requiresInvoice, taxConfig]);
+
+    // Prefill the amount due on the payment step, and keep it in sync when the
+    // total changes there (e.g. the customer opts into a factura, adding IVA).
+    useEffect(() => {
+        if (step === 4) {
+            setPayment(prev => ({ ...prev, advance: totals.total }));
+        }
+    }, [step, totals.total]);
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
@@ -484,8 +496,14 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
                                 <span>{formatCurrency(totals.subtotal)}</span>
                             </div>
                             <div className="flex justify-between text-gray-500 text-sm font-medium">
-                                <span>Impuestos</span>
-                                <span className="text-[9px] bg-gray-200 px-2 py-0.5 rounded text-gray-600">INCLUIDO</span>
+                                <span>IVA ({Math.round(taxConfig.rate * 100)}%)</span>
+                                {taxConfig.mode === 'included' ? (
+                                    <span className="text-[9px] bg-gray-200 px-2 py-0.5 rounded text-gray-600">INCLUIDO</span>
+                                ) : requiresInvoice ? (
+                                    <span className="font-bold text-washouse-blue">{formatCurrency(totals.tax)}</span>
+                                ) : (
+                                    <span className="text-[9px] bg-gray-200 px-2 py-0.5 rounded text-gray-600">NO APLICA</span>
+                                )}
                             </div>
                             <div className="h-px bg-gray-200/50 my-4" />
                             <div className="flex justify-between items-end">
@@ -494,6 +512,37 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
                             </div>
                         </div>
                     </div>
+
+                    {/* Invoice decision — only meaningful when IVA is charged on top */}
+                    {taxConfig.mode === 'added_on_invoice' && (
+                        <button
+                            type="button"
+                            onClick={() => setRequiresInvoice(v => !v)}
+                            className={`w-full flex items-center gap-4 p-5 rounded-[28px] border-2 transition-all text-left active:scale-[0.98] ${requiresInvoice
+                                ? 'bg-blue-50 border-washouse-blue ring-4 ring-blue-500/10'
+                                : 'bg-white border-gray-100 hover:border-gray-200'
+                                }`}
+                        >
+                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-colors ${requiresInvoice ? 'bg-washouse-blue text-white' : 'bg-gray-100 text-gray-400'
+                                }`}>
+                                <Receipt size={24} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <div className="text-[10px] font-black uppercase tracking-widest text-gray-400">Facturación</div>
+                                <div className="text-sm font-black text-washouse-navy leading-tight">
+                                    {requiresInvoice ? '✓ Requiere factura (CFDI)' : '¿Requiere factura?'}
+                                </div>
+                                <div className="text-[11px] font-bold text-gray-400 mt-0.5">
+                                    {requiresInvoice
+                                        ? `Se agregó IVA: +${formatCurrency(totals.tax)}`
+                                        : `Agrega IVA (${Math.round(taxConfig.rate * 100)}%) al total`}
+                                </div>
+                            </div>
+                            <div className={`w-12 h-7 rounded-full p-1 shrink-0 transition-colors ${requiresInvoice ? 'bg-washouse-blue' : 'bg-gray-200'}`}>
+                                <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${requiresInvoice ? 'translate-x-5' : ''}`} />
+                            </div>
+                        </button>
+                    )}
 
                     <div className="flex items-center gap-3 p-4 bg-blue-50/50 rounded-2xl border border-blue-100/50">
                         <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-washouse-blue shadow-sm shrink-0">
@@ -589,7 +638,8 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
             balanceDue: Math.max(0, totals.total - advance),
             paymentMethod: payment.method,
             branchId: deviceBranchId,
-            machineId: selectedMachineId
+            machineId: selectedMachineId,
+            requiresInvoice
         }, user?.name || 'Host');
 
         setCreatedOrder(newOrder);
