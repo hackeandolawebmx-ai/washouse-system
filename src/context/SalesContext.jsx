@@ -18,6 +18,16 @@ const mapSale = (s) => ({
     date: s.date
 });
 
+// metadata primero: los campos propios de la fila (id, name, category, price)
+// siempre ganan sobre lo que traiga el jsonb.
+const mapService = (s) => ({
+    ...s.metadata,
+    id: s.id,
+    name: s.name,
+    category: s.category,
+    price: s.price
+});
+
 const mapShift = (s) => ({
     id: s.id,
     branchId: s.branch_id,
@@ -49,13 +59,18 @@ export function SalesProvider({ children }) {
             if (shiftsRes.error) console.error('Error fetching shifts:', shiftsRes.error);
             else setShifts(shiftsRes.data.map(mapShift));
 
+            // La tabla 'services' es la fuente de verdad de los precios: es lo
+            // que permite que un cambio hecho en Configuración persista y que la
+            // web pública muestre lo mismo que cobra el mostrador. SERVICES_CATALOG
+            // queda solo como respaldo para que la app siga usable si Supabase no
+            // responde o la tabla aún no se ha sembrado.
             if (servicesRes.error) {
                 console.error('Error fetching services:', servicesRes.error);
+            } else if (servicesRes.data?.length) {
+                setServices(servicesRes.data.map(mapService));
             } else {
-                const custom = (servicesRes.data || [])
-                    .filter(s => !SERVICES_CATALOG.some(c => c.id === s.id))
-                    .map(s => ({ id: s.id, name: s.name, category: s.category, price: s.price, ...s.metadata }));
-                setServices([...SERVICES_CATALOG, ...custom]);
+                console.warn('Tabla services vacía; usando el catálogo local como respaldo.');
+                setServices(SERVICES_CATALOG);
             }
         };
         fetchSalesData();
@@ -123,8 +138,13 @@ export function SalesProvider({ children }) {
         const updated = { ...current, ...updates };
         setServices(prev => prev.map(s => s.id === id ? updated : s));
 
+        // upsert, no update: un servicio base puede no tener fila todavía si la
+        // migración de siembra no se ha corrido, y un update silencioso sobre
+        // cero renglones haría que el cambio de precio se perdiera al recargar.
         const { id: sid, name, category, price, ...metadata } = updated;
-        const { error } = await supabase.from('services').update({ name, category, price, metadata }).eq('id', sid);
+        const { error } = await supabase
+            .from('services')
+            .upsert({ id: sid, name, category, price, metadata });
         if (error) console.error('Error updating service remotely:', error);
     }, [services]);
 
