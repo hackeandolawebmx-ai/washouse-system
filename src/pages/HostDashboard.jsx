@@ -8,7 +8,7 @@ import OrderDetailsModal from '../components/ui/OrderDetailsModal';
 import InventoryModal from '../components/ui/InventoryModal';
 import ExpenseModal from '../components/ui/ExpenseModal';
 import ViewToggle from '../components/ui/ViewToggle';
-import { PRODUCTS_CATALOG } from '../data/catalog';
+import { PRODUCTS_CATALOG, SERVICES_CATALOG } from '../data/catalog';
 import { Package, Wallet, Power, Store } from 'lucide-react';
 import { useStorage } from '../context/StorageContext';
 import { printTicket } from '../utils/printTicket';

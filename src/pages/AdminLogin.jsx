@@ -63,7 +63,7 @@ export default function AdminLogin() {
                     <div className="text-center">
                         <button
                             type="button"
-                            onClick={() => navigate('/')}
+                            onClick={() => navigate('/sucursal')}
                             className="text-gray-400 hover:text-washouse-blue text-sm font-medium transition-colors"
                         >
                             Volver a Operaciones

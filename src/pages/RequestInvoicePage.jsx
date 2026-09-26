@@ -1,19 +1,14 @@
 import { useState } from 'react';
-import { useStorage } from '../context/StorageContext';
-import { useInvoice } from '../context/InvoiceContext';
 import { formatCurrency } from '../utils/formatCurrency';
+import { buscarOrdenPorFolio, enviarSolicitudFactura, folioCorto } from '../lib/publicData';
 import { Search, FileText, CheckCircle2, AlertCircle } from 'lucide-react';
 import Button from '../components/ui/Button';
 import logo from '../assets/WasHouse CYMK.png';
 
-const shortFolio = (orderId) => orderId.split('-')[1] || orderId;
-
 export default function RequestInvoicePage() {
-    const { orders, branches } = useStorage();
-    const { submitInvoiceRequest } = useInvoice();
-
     const [folio, setFolio] = useState('');
     const [foundOrder, setFoundOrder] = useState(null);
+    const [searching, setSearching] = useState(false);
     const [searchError, setSearchError] = useState('');
 
     const [rfc, setRfc] = useState('');
@@ -23,20 +18,26 @@ export default function RequestInvoicePage() {
     const [submitError, setSubmitError] = useState('');
     const [done, setDone] = useState(false);
 
-    const handleSearch = (e) => {
+    const handleSearch = async (e) => {
         e.preventDefault();
         setSearchError('');
         setFoundOrder(null);
 
-        const cleaned = folio.trim().replace(/^#/, '');
-        if (!cleaned) return;
+        if (!folio.trim()) return;
 
-        const match = orders.find(o => shortFolio(o.id) === cleaned || o.id === cleaned);
-        if (!match) {
-            setSearchError('No encontramos ese folio. Verifica el número que aparece junto a "Orden #" en tu ticket.');
-            return;
+        setSearching(true);
+        try {
+            const match = await buscarOrdenPorFolio(folio);
+            if (!match) {
+                setSearchError('No encontramos ese folio. Verifica el número que aparece junto a "Orden #" en tu ticket.');
+                return;
+            }
+            setFoundOrder(match);
+        } catch {
+            setSearchError('No pudimos consultar tu folio en este momento. Intenta de nuevo en un minuto.');
+        } finally {
+            setSearching(false);
         }
-        setFoundOrder(match);
     };
 
     const handleSubmit = async (e) => {
@@ -50,7 +51,7 @@ export default function RequestInvoicePage() {
 
         setSubmitting(true);
         try {
-            await submitInvoiceRequest({
+            await enviarSolicitudFactura({
                 orderId: foundOrder.id,
                 branchId: foundOrder.branchId,
                 rfc: rfc.trim().toUpperCase(),
@@ -64,8 +65,6 @@ export default function RequestInvoicePage() {
             setSubmitting(false);
         }
     };
-
-    const branchName = foundOrder ? (branches.find(b => b.id === foundOrder.branchId)?.name || '') : '';
 
     return (
         <div className="min-h-screen bg-washouse-gradient flex items-center justify-center p-4">
@@ -84,17 +83,18 @@ export default function RequestInvoicePage() {
                             <CheckCircle2 className="mx-auto text-emerald-500" size={48} />
                             <h2 className="text-lg font-black text-washouse-navy">¡Solicitud enviada!</h2>
                             <p className="text-sm text-gray-500">
-                                Recibimos tu solicitud de factura para la orden #{shortFolio(foundOrder.id)}.
+                                Recibimos tu solicitud de factura para la orden #{folioCorto(foundOrder.id)}.
                                 Nuestro equipo la generará y te la haremos llegar a la brevedad.
                             </p>
                         </div>
                     ) : !foundOrder ? (
                         <form onSubmit={handleSearch} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Folio de tu ticket</label>
+                                <label htmlFor="folio" className="block text-sm font-medium text-gray-700 mb-2">Folio de tu ticket</label>
                                 <div className="relative">
                                     <Search className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
                                     <input
+                                        id="folio"
                                         type="text"
                                         required
                                         className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-washouse-blue focus:border-transparent outline-none transition-all"
@@ -110,7 +110,7 @@ export default function RequestInvoicePage() {
                                     </div>
                                 )}
                             </div>
-                            <Button type="submit" className="w-full py-4 text-lg shadow-lg">
+                            <Button type="submit" loading={searching} className="w-full py-4 text-lg shadow-lg">
                                 Buscar mi orden
                             </Button>
                         </form>
@@ -119,15 +119,16 @@ export default function RequestInvoicePage() {
                             <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-4 flex items-start gap-3">
                                 <FileText className="text-washouse-blue shrink-0 mt-0.5" size={20} />
                                 <div className="text-sm">
-                                    <p className="font-black text-washouse-navy">Orden #{shortFolio(foundOrder.id)}</p>
-                                    <p className="text-gray-500">{foundOrder.customerName} · {branchName}</p>
+                                    <p className="font-black text-washouse-navy">Orden #{folioCorto(foundOrder.id)}</p>
+                                    <p className="text-gray-500">{foundOrder.customerLabel} · {foundOrder.branchName}</p>
                                     <p className="text-gray-500">{new Date(foundOrder.createdAt).toLocaleDateString()} · {formatCurrency(foundOrder.totalAmount)}</p>
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">RFC</label>
+                                <label htmlFor="rfc" className="block text-sm font-medium text-gray-700 mb-2">RFC</label>
                                 <input
+                                    id="rfc"
                                     type="text"
                                     required
                                     className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-washouse-blue focus:border-transparent outline-none transition-all uppercase"
@@ -138,8 +139,9 @@ export default function RequestInvoicePage() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Razón social</label>
+                                <label htmlFor="razon-social" className="block text-sm font-medium text-gray-700 mb-2">Razón social</label>
                                 <input
+                                    id="razon-social"
                                     type="text"
                                     required
                                     className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-washouse-blue focus:border-transparent outline-none transition-all"
@@ -150,8 +152,9 @@ export default function RequestInvoicePage() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Correo (opcional)</label>
+                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">Correo (opcional)</label>
                                 <input
+                                    id="email"
                                     type="email"
                                     className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-washouse-blue focus:border-transparent outline-none transition-all"
                                     placeholder="Para enviarte tu factura"

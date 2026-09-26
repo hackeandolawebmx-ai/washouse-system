@@ -72,23 +72,23 @@ export default function HostLayout() {
             <div className="max-w-7xl mx-auto px-6 mt-8 mb-6">
                 <nav className="flex space-x-3 bg-gray-100/30 p-1.5 rounded-2xl w-fit border border-gray-200/50 shadow-sm backdrop-blur-sm">
                     <Link
-                        to="/"
+                        to="/sucursal"
                         className={`px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-3 transition-all duration-300
-                            ${location.pathname === '/'
+                            ${location.pathname === '/sucursal'
                                 ? 'bg-white shadow-lg shadow-blue-500/10 text-washouse-blue ring-1 ring-gray-100'
                                 : 'text-gray-400 hover:text-gray-600 hover:bg-white/50'}`}
                     >
-                        <WashingMachine size={18} className={location.pathname === '/' ? 'animate-bounce' : ''} />
+                        <WashingMachine size={18} className={location.pathname === '/sucursal' ? 'animate-bounce' : ''} />
                         Lavado Asistido
                     </Link>
                     <Link
-                        to="/services"
+                        to="/sucursal/servicios"
                         className={`px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-3 transition-all duration-300
-                            ${location.pathname === '/services'
+                            ${location.pathname === '/sucursal/servicios'
                                 ? 'bg-white shadow-lg shadow-blue-500/10 text-washouse-blue ring-1 ring-gray-100'
                                 : 'text-gray-400 hover:text-gray-600 hover:bg-white/50'}`}
                     >
-                        <ClipboardList size={18} className={location.pathname === '/services' ? 'animate-pulse' : ''} />
+                        <ClipboardList size={18} className={location.pathname === '/sucursal/servicios' ? 'animate-pulse' : ''} />
                         Servicios Programados
                     </Link>
                 </nav>
