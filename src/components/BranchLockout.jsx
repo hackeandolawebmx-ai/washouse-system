@@ -1,9 +1,18 @@
 import React from 'react';
 import { ShieldAlert, Phone, Mail, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useStorage } from '../context/StorageContext';
 
 export default function BranchLockout() {
     const { logout } = useAuth();
+    const { deviceBranchId, branches, BRANCH_LICENSES } = useStorage();
+
+    // Esta pantalla aparece por dos motivos distintos que conviene no
+    // confundir: la sucursal existe y su licencia venció, o el dispositivo
+    // apunta a una sucursal que no está registrada. Lo segundo se resuelve
+    // vinculando la tablet, no pagando.
+    const branchName = branches?.find(b => b.id === deviceBranchId)?.name;
+    const tieneLicencia = Boolean(BRANCH_LICENSES?.[deviceBranchId]);
 
     return (
         <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 font-sans">
@@ -19,11 +28,22 @@ export default function BranchLockout() {
                         </div>
 
                         <h1 className="text-2xl font-black text-white mb-4 tracking-tight uppercase">
-                            Servicio Suspendido
+                            {tieneLicencia ? 'Servicio Suspendido' : 'Sucursal No Reconocida'}
                         </h1>
 
+                        <div className="mb-6 inline-flex flex-col items-center gap-1 bg-white/5 border border-white/10 rounded-2xl px-5 py-3">
+                            <span className="text-[9px] text-gray-500 font-black uppercase tracking-[0.25em]">
+                                Este dispositivo apunta a
+                            </span>
+                            <span className="text-sm text-gray-100 font-black">
+                                {branchName || deviceBranchId || 'ninguna sucursal'}
+                            </span>
+                        </div>
+
                         <p className="text-gray-400 text-sm leading-relaxed mb-10 font-medium">
-                            El acceso a esta sucursal ha sido restringido por falta de pago o vencimiento de licencia. Por favor, contacte al soporte técnico para restablecer el servicio.
+                            {tieneLicencia
+                                ? 'El acceso a esta sucursal ha sido restringido por falta de pago o vencimiento de licencia. Por favor, contacte al soporte técnico para restablecer el servicio.'
+                                : 'Este dispositivo está vinculado a una sucursal que no está dada de alta. No es un problema de pago: un administrador debe vincularlo a la sucursal correcta desde Configuración → Este Dispositivo.'}
                         </p>
 
                         <div className="w-full space-y-4 mb-10">

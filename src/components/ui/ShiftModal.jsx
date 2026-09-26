@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useStorage } from '../../context/StorageContext';
 import Button from './Button';
-import IconInput from './IconInput';
 import SelectStaffModal from './SelectStaffModal';
-import { User, DollarSign, LogIn, Key } from 'lucide-react';
+import { User, DollarSign, Store } from 'lucide-react';
 
 export default function ShiftModal() {
     const { startShift, isShiftOpen } = useAuth();
+    const { deviceBranchId, branches } = useStorage();
     const [authenticatedUser, setAuthenticatedUser] = useState(null);
     const [initialCash, setInitialCash] = useState('');
+
+    const branchName = branches?.find(b => b.id === deviceBranchId)?.name;
 
     if (isShiftOpen) return null;
 
@@ -41,7 +44,16 @@ export default function ShiftModal() {
                         <DollarSign className="w-10 h-10 text-white" />
                     </div>
                     <h2 className="text-2xl font-black text-white tracking-tighter uppercase">Apertura de Caja</h2>
-                    <p className="text-blue-100 font-bold text-sm tracking-wide mt-1">Sessión iniciada como: <span className="text-white underline">{authenticatedUser?.name}</span></p>
+                    <p className="text-blue-100 font-bold text-sm tracking-wide mt-1">Sesión iniciada como: <span className="text-white underline">{authenticatedUser?.name}</span></p>
+
+                    {branchName && (
+                        <div className="mt-4 inline-flex items-center gap-2 bg-white/15 border border-white/25 rounded-full px-4 py-2 backdrop-blur-sm">
+                            <Store size={14} className="text-white shrink-0" />
+                            <span className="text-[11px] font-black uppercase tracking-widest text-white">
+                                {branchName}
+                            </span>
+                        </div>
+                    )}
 
                     <button
                         onClick={() => setAuthenticatedUser(null)}

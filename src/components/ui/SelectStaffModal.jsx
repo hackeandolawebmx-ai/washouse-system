@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useStorage } from '../../context/StorageContext';
-import { Users, User, Key, ArrowRight, X, AlertCircle } from 'lucide-react';
+import { Users, User, Key, ArrowRight, X, AlertCircle, Store } from 'lucide-react';
 import Button from './Button';
 
 export default function SelectStaffModal({ isOpen, onClose, onAuthenticated }) {
     const { staff, loginHost } = useAuth();
-    const { deviceBranchId } = useStorage();
+    const { deviceBranchId, branches } = useStorage();
+
+    // La sucursal a la que esta tablet está vinculada. Se muestra antes de
+    // pedir el PIN: si el dispositivo quedó apuntando a otra sucursal, hay que
+    // notarlo aquí y no después de abrir turno y registrar ventas.
+    const deviceBranch = branches?.find(b => b.id === deviceBranchId);
 
     const [selectedStaff, setSelectedStaff] = useState(null);
     const [pin, setPin] = useState('');
@@ -55,14 +60,43 @@ export default function SelectStaffModal({ isOpen, onClose, onAuthenticated }) {
     return (
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/60 animate-in fade-in duration-300">
             <div className="bg-white rounded-[32px] shadow-2xl max-w-md w-full overflow-hidden border border-white/20 animate-in zoom-in-95 duration-300">
-                <div className="bg-gray-50/50 p-6 border-b border-gray-100 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <Users className="text-washouse-blue" size={24} />
-                        <h2 className="text-lg font-black text-black">Identificación de Personal</h2>
+                <div className="bg-gray-50/50 p-6 border-b border-gray-100">
+                    <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                            <Users className="text-washouse-blue" size={24} />
+                            <h2 className="text-lg font-black text-black">Identificación de Personal</h2>
+                        </div>
+                        <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                            <X size={20} className="text-gray-400" />
+                        </button>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                        <X size={20} className="text-gray-400" />
-                    </button>
+
+                    {deviceBranch ? (
+                        <div className="mt-4 flex items-center gap-2.5 bg-white border border-blue-100 rounded-2xl px-4 py-3 shadow-sm">
+                            <Store className="text-washouse-blue shrink-0" size={18} />
+                            <div className="min-w-0">
+                                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 leading-none">
+                                    Estás en
+                                </p>
+                                <p className="text-sm font-black text-washouse-navy leading-tight mt-1 truncate">
+                                    {deviceBranch.name}
+                                </p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="mt-4 flex items-start gap-2.5 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3">
+                            <AlertCircle className="text-amber-500 shrink-0 mt-0.5" size={18} />
+                            <div className="min-w-0">
+                                <p className="text-sm font-black text-amber-800 leading-tight">
+                                    Dispositivo sin vincular
+                                </p>
+                                <p className="text-[11px] font-bold text-amber-700/80 leading-snug mt-1">
+                                    No abras turno. Pide al administrador que vincule esta
+                                    tablet a su sucursal en Configuración → Este Dispositivo.
+                                </p>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 <div className="p-8">
@@ -92,7 +126,14 @@ export default function SelectStaffModal({ isOpen, onClose, onAuthenticated }) {
                                 ) : (
                                     <div className="text-center py-8 px-4 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
                                         <AlertCircle className="mx-auto text-gray-300 mb-2" size={32} />
-                                        <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">No hay personal registrado</p>
+                                        <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">
+                                            {deviceBranch
+                                                ? `Sin personal en ${deviceBranch.name}`
+                                                : 'No hay personal registrado'}
+                                        </p>
+                                        <p className="text-[11px] text-gray-400 font-medium mt-2 leading-snug">
+                                            Si esta no es tu sucursal, el dispositivo está vinculado a otra.
+                                        </p>
                                     </div>
                                 )}
                             </div>
