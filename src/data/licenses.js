@@ -26,6 +26,11 @@ export const BRANCH_LICENSES = {
         status: 'active',
         expires: '2026-12-31',
         plan: 'Standard'
+    },
+    'vista_hermosa': {
+        status: 'active',
+        expires: '2026-12-31',
+        plan: 'Standard'
     }
     // Para desactivar una sucursal, cambiar status a 'suspended' o 'pending_payment'
     // O simplemente poner una fecha de 'expires' en el pasado.
