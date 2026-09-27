@@ -30,7 +30,7 @@ export const manualSucursal = {
                 },
                 {
                     type: 'note', tone: 'warn', title: 'Revisa la sucursal antes de teclear tu PIN',
-                    text: 'La pantalla de identificación dice **"Estás en —"** y el nombre de la sucursal. Si dice otra sucursal, o "— No usar · respaldo del sistema —", no abras turno: el equipo está mal vinculado y todo lo que registres quedará en la sucursal equivocada. Avisa al administrador.'
+                    text: 'Arriba a la izquierda, junto al logo, siempre dice en qué **sucursal** estás; la pantalla de identificación también lo repite. Si dice otra sucursal, o **"Sin vincular"** en amarillo, no abras turno: el equipo está mal vinculado y todo lo que registres quedará en la sucursal equivocada. Avisa al administrador.'
                 }
             ]
         },
@@ -189,7 +189,7 @@ export const manualSucursal = {
                     type: 'table',
                     head: ['Lo que pasa', 'Qué hacer'],
                     rows: [
-                        ['"Estás en" dice otra sucursal', 'No abras turno. El administrador lo corrige en Configuración → Este Dispositivo'],
+                        ['Arriba dice otra sucursal o "Sin vincular"', 'No abras turno. El administrador lo corrige en Configuración → Este Dispositivo'],
                         ['"Debes iniciar turno…"', 'El turno está cerrado. Ábrelo desde la pantalla de identificación'],
                         ['No acepta mi PIN', 'Revisa que elegiste tu perfil. Si fallaste 8 veces, espera 5 minutos'],
                         ['El tablero sale vacío', 'Recarga la página con Ctrl + Shift + R'],

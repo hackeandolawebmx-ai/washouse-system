@@ -6,11 +6,17 @@ import { useStorage } from '../context/StorageContext';
 import ShiftModal from '../components/ui/ShiftModal';
 import EndShiftModal from '../components/ui/EndShiftModal';
 import BranchLockout from '../components/BranchLockout';
-import { WashingMachine, ClipboardList, LogOut, BookOpen } from 'lucide-react';
+import { WashingMachine, ClipboardList, LogOut, BookOpen, Store, AlertTriangle } from 'lucide-react';
 
 export default function HostLayout() {
     const { user, isShiftOpen } = useAuth();
-    const { isBranchActive, deviceBranchId, BRANCH_LICENSES } = useStorage();
+    const { isBranchActive, deviceBranchId, BRANCH_LICENSES, branches } = useStorage();
+
+    // Sucursal a la que está vinculado este dispositivo, siempre a la vista en
+    // el encabezado. 'main' es el renglón técnico de respaldo (el valor por
+    // defecto de un navegador nunca vinculado), así que cuenta como sin vincular.
+    const branch = branches?.find(b => b.id === deviceBranchId);
+    const sinVincular = !branch || deviceBranchId === 'main';
     const location = useLocation();
     const [isEndShiftModalOpen, setIsEndShiftModalOpen] = useState(false);
 
@@ -36,12 +42,25 @@ export default function HostLayout() {
                         Aviso: La suscripción de esta sucursal vence en {daysRemaining} {daysRemaining === 1 ? 'día' : 'días'}. Contacte a administración.
                     </div>
                 )}
-                <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-                    <div className="flex items-center group cursor-default">
-                        <img src={logo} alt="Washouse" className="h-14 w-auto object-contain transition-transform duration-500 group-hover:scale-105" />
-                        <div className="ml-5 pl-5 border-l border-gray-100 hidden md:block">
-                            <h2 className="text-[11px] font-black text-black tracking-[0.4em] leading-none uppercase">Sistema</h2>
-                            <p className="text-[9px] text-gray-400 font-bold tracking-[0.2em] uppercase mt-1.5 opacity-70">Gestión de Lavandería</p>
+                <div className="max-w-7xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+                    <div className="flex items-center group cursor-default min-w-0">
+                        <img src={logo} alt="Washouse" className="h-10 sm:h-14 w-auto object-contain shrink-0 transition-transform duration-500 group-hover:scale-105" />
+                        <div className="ml-4 sm:ml-5 pl-4 sm:pl-5 border-l border-gray-100 min-w-0">
+                            <p className="text-[9px] font-black uppercase tracking-[0.25em] text-gray-400 leading-none">Sucursal</p>
+                            {sinVincular ? (
+                                <p
+                                    className="mt-1.5 flex items-center gap-1.5 text-sm font-black text-amber-600 leading-none"
+                                    title="Este dispositivo no está vinculado a una sucursal. Admin → Configuración → Este Dispositivo."
+                                >
+                                    <AlertTriangle size={15} className="shrink-0" /> Sin vincular
+                                </p>
+                            ) : (
+                                <p className="mt-1.5 flex items-center gap-1.5 text-base sm:text-lg font-black text-washouse-navy leading-none tracking-tight">
+                                    <Store size={16} className="text-washouse-blue shrink-0" />
+                                    {/* El logo ya dice Washouse; basta con el nombre de la sucursal */}
+                                    <span className="truncate">{branch.name.replace(/^Washouse\s+/i, '')}</span>
+                                </p>
+                            )}
                         </div>
                     </div>
 
