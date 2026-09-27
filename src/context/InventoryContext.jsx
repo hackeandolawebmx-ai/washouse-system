@@ -16,7 +16,13 @@ const mapProduct = (p) => ({ ...p.metadata, id: p.id, branchId: p.branch_id, cat
 
 const toRow = (p) => {
     const { id, branchId, catalogId, name, category, stock, price, ...metadata } = p;
-    return { id, branch_id: branchId, catalog_id: catalogId || null, name, category, stock, price, metadata };
+    const row = { id, branch_id: branchId, name, category, stock, price, metadata };
+    // Solo se manda catalog_id cuando existe. Así el guardado funciona aunque
+    // la migración 20260926_inventory_catalog_id.sql no se haya corrido: si
+    // la columna no existe, mandarla (aun en null) hace que PostgREST rechace
+    // todo el insert/update y el producto nunca se guarda en la base.
+    if (catalogId) row.catalog_id = catalogId;
+    return row;
 };
 
 export function InventoryProvider({ children }) {
