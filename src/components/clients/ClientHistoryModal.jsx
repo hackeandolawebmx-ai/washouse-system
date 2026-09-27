@@ -56,7 +56,7 @@ export default function ClientHistoryModal({ client, isOpen, onClose }) {
                                 <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-1">
                                         <span className="font-mono text-xs font-bold bg-gray-100 px-2 py-0.5 rounded text-gray-600">{order.id}</span>
-                                        <span className="text-xs text-gray-400">{new Date(order.createdAt).toLocaleDateString()} {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                        <span className="text-xs text-gray-400">{new Date(order.createdAt).toLocaleDateString('es-MX')} {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                     </div>
                                     <div className="text-sm text-gray-600">
                                         {order.items.map(i => `${i.quantity} ${i.name}`).join(', ')}

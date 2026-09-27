@@ -24,7 +24,7 @@ function getAuthHeader() {
 export async function createCFDI(invoiceData) {
   try {
     if (!FACTURAMA_USER || !FACTURAMA_PASSWORD) {
-      throw new Error('Facturama credentials not configured in .env');
+      throw new Error('Facturama no está configurado: faltan las credenciales en .env');
     }
 
     // Format invoice for Facturama API
@@ -84,7 +84,7 @@ export async function createCFDI(invoiceData) {
       } catch {
         // response wasn't JSON, use raw text
       }
-      throw new Error(`Facturama error ${response.status}: ${message}`);
+      throw new Error(`Facturama respondió con error ${response.status}: ${message}`);
     }
 
     const result = await response.json();
@@ -99,7 +99,7 @@ export async function createCFDI(invoiceData) {
     };
   } catch (err) {
     console.error('Failed to create CFDI in Facturama:', err);
-    throw new Error(`Facturama integration error: ${err.message}`);
+    throw new Error(`Error al conectar con Facturama: ${err.message}`);
   }
 }
 
@@ -131,7 +131,7 @@ export async function downloadCFDI(cfdiId, format = 'pdf') {
     );
 
     if (!response.ok) {
-      throw new Error(`Failed to download CFDI: ${response.statusText}`);
+      throw new Error(`No se pudo descargar el CFDI: ${response.statusText}`);
     }
 
     return await response.blob();
@@ -159,7 +159,7 @@ export async function cancelCFDI(cfdiId, reason = '01') {
     );
 
     if (!response.ok) {
-      throw new Error(`Failed to cancel CFDI: ${response.statusText}`);
+      throw new Error(`No se pudo cancelar el CFDI: ${response.statusText}`);
     }
 
     return { success: true };

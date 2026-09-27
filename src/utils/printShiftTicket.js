@@ -75,8 +75,8 @@ export const printShiftTicket = (shiftData) => {
             <img src="${window.location.origin + Logo}" alt="Washouse" style="width: 100px; margin-bottom: 5px;" />
             <div class="title">CORTE DE CAJA</div>
             <div class="info">Responsable: ${closedBy || 'N/A'}</div>
-            <div class="info">Inicio: ${new Date(startTime).toLocaleString()}</div>
-            <div class="info">Fin: ${new Date(endedAt).toLocaleString()}</div>
+            <div class="info">Inicio: ${new Date(startTime).toLocaleString('es-MX')}</div>
+            <div class="info">Fin: ${new Date(endedAt).toLocaleString('es-MX')}</div>
         </div>
         
         <div class="section">

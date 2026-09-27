@@ -57,7 +57,7 @@ export const printServiceTicket = (order, invoice = null, copyType = 'both') => 
             : `<img src="${window.location.origin + Logo}" alt="Washouse" style="width: 150px; height: auto; margin-bottom: 10px;" />`
         }
                 <div class="info">Orden: #${orderId}</div>
-                <div class="info">${new Date(createdAt).toLocaleString()}</div>
+                <div class="info">${new Date(createdAt).toLocaleString('es-MX')}</div>
                 <div class="info" style="font-weight:bold; margin-top:5px;">${customerName}</div>
                 ${customerPhone ? `<div class="info">${customerPhone}</div>` : ''}
             </div>

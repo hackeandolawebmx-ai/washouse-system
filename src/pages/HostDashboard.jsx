@@ -11,6 +11,7 @@ import { PRODUCTS_CATALOG, SERVICES_CATALOG } from '../data/catalog';
 import { Package, Wallet, Power, Plus, Droplets, Wind } from 'lucide-react';
 import { useStorage } from '../context/StorageContext';
 
+import { USUARIO_MOSTRADOR } from '../utils/labels';
 // Filtros de estado. Además de filtrar, muestran cuántas máquinas hay en cada
 // estado: el resumen que el mostrador necesita de un vistazo.
 const STATUS_FILTERS = [
@@ -132,7 +133,7 @@ export default function HostDashboard() {
     };
 
     const handleSaveExpense = (expenseData) => {
-        addExpense({ ...expenseData, branchId: currentBranch }, user?.name || 'Host');
+        addExpense({ ...expenseData, branchId: currentBranch }, user?.name || USUARIO_MOSTRADOR);
     };
 
     const handleToggleMaintenance = (id) => {

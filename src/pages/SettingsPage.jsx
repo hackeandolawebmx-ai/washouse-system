@@ -10,6 +10,7 @@ import BranchModal from '../components/admin/BranchModal';
 import ProductModal from '../components/admin/ProductModal';
 import ServiceModal from '../components/admin/ServiceModal';
 
+import { USUARIO_ADMIN } from '../utils/labels';
 export default function SettingsPage() {
     const {
         branches, addBranch, updateBranch, deleteBranch,
@@ -450,7 +451,7 @@ export default function SettingsPage() {
                             <div className="mt-8 p-4 bg-orange-50 border border-orange-100 rounded-2xl text-left">
                                 <p className="text-xs text-orange-800 leading-relaxed font-medium">
                                     <span className="font-black uppercase mr-1">Aviso:</span>
-                                    Esto cambiará la vista de "Host" y las máquinas que este dispositivo puede controlar directamente.
+                                    Esto cambia la sucursal que muestra el mostrador en este dispositivo y las máquinas que puede operar.
                                 </p>
                             </div>
                         </div>
@@ -510,7 +511,7 @@ export default function SettingsPage() {
             <ProductModal
                 isOpen={isProductModalOpen}
                 onClose={() => setIsProductModalOpen(false)}
-                onSave={editingProduct ? (data) => updateProduct(editingProduct.id, data) : (data) => addProduct(data, 'Admin', selectedInventoryBranch === 'all' ? 'main' : selectedInventoryBranch)}
+                onSave={editingProduct ? (data) => updateProduct(editingProduct.id, data) : (data) => addProduct(data, USUARIO_ADMIN, selectedInventoryBranch === 'all' ? 'main' : selectedInventoryBranch)}
                 productToEdit={editingProduct}
                 branchId={selectedInventoryBranch === 'all' ? (editingProduct?.branchId || 'main') : selectedInventoryBranch}
             />

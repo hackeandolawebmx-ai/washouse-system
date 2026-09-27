@@ -24,16 +24,16 @@ export const manualAdmin = {
         },
         {
             id: 'dashboard',
-            title: 'Dashboard',
+            title: 'Panel',
             blocks: [
-                { type: 'p', text: 'Arriba eliges **qué sucursal** ver (o todas) y el periodo. Todo el dashboard responde a ese filtro. Tiene cuatro vistas.' },
+                { type: 'p', text: 'Arriba eliges **qué sucursal** ver (o todas) y el periodo. Todo el panel responde a ese filtro. Tiene cuatro vistas.' },
                 { type: 'img', src: img('resumen'), caption: 'Resumen: indicadores y gráficas de los últimos días.' },
                 {
                     type: 'table',
                     head: ['Indicador', 'Qué significa'],
                     rows: [
                         ['Ingresos', 'Lo cobrado en el periodo, comparado con el periodo anterior'],
-                        ['Ingreso por máquina (RPMD)', 'Cuánto genera en promedio cada máquina por día'],
+                        ['Ingreso por máquina al día', 'Cuánto genera en promedio cada máquina por día'],
                         ['Ticket promedio', 'Cuánto paga en promedio cada orden'],
                         ['Utilización', 'Qué porcentaje del tiempo están trabajando las máquinas. Bajo 20% es poca demanda; sobre 80%, conviene crecer'],
                         ['Tiempo de respuesta', 'Horas promedio desde que se recibe un encargo hasta que se termina. Meta: menos de 24 h'],
@@ -133,7 +133,7 @@ export const manualAdmin = {
             title: 'Configuración',
             blocks: [
                 { type: 'img', src: img('config-sucursales'), caption: 'Sucursales: dirección y costo por ciclo de agua, luz y gas.' },
-                { type: 'p', text: 'Los **costos por ciclo** alimentan el margen operativo del dashboard y los reportes. Ajústalos a lo que de verdad cuesta cada ciclo en esa sucursal.' },
+                { type: 'p', text: 'Los **costos por ciclo** alimentan el margen operativo del panel y los reportes. Ajústalos a lo que de verdad cuesta cada ciclo en esa sucursal.' },
                 { type: 'img', src: img('config-servicios'), caption: 'Servicios: el catálogo y los precios.' },
                 { type: 'note', tone: 'info', title: 'Un precio, en todos lados', text: 'El precio que cambies aquí es el que cobra el mostrador y el que ve el cliente en washouse.app. No hay que cambiarlo en otro lado.' },
                 { type: 'img', src: img('config-insumos'), caption: 'Insumos: existencias y precios por sucursal.' },
@@ -167,7 +167,7 @@ export const manualAdmin = {
                         ['Cambiar un PIN', 'Personal → editar a la persona'],
                         ['Cambiar un precio', 'Configuración → Servicios'],
                         ['Registrar mercancía que llegó', 'Configuración → Insumos'],
-                        ['Revisar un corte que no cuadró', 'Dashboard → Turnos, y la Bitácora de ese día'],
+                        ['Revisar un corte que no cuadró', 'Panel → Turnos, y la Bitácora de ese día'],
                         ['Una tablet muestra otra sucursal', 'En esa tablet: Configuración → Este Dispositivo'],
                         ['Atender una solicitud de factura', 'Facturación → Generar Factura → Emitir']
                     ]

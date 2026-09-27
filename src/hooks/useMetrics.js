@@ -116,7 +116,7 @@ export function useMetrics() {
         // otherwise a brand-new/empty branch always shows a false "low demand" alert.
         const alerts = [];
         if (totalCycles > 0) {
-            if (utilizationRate < 20) alerts.push({ type: 'marketing', message: 'Baja demanda: Alerta marketing (< 20%)' });
+            if (utilizationRate < 20) alerts.push({ type: 'marketing', message: 'Baja demanda: utilización menor a 20%, conviene una promoción' });
             if (utilizationRate > 80) alerts.push({ type: 'expansion', message: 'Saturación: Alerta expansión (> 80%)' });
         }
 

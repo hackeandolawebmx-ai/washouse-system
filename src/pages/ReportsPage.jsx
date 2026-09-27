@@ -79,7 +79,7 @@ export default function ReportsPage() {
         });
         const dailyTrends = Array.from(dailyMap.entries())
             .sort((a, b) => a[0].localeCompare(b[0]))
-            .map(([isoDay, total]) => ({ date: new Date(`${isoDay}T00:00:00`).toLocaleDateString(), total }));
+            .map(([isoDay, total]) => ({ date: new Date(`${isoDay}T00:00:00`).toLocaleDateString('es-MX'), total }));
 
         // --- 2. Revenue by Machine Type ---
         const typeMap = new Map();
@@ -166,7 +166,7 @@ export default function ReportsPage() {
                             <div className="p-2 bg-blue-50 rounded-lg text-washouse-blue">
                                 <Activity size={20} strokeWidth={2.5} />
                             </div>
-                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Business Intelligence</span>
+                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Reportes</span>
                         </div>
                         <h2 className="text-5xl font-black text-washouse-navy font-outfit tracking-tighter">Inteligencia de Negocio</h2>
                         <p className="text-sm text-gray-400 font-medium mt-1">Análisis detallado de rentabilidad y rendimiento operativo</p>
@@ -210,14 +210,14 @@ export default function ReportsPage() {
                             onClick={() => {
                                 const allTransactions = [
                                     ...reportData.sales.map(s => ({
-                                        Fecha: new Date(s.date).toLocaleDateString(),
+                                        Fecha: new Date(s.date).toLocaleDateString('es-MX'),
                                         Tipo: 'INGRESO',
                                         Descripcion: s.description || (s.items ? `Venta: ${Object.keys(s.items).length} items` : 'Venta General'),
                                         Sucursal: branches.find(b => b.id === s.branchId)?.name || 'N/A',
                                         Monto: s.amount || 0
                                     })),
                                     ...reportData.expenses.map(e => ({
-                                        Fecha: new Date(e.timestamp).toLocaleDateString(),
+                                        Fecha: new Date(e.timestamp).toLocaleDateString('es-MX'),
                                         Tipo: 'GASTO',
                                         Descripcion: e.description,
                                         Sucursal: branches.find(b => b.id === e.branchId)?.name || 'N/A',
@@ -277,7 +277,7 @@ export default function ReportsPage() {
                 <div className="lg:col-span-2 glass-card p-8 border-white/60 shadow-lg relative h-full">
                     <div className="flex justify-between items-center mb-10">
                         <div>
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-1">Performance</p>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-1">Rendimiento</p>
                             <h3 className="text-xl font-black text-washouse-navy font-outfit">Tendencia de Ingresos</h3>
                         </div>
                         <div className="flex items-center gap-2">
@@ -346,7 +346,7 @@ export default function ReportsPage() {
                 {/* 2. Revenue Mix (Washer vs Dryer) */}
                 <div className="glass-card p-8 border-white/60 shadow-lg relative flex flex-col h-full">
                     <div>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-1">Distribution</p>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-1">Distribución</p>
                         <h3 className="text-xl font-black text-washouse-navy font-outfit mb-8">Mix de Ingresos</h3>
                     </div>
 
@@ -419,7 +419,7 @@ export default function ReportsPage() {
                 <div className="glass-card p-8 border-white/60 shadow-lg relative h-full">
                     <div className="flex justify-between items-start mb-8">
                         <div>
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-1">Efficiency</p>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-1">Eficiencia</p>
                             <h3 className="text-xl font-black text-washouse-navy font-outfit">Productividad</h3>
                         </div>
                         <div className="text-right">
@@ -479,7 +479,7 @@ export default function ReportsPage() {
                 {/* 4. Hourly Traffic */}
                 <div className="lg:col-span-2 glass-card p-8 border-white/60 shadow-lg relative h-full">
                     <div>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-1">Peak Hours</p>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-1">Horas pico</p>
                         <h3 className="text-xl font-black text-washouse-navy font-outfit mb-8">Tráfico por Hora</h3>
                     </div>
                     <div className="h-64 w-full">
@@ -584,7 +584,7 @@ export default function ReportsPage() {
             <div className="glass-card overflow-hidden border-white/60 shadow-xl">
                 <div className="p-8 border-b border-gray-100/50 flex justify-between items-center">
                     <div>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-1">Assets Performance</p>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-1">Rendimiento por equipo</p>
                         <h3 className="text-xl font-black text-washouse-navy font-outfit">Top 5 Máquinas Rentables</h3>
                     </div>
                     <div className="p-3 bg-blue-50 rounded-2xl text-washouse-blue signature-glow">

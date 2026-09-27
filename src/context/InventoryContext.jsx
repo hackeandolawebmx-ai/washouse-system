@@ -3,6 +3,7 @@ import { useApp } from './AppContext';
 import { supabase } from '../lib/supabase';
 import { PRODUCTS_CATALOG } from '../data/catalog';
 
+import { USUARIO_ADMIN } from '../utils/labels';
 const InventoryContext = createContext();
 
 // catalogId links a branch's row back to its entry in PRODUCTS_CATALOG
@@ -67,7 +68,7 @@ export function InventoryProvider({ children }) {
         if (error) console.error('Error updating stock remotely:', error);
     }, [inventory]);
 
-    const addProduct = useCallback(async (product, user = 'Admin', branchId = 'main') => {
+    const addProduct = useCallback(async (product, user = USUARIO_ADMIN, branchId = 'main') => {
         const newProduct = { ...product, id: Date.now().toString(), branchId };
         setInventory(prev => [...prev, newProduct]);
 
@@ -78,7 +79,7 @@ export function InventoryProvider({ children }) {
         return newProduct;
     }, [logActivity]);
 
-    const updateProduct = useCallback(async (id, updates, user = 'Admin') => {
+    const updateProduct = useCallback(async (id, updates, user = USUARIO_ADMIN) => {
         const current = inventory.find(p => p.id === id);
         if (!current) return;
 
@@ -90,7 +91,7 @@ export function InventoryProvider({ children }) {
         if (error) console.error('Error updating product remotely:', error);
     }, [inventory, logActivity]);
 
-    const deleteProduct = useCallback(async (id, user = 'Admin') => {
+    const deleteProduct = useCallback(async (id, user = USUARIO_ADMIN) => {
         const product = inventory.find(p => p.id === id);
         setInventory(prev => prev.filter(p => p.id !== id));
 
@@ -102,7 +103,7 @@ export function InventoryProvider({ children }) {
         }
     }, [logActivity, inventory]);
 
-    const importInventory = useCallback(async (newProducts, user = 'Admin') => {
+    const importInventory = useCallback(async (newProducts, user = USUARIO_ADMIN) => {
         let addedCount = 0;
         let updatedCount = 0;
         const currentMap = new Map(inventory.map(p => [p.id, p]));
@@ -128,7 +129,7 @@ export function InventoryProvider({ children }) {
         return { added: addedCount, updated: updatedCount };
     }, [logActivity, inventory]);
 
-    const loadStandardInventoryInAllBranches = useCallback(async (user = 'Admin') => {
+    const loadStandardInventoryInAllBranches = useCallback(async (user = USUARIO_ADMIN) => {
         if (branches.length === 0) return;
 
         const currentInventory = [...inventory];

@@ -7,6 +7,7 @@ import { formatCurrency } from '../../utils/formatCurrency';
 import { useScale } from '../../hooks/useScale';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { USUARIO_MOSTRADOR } from '../../utils/labels';
 export default function NewOrderWizard({ isOpen, onClose, machineId }) {
     const { executeOrder, deviceBranchId, branches, machines, inventory, services, taxConfig } = useStorage();
     const { user } = useAuth();
@@ -640,7 +641,7 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
             branchId: deviceBranchId,
             machineId: selectedMachineId,
             requiresInvoice
-        }, user?.name || 'Host');
+        }, user?.name || USUARIO_MOSTRADOR);
 
         setCreatedOrder(newOrder);
         setStep(5);
@@ -766,8 +767,8 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
                         <div className="px-10 py-6 border-b flex justify-between items-center bg-white/50 backdrop-blur-sm">
                             <div className="flex flex-col">
                                 <h2 className="text-2xl font-black text-washouse-navy tracking-tighter leading-none flex items-center gap-3">
-                                    WASHOUSE <span className="text-washouse-blue">SYSTEM</span>
-                                    <span className="text-[10px] bg-washouse-blue text-white px-3 py-1 rounded-full tracking-[0.2em] font-black uppercase">Smart POS v2</span>
+                                    WASHOUSE
+                                    <span className="text-[10px] bg-washouse-blue text-white px-3 py-1 rounded-full tracking-[0.2em] font-black uppercase">Punto de venta</span>
                                 </h2>
                             </div>
                             <button onClick={onClose} className="p-3 hover:bg-red-50 hover:text-red-500 rounded-full transition-all bg-white shadow-sm border border-gray-100 group">

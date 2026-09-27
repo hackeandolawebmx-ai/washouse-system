@@ -1,7 +1,17 @@
 import React, { useMemo } from 'react';
 import { ClipboardList, User, Clock, AlertCircle } from 'lucide-react';
+import { useStorage } from '../../context/StorageContext';
+import { activityLabel, activityDetails } from '../../utils/labels';
 
 export default function ActivityLogTable({ logs }) {
+    const { branches } = useStorage();
+    // Nombre de la sucursal en vez del identificador interno ('vista_hermosa',
+    // 'main'); el logo ya dice Washouse, así que se omite del nombre.
+    const branchName = (id) => {
+        if (!id) return 'Sin sucursal';
+        const b = branches?.find(x => x.id === id);
+        return b ? b.name.replace(/^Washouse\s+/i, '') : id;
+    };
     if (!logs || logs.length === 0) {
         return (
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center text-gray-500">
@@ -33,7 +43,7 @@ export default function ActivityLogTable({ logs }) {
                                 <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap" style={{ width: '180px' }}>
                                     <div className="flex items-center gap-2">
                                         <Clock className="w-4 h-4 text-gray-400" />
-                                        {new Date(log.timestamp).toLocaleString()}
+                                        {new Date(log.timestamp).toLocaleString('es-MX')}
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap" style={{ width: '150px' }}>
@@ -45,18 +55,18 @@ export default function ActivityLogTable({ logs }) {
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-xs font-bold text-gray-400 uppercase tracking-widest" style={{ width: '120px' }}>
-                                    {log.branchId || 'N/A'}
+                                    {branchName(log.branchId)}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap" style={{ width: '200px' }}>
                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${log.action.includes('ELIMINADO') ? 'bg-red-100 text-red-800' :
                                         log.action.includes('TURNO') ? 'bg-purple-100 text-purple-800' :
                                             'bg-blue-100 text-blue-800'
                                         }`}>
-                                        {log.action.replace('_', ' ')}
+                                        {activityLabel(log.action)}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 text-gray-500">
-                                    {log.details}
+                                    {activityDetails(log.details)}
                                 </td>
                             </tr>
                         ))}

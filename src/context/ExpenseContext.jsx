@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 import { useApp } from './AppContext';
 import { supabase } from '../lib/supabase';
 
+import { USUARIO_MOSTRADOR } from '../utils/labels';
 const ExpenseContext = createContext();
 
 const mapExpense = (e) => ({
@@ -34,7 +35,7 @@ export function ExpenseProvider({ children }) {
         fetchExpenses();
     }, []);
 
-    const addExpense = useCallback(async (expenseData, user = 'Host') => {
+    const addExpense = useCallback(async (expenseData, user = USUARIO_MOSTRADOR) => {
         const newExpense = {
             id: `EXP-${Date.now()}`,
             timestamp: new Date().toISOString(),

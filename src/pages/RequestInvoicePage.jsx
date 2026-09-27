@@ -121,7 +121,7 @@ export default function RequestInvoicePage() {
                                 <div className="text-sm">
                                     <p className="font-black text-washouse-navy">Orden #{folioCorto(foundOrder.id)}</p>
                                     <p className="text-gray-500">{foundOrder.customerLabel} · {foundOrder.branchName}</p>
-                                    <p className="text-gray-500">{new Date(foundOrder.createdAt).toLocaleDateString()} · {formatCurrency(foundOrder.totalAmount)}</p>
+                                    <p className="text-gray-500">{new Date(foundOrder.createdAt).toLocaleDateString('es-MX')} · {formatCurrency(foundOrder.totalAmount)}</p>
                                 </div>
                             </div>
 

@@ -4,6 +4,7 @@ import { useStorage } from '../../context/StorageContext';
 import { Users, User, Key, ArrowRight, X, AlertCircle, Store } from 'lucide-react';
 import Button from './Button';
 
+import { roleLabel } from '../../utils/labels';
 export default function SelectStaffModal({ isOpen, onClose, onAuthenticated }) {
     const { staff, loginHost } = useAuth();
     const { deviceBranchId, branches } = useStorage();
@@ -117,7 +118,7 @@ export default function SelectStaffModal({ isOpen, onClose, onAuthenticated }) {
                                                 </div>
                                                 <div className="text-left">
                                                     <p className="font-black text-black leading-none">{s.name}</p>
-                                                    <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mt-1">{s.role}</p>
+                                                    <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mt-1">{roleLabel(s.role)}</p>
                                                 </div>
                                             </div>
                                             <ArrowRight size={18} className="text-gray-300 group-hover:text-washouse-blue transition-colors" />

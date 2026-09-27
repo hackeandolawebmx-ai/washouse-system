@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { Clock, Package, CheckCircle, AlertCircle, MessageCircle } from 'lucide-react';
 import { formatCurrency } from '../../../utils/formatCurrency';
 
-export default function OrderCard({ order, onSelect, onAdvance, confirmingAdvance, onCancelAdvance }) {
+export default function OrderCard({ order, onSelect, onAdvance, confirmingAdvance, onCancelAdvance, canAdvance, nextLabel }) {
     const isExpress = order.serviceLevel === 'express';
     const isPaid = order.balanceDue <= 0;
 
@@ -75,12 +75,12 @@ export default function OrderCard({ order, onSelect, onAdvance, confirmingAdvanc
             {order.statusHistory && order.statusHistory.length > 0 && (
                 <div className="text-[9px] text-slate-400 font-bold uppercase tracking-[0.15em] mb-5 flex items-center gap-2 px-1 opacity-70">
                     <div className="w-1 h-1 rounded-full bg-blue-400" />
-                    <span>Host: {order.statusHistory[order.statusHistory.length - 1].user}</span>
+                    <span>Atendió: {order.statusHistory[order.statusHistory.length - 1].user}</span>
                 </div>
             )}
 
-            {/* Action Buttons */}
-            {order.status !== 'DELIVERED' && (
+            {/* Action Buttons: solo si de verdad hay una columna siguiente */}
+            {canAdvance && (
                 <div className="mt-2">
                     {confirmingAdvance?.id === order.id ? (
                         <div className="flex gap-2 animate-in fade-in zoom-in-95 duration-300">
@@ -107,7 +107,7 @@ export default function OrderCard({ order, onSelect, onAdvance, confirmingAdvanc
                                 bg-slate-900 text-white hover:bg-washouse-blue hover:shadow-xl hover:shadow-blue-500/30
                             `}
                         >
-                            Pasar a {confirmingAdvance?.nextStatusLabel || 'Siguiente'}
+                            Pasar a {nextLabel || 'Siguiente'}
                         </button>
                     )}
                 </div>

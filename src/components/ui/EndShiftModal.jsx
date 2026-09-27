@@ -99,7 +99,7 @@ export default function EndShiftModal({ isOpen, onClose }) {
                             Corte de Turno
                         </h2>
                         <p className="text-blue-200 text-sm mt-1">
-                            {new Date().toLocaleDateString()} | {user?.name}
+                            {new Date().toLocaleDateString('es-MX')} | {user?.name}
                         </p>
                     </div>
                     <div className="bg-white/10 p-2 rounded-full">

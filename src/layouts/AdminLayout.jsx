@@ -51,7 +51,7 @@ export default function AdminLayout() {
         <div className="min-h-screen flex">
             {/* Mobile top bar */}
             <div className="md:hidden print:hidden fixed top-0 inset-x-0 z-30 h-16 bg-washouse-navy flex items-center justify-between px-4 border-b border-white/5">
-                <img src={logo} alt="Washouse Admin" className="h-9 w-auto object-contain bg-white rounded-lg p-1" />
+                <img src={logo} alt="Washouse · Administración" className="h-9 w-auto object-contain bg-white rounded-lg p-1" />
                 <button
                     onClick={() => setIsSidebarOpen(true)}
                     className="relative p-2 text-white hover:bg-white/10 rounded-xl transition-colors"
@@ -91,11 +91,11 @@ export default function AdminLayout() {
                 <div className="p-8 mb-6 flex flex-col items-center">
                     <img
                         src={logo}
-                        alt="Washouse Admin"
+                        alt="Washouse · Administración"
                         className="h-28 w-auto object-contain bg-white rounded-3xl p-5 relative z-10 border border-gray-100"
                     />
                     <div className="flex flex-col items-center gap-1 mt-4">
-                        <span className="text-[10px] font-bold text-white uppercase tracking-[0.3em] font-mono">Admin Control</span>
+                        <span className="text-[10px] font-bold text-white uppercase tracking-[0.3em] font-mono">Administración</span>
                     </div>
                 </div>
 
@@ -114,7 +114,7 @@ export default function AdminLayout() {
                         >
                             <div className="flex items-center gap-3">
                                 <LayoutDashboard size={18} />
-                                <span className="font-outfit font-bold">Dashboard</span>
+                                <span className="font-outfit font-bold">Panel</span>
                             </div>
                             <ChevronDown size={14} className={`transition-transform ${isDashboardOpen ? 'rotate-180' : ''}`} />
                         </button>
@@ -150,7 +150,7 @@ export default function AdminLayout() {
                         <div className="w-9 h-9 bg-washouse-blue/20 rounded-xl flex items-center justify-center text-washouse-blue font-black text-xs">
                             AD
                         </div>
-                        <div className="text-[10px] font-black text-white uppercase tracking-widest">Admin</div>
+                        <div className="text-[10px] font-black text-white uppercase tracking-widest">Administrador</div>
                     </div>
                 </div>
             </aside>

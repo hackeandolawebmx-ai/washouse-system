@@ -19,6 +19,7 @@ import InventoryTable from '../components/admin/InventoryTable';
 import ShiftHistoryTable from '../components/admin/ShiftHistoryTable';
 import ActivityLogTable from '../components/admin/ActivityLogTable';
 
+import { machineStatusLabel } from '../utils/labels';
 export default function AdminDashboard() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -71,7 +72,7 @@ export default function AdminDashboard() {
 
     const handleViewDetailsFromControl = (id) => {
         const m = machines.find(x => x.id === id);
-        alert(`ID: ${m.name}\nEstado: ${m.status}\nCliente: ${m.clientName || 'N/A'}`);
+        alert(`Equipo: ${m.name}\nEstado: ${machineStatusLabel(m.status)}\nCliente: ${m.clientName || 'Sin cliente'}`);
     };
 
     // Prepare chart data (Last 7 days)
@@ -150,7 +151,7 @@ export default function AdminDashboard() {
                     >
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                             <KpiCard title="Ingresos" value={formatCurrency(metrics.totalIncome || 0)} icon={DollarSign} change="+12.5%" changeType="positive" />
-                            <KpiCard title="Ingreso p/Máquina (RPMD)" value={formatCurrency(metrics.rpmd || 0)} icon={Activity} />
+                            <KpiCard title="Ingreso por máquina al día" value={formatCurrency(metrics.rpmd || 0)} icon={Activity} />
                             <KpiCard title="Ticket Promedio" value={formatCurrency(metrics.avgTicketsValue || 0)} icon={Percent} />
                             <KpiCard title="Utilización (%)" value={`${metrics.utilizationRate || 0}%`} icon={RefreshCw} change={`${metrics.avgTurnsPerDay || 0} v/d`} changeType={(metrics.utilizationRate || 0) > 40 ? 'positive' : 'neutral'} />
                         </div>

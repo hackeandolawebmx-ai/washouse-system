@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 
+import { roleLabel } from '../utils/labels';
 export default function StaffManagement() {
     const {
         staff, branches, addStaffMember,
@@ -160,9 +161,9 @@ export default function StaffManagement() {
                                     onChange={e => setFormData({ ...formData, role: e.target.value })}
                                     className="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-100 focus:outline-none focus:ring-2 focus:ring-washouse-blue/20 transition-all font-bold"
                                 >
-                                    <option value="operator">Operador (Solo Host)</option>
-                                    <option value="supervisor">Supervisor (Host + Ajustes)</option>
-                                    <option value="admin">Administrador (Control Total)</option>
+                                    <option value="operator">Operador (solo mostrador)</option>
+                                    <option value="supervisor">Supervisor (mostrador + ajustes)</option>
+                                    <option value="admin">Administrador (control total)</option>
                                 </select>
                             </div>
                             <div>
@@ -252,7 +253,7 @@ export default function StaffManagement() {
                                                     member.role === 'admin' ? 'text-red-500' :
                                                         member.role === 'supervisor' ? 'text-washouse-blue' : 'text-gray-400'
                                                 } />
-                                                <span className="text-sm font-bold text-gray-600 capitalize">{member.role}</span>
+                                                <span className="text-sm font-bold text-gray-600">{roleLabel(member.role)}</span>
                                             </div>
                                         </td>
                                         <td className="px-8 py-6">

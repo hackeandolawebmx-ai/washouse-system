@@ -202,7 +202,7 @@ export function InvoiceProvider({ children }) {
 
       return newInvoice;
     } catch (err) {
-      const errorMsg = err.message || 'Failed to create invoice';
+      const errorMsg = err.message || 'No se pudo crear la factura';
       console.error('Create invoice error:', {
         message: err.message,
         code: err.code,
@@ -222,8 +222,8 @@ export function InvoiceProvider({ children }) {
 
       // Get current invoice
       const current = invoices.find(inv => inv.id === invoiceId);
-      if (!current) throw new Error('Invoice not found');
-      if (current.status !== 'draft') throw new Error('Can only edit draft invoices');
+      if (!current) throw new Error('No se encontró la factura');
+      if (current.status !== 'draft') throw new Error('Solo se pueden editar facturas en borrador');
 
       // Recalculate totals if items or discount changed
       const items = updates.items || current.items;
@@ -254,7 +254,7 @@ export function InvoiceProvider({ children }) {
 
       return { ...current, ...updateData };
     } catch (err) {
-      const errorMsg = err.message || 'Failed to update invoice';
+      const errorMsg = err.message || 'No se pudo actualizar la factura';
       console.error('Update invoice error:', err);
       setError(errorMsg);
       throw err;
@@ -269,7 +269,7 @@ export function InvoiceProvider({ children }) {
 
       // Get invoice from local state
       const invoice = invoices.find(inv => inv.id === invoiceId);
-      if (!invoice) throw new Error('Invoice not found');
+      if (!invoice) throw new Error('No se encontró la factura');
 
       console.log('Issuing invoice to Facturama:', invoice);
 
@@ -307,7 +307,7 @@ export function InvoiceProvider({ children }) {
         return data[0];
       }
     } catch (err) {
-      const errorMsg = err.message || 'Failed to issue invoice';
+      const errorMsg = err.message || 'No se pudo emitir la factura';
       console.error('Issue invoice error:', err);
       setError(errorMsg);
       throw err;
@@ -332,7 +332,7 @@ export function InvoiceProvider({ children }) {
         return data[0];
       }
     } catch (err) {
-      const errorMsg = err.message || 'Failed to cancel invoice';
+      const errorMsg = err.message || 'No se pudo anular la factura';
       console.error('Cancel invoice error:', err);
       setError(errorMsg);
       throw err;
@@ -345,8 +345,8 @@ export function InvoiceProvider({ children }) {
       setError(null);
 
       const current = invoices.find(inv => inv.id === invoiceId);
-      if (!current) throw new Error('Invoice not found');
-      if (current.status !== 'draft') throw new Error('Can only delete draft invoices');
+      if (!current) throw new Error('No se encontró la factura');
+      if (current.status !== 'draft') throw new Error('Solo se pueden eliminar facturas en borrador');
 
       const { error: err } = await supabase
         .from('invoices')
@@ -357,7 +357,7 @@ export function InvoiceProvider({ children }) {
 
       setInvoices(invoices.filter(inv => inv.id !== invoiceId));
     } catch (err) {
-      const errorMsg = err.message || 'Failed to delete invoice';
+      const errorMsg = err.message || 'No se pudo eliminar la factura';
       console.error('Delete invoice error:', err);
       setError(errorMsg);
       throw err;

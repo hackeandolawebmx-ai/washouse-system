@@ -100,7 +100,7 @@ export default function ServicesTable({ orders }) {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-gray-500">
-                                            {new Date(order.createdAt).toLocaleDateString()}
+                                            {new Date(order.createdAt).toLocaleDateString('es-MX')}
                                         </td>
                                         <td className="px-6 py-4">
                                             <StatusBadge status={order.status} />

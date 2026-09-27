@@ -184,7 +184,7 @@ export default function ClientsPage() {
                                             <td className="px-6 py-4 text-sm text-gray-600">
                                                 <div className="flex items-center gap-2">
                                                     <Calendar size={14} className="text-gray-400" />
-                                                    {new Date(client.lastVisit).toLocaleDateString()}
+                                                    {new Date(client.lastVisit).toLocaleDateString('es-MX')}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 text-center">

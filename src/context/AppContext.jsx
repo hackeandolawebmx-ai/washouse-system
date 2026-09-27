@@ -3,6 +3,7 @@ import initialDB from '../data/initialState.json';
 import { isLicenseValid, BRANCH_LICENSES } from '../data/licenses';
 import { supabase } from '../lib/supabase';
 
+import { USUARIO_ADMIN } from '../utils/labels';
 const AppContext = createContext();
 
 const INITIAL_BRANCHES = initialDB.branches || [
@@ -196,7 +197,7 @@ export function AppProvider({ children }) {
         });
     }, []);
 
-    const updateTaxConfig = useCallback(async (updates, user = 'Admin') => {
+    const updateTaxConfig = useCallback(async (updates, user = USUARIO_ADMIN) => {
         const next = { ...taxConfig, ...updates };
         setTaxConfig(next);
 

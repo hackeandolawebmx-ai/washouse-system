@@ -35,7 +35,7 @@ export default function ShiftHistoryTable({ shifts }) {
                                 <td className="px-6 py-4 font-medium text-gray-900">
                                     <div className="flex items-center gap-2">
                                         <Clock className="w-4 h-4 text-gray-400" />
-                                        {new Date(shift.endedAt).toLocaleString()}
+                                        {new Date(shift.endedAt).toLocaleString('es-MX')}
                                     </div>
                                 </td>
                                 <td className="px-6 py-4">

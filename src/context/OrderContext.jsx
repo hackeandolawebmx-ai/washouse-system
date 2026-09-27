@@ -4,6 +4,7 @@ import { useSales } from './SalesContext';
 import { useEquipment } from './EquipmentContext';
 import { supabase } from '../lib/supabase';
 
+import { USUARIO_MOSTRADOR, USUARIO_ADMIN, orderStatusLabel } from '../utils/labels';
 const OrderContext = createContext();
 
 const mapOrder = (o) => ({
@@ -71,7 +72,7 @@ export function OrderProvider({ children }) {
         fetchOrderData();
     }, []);
 
-    const updateCustomerOverride = useCallback(async (phone, data, user = 'Admin') => {
+    const updateCustomerOverride = useCallback(async (phone, data, user = USUARIO_ADMIN) => {
         const standardPhone = phone.replace(/\D/g, '');
         const merged = { ...(customerOverrides[standardPhone] || {}), ...data };
         setCustomerOverrides(prev => ({ ...prev, [standardPhone]: merged }));
@@ -87,7 +88,7 @@ export function OrderProvider({ children }) {
         logActivity('CLIENTE_ACTUALIZADO', `Actualización datos cliente ${standardPhone}`, user);
     }, [logActivity, customerOverrides]);
 
-    const createOrder = useCallback(async (orderData, user = 'Host') => {
+    const createOrder = useCallback(async (orderData, user = USUARIO_MOSTRADOR) => {
         const newOrder = {
             ...orderData,
             id: `ORD-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 100)}`,
@@ -128,7 +129,7 @@ export function OrderProvider({ children }) {
         return newOrder;
     }, [customerOverrides, updateCustomerOverride, machines, addSale, logActivity]);
 
-    const updateOrderStatus = useCallback(async (orderId, newStatus, user = 'Host') => {
+    const updateOrderStatus = useCallback(async (orderId, newStatus, user = USUARIO_MOSTRADOR) => {
         const current = orders.find(o => o.id === orderId);
         if (!current) return;
 
@@ -147,10 +148,10 @@ export function OrderProvider({ children }) {
             .eq('id', orderId);
         if (error) console.error('Error updating order status remotely:', error);
 
-        logActivity('ORDEN_ACTUALIZADA', `Orden ${orderId} a ${newStatus}`, user);
+        logActivity('ORDEN_ACTUALIZADA', `Orden ${orderId} a ${orderStatusLabel(newStatus)}`, user);
     }, [orders, logActivity]);
 
-    const addOrderPayment = useCallback(async (orderId, amount, method, user = 'Host') => {
+    const addOrderPayment = useCallback(async (orderId, amount, method, user = USUARIO_MOSTRADOR) => {
         const order = orders.find(o => o.id === orderId);
         if (!order) return;
 

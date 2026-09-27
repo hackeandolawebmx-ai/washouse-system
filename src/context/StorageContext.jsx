@@ -7,6 +7,7 @@ import { InventoryProvider, useInventory } from './InventoryContext';
 import { ExpenseProvider, useExpenses } from './ExpenseContext';
 import { PRODUCTS_CATALOG } from '../data/catalog';
 
+import { USUARIO_MOSTRADOR } from '../utils/labels';
 const StorageContext = createContext();
 
 // Default machine template for new branches
@@ -54,7 +55,7 @@ function CombinedStorageProvider({ children }) {
         return newBranch;
     }, [app, equipment, inventory]);
 
-    const executeOrder = useCallback(async (orderData, userLabel = 'Host') => {
+    const executeOrder = useCallback(async (orderData, userLabel = USUARIO_MOSTRADOR) => {
         // 1. Create the order
         const newOrder = await orders.createOrder(orderData, userLabel);
 

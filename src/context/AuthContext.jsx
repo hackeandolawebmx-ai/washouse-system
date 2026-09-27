@@ -95,7 +95,7 @@ export function AuthProvider({ children }) {
         if (adminFound) {
             setAdminUser(true);
             sessionStorage.setItem('washouse_admin', 'true');
-            logActivity('ADMIN_LOGIN', `Acceso Administrador: ${adminFound.name}`, adminFound.name);
+            logActivity('ACCESO_ADMIN', `Acceso Administrador: ${adminFound.name}`, adminFound.name);
             return true;
         }
         return false;

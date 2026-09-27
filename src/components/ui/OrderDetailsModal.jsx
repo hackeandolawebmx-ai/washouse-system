@@ -26,7 +26,7 @@ export default function OrderDetailsModal({ order, isOpen, onClose, extraActions
                 {/* Header info */}
                 <div className="flex items-center gap-3 text-[10px] text-gray-400 font-bold uppercase tracking-widest bg-gray-50/50 p-2 rounded-xl border border-gray-100/50 w-fit">
                     <Clock size={12} className="text-washouse-blue" />
-                    <span>{new Date(order.createdAt).toLocaleDateString()}</span>
+                    <span>{new Date(order.createdAt).toLocaleDateString('es-MX')}</span>
                     <div className="w-1 h-1 bg-gray-200 rounded-full" />
                     <span>{new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>

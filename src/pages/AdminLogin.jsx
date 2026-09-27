@@ -31,7 +31,7 @@ export default function AdminLogin() {
                     </div>
                     <div className="space-y-1">
                         <h1 className="text-2xl font-black text-black tracking-tighter uppercase">Panel de Control</h1>
-                        <p className="text-gray-500 text-xs font-bold tracking-widest uppercase">Admin Security Portal</p>
+                        <p className="text-gray-500 text-xs font-bold tracking-widest uppercase">Acceso de administración</p>
                     </div>
                 </div>
 
@@ -57,7 +57,7 @@ export default function AdminLogin() {
                     </div>
 
                     <Button type="submit" className="w-full py-4 text-lg shadow-lg">
-                        Ingresar al Dashboard
+                        Entrar al panel
                     </Button>
 
                     <div className="text-center">
