@@ -8,6 +8,7 @@ import PaymentCollectionModal from '../PaymentCollectionModal';
 import KanbanColumn from './KanbanColumn';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { USUARIO_MOSTRADOR } from '../../../utils/labels';
 const STATUS_COLUMNS = [
     { id: 'RECEIVED', label: 'Recibido', icon: Package, color: 'bg-slate-100 border-slate-200 text-slate-500' },
     { id: 'COMPLETED', label: 'Terminado', icon: CheckCircle, color: 'bg-emerald-100 border-emerald-200 text-emerald-500' }
@@ -30,6 +31,22 @@ export default function OrderKanban({ searchTerm }) {
                 o.id.toLowerCase().includes(searchTerm?.toLowerCase() || ''))
         ).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }, [orders, deviceBranchId, searchTerm]);
+
+    // Con solo dos columnas (Recibido, Terminado), una orden Terminada no
+    // tiene a donde avanzar. OrderCard antes decidia si mostrar el boton
+    // comparando contra el estado 'DELIVERED', que ya no existe en este
+    // tablero: el boton se quedaba visible en Terminado y, al tocarlo, esta
+    // funcion no hacia nada (silencioso, sin aviso). hasNextStatus se calcula
+    // aqui, junto a STATUS_COLUMNS, y se le pasa a la tarjeta.
+    const hasNextStatus = (status) =>
+        STATUS_COLUMNS.findIndex(c => c.id === status) < STATUS_COLUMNS.length - 1;
+
+    // Etiqueta de la columna siguiente, para el boton en reposo (antes de
+    // tocarlo decia siempre 'Pasar a Siguiente' sin importar cual era).
+    const nextStatusLabel = (status) => {
+        const i = STATUS_COLUMNS.findIndex(c => c.id === status);
+        return STATUS_COLUMNS[i + 1]?.label;
+    };
 
     const handleAdvanceStatus = (e, order, isConfirmed = false) => {
         const currentIndex = STATUS_COLUMNS.findIndex(c => c.id === order.status);
@@ -55,14 +72,14 @@ export default function OrderKanban({ searchTerm }) {
                     setConfirmingAdvance(null);
                     return;
                 }
-                updateOrderStatus(order.id, nextStatus, user?.name || 'Host');
+                updateOrderStatus(order.id, nextStatus, user?.name || USUARIO_MOSTRADOR);
                 setShowWhatsAppPrompt(order);
                 setConfirmingAdvance(null);
                 return;
             }
 
             // General status update
-            updateOrderStatus(order.id, nextStatus, user?.name || 'Host');
+            updateOrderStatus(order.id, nextStatus, user?.name || USUARIO_MOSTRADOR);
             setConfirmingAdvance(null);
         }
     };
@@ -78,6 +95,8 @@ export default function OrderKanban({ searchTerm }) {
                     onAdvance={handleAdvanceStatus}
                     confirmingAdvance={confirmingAdvance}
                     onCancelAdvance={() => setConfirmingAdvance(null)}
+                    hasNextStatus={hasNextStatus}
+                    nextStatusLabel={nextStatusLabel}
                 />
             ))}
 
@@ -99,7 +118,7 @@ export default function OrderKanban({ searchTerm }) {
                         onPaymentComplete={(amount) => {
                             const remaining = paymentModalOrder.balanceDue - amount;
                             if (remaining <= 0) {
-                                updateOrderStatus(paymentModalOrder.id, 'COMPLETED', user?.name || 'Host');
+                                updateOrderStatus(paymentModalOrder.id, 'COMPLETED', user?.name || USUARIO_MOSTRADOR);
                                 setShowWhatsAppPrompt(paymentModalOrder);
                                 setPaymentModalOrder(null);
                             }

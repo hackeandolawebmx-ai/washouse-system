@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import OrderCard from './OrderCard';
 
-export default function KanbanColumn({ column, orders, onSelectOrder, onAdvance, confirmingAdvance, onCancelAdvance }) {
+export default function KanbanColumn({ column, orders, onSelectOrder, onAdvance, confirmingAdvance, onCancelAdvance, hasNextStatus, nextStatusLabel }) {
     const Icon = column.icon;
 
     return (
@@ -41,6 +41,8 @@ export default function KanbanColumn({ column, orders, onSelectOrder, onAdvance,
                                 onAdvance={onAdvance}
                                 confirmingAdvance={confirmingAdvance}
                                 onCancelAdvance={onCancelAdvance}
+                                canAdvance={hasNextStatus(order.status)}
+                                nextLabel={nextStatusLabel(order.status)}
                             />
                         ))}
                     </motion.div>
