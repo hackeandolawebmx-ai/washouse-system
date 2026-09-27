@@ -32,56 +32,64 @@ export default function OrderKanban({ searchTerm }) {
         ).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }, [orders, deviceBranchId, searchTerm]);
 
-    // Con solo dos columnas (Recibido, Terminado), una orden Terminada no
-    // tiene a donde avanzar. OrderCard antes decidia si mostrar el boton
-    // comparando contra el estado 'DELIVERED', que ya no existe en este
-    // tablero: el boton se quedaba visible en Terminado y, al tocarlo, esta
-    // funcion no hacia nada (silencioso, sin aviso). hasNextStatus se calcula
-    // aqui, junto a STATUS_COLUMNS, y se le pasa a la tarjeta.
-    const hasNextStatus = (status) =>
-        STATUS_COLUMNS.findIndex(c => c.id === status) < STATUS_COLUMNS.length - 1;
-
-    // Etiqueta de la columna siguiente, para el boton en reposo (antes de
-    // tocarlo decia siempre 'Pasar a Siguiente' sin importar cual era).
-    const nextStatusLabel = (status) => {
-        const i = STATUS_COLUMNS.findIndex(c => c.id === status);
-        return STATUS_COLUMNS[i + 1]?.label;
+    // El tablero solo MUESTRA dos columnas (Recibido, Terminado): una orden
+    // Entregada no encaja en ninguna, asi que desaparece del tablero sin
+    // borrarse -- sigue en el historial del cliente y en los reportes.
+    //
+    // Pero el FLUJO real tiene un paso mas alla de Terminado: que el cliente
+    // recogio su ropa. Ese tercer estado (DELIVERED) ya existia en todo el
+    // resto del sistema -- StatusBadge, el historial de OrderDetailsModal,
+    // el directorio de clientes, useMetrics -- menos aqui: nada lo disparaba.
+    // Antes, una orden Terminada mostraba un boton que no hacia nada porque
+    // handleAdvanceStatus solo conocia RECEIVED/COMPLETED. ORDER_FLOW es el
+    // flujo completo (a diferencia de STATUS_COLUMNS, que es solo lo que se
+    // dibuja) y es lo que decide a donde avanza cada tarjeta.
+    // label es como se llama CADA estado (a donde se llega), no el estado de
+    // origen -- next.label / actionLabel muestran el destino de la transicion.
+    const ORDER_FLOW = [
+        { id: 'RECEIVED', label: 'Recibido' },
+        { id: 'COMPLETED', label: 'Terminado' },
+        { id: 'DELIVERED', label: 'Entregado' }
+    ];
+    const nextStep = (status) => {
+        const i = ORDER_FLOW.findIndex(s => s.id === status);
+        return (i === -1 || i === ORDER_FLOW.length - 1) ? null : ORDER_FLOW[i + 1];
     };
+    // Texto del boton en reposo: para las demas columnas es "Pasar a X"; para
+    // marcar la entrega se lee mejor como una accion propia.
+    const actionLabel = (status) =>
+        status === 'COMPLETED' ? 'Marcar como Entregado' : `Pasar a ${nextStep(status)?.label || ''}`;
 
     const handleAdvanceStatus = (e, order, isConfirmed = false) => {
-        const currentIndex = STATUS_COLUMNS.findIndex(c => c.id === order.status);
-        if (currentIndex < STATUS_COLUMNS.length - 1) {
-            const nextColumn = STATUS_COLUMNS[currentIndex + 1];
+        const next = nextStep(order.status);
+        if (!next) return; // ya esta Entregado, no hay mas pasos
 
-            if (!isConfirmed) {
-                setConfirmingAdvance({
-                    id: order.id,
-                    nextStatus: nextColumn.id,
-                    label: nextColumn.label
-                });
-                return;
-            }
+        if (!isConfirmed) {
+            setConfirmingAdvance({ id: order.id, nextStatus: next.id, label: next.label });
+            return;
+        }
 
-            // Execute logic after confirmation
-            const nextStatus = nextColumn.id;
-
-            // Logic Interception for specialized states
-            if (nextStatus === 'COMPLETED') {
-                if (order.balanceDue > 0) {
-                    setPaymentModalOrder(order);
-                    setConfirmingAdvance(null);
-                    return;
-                }
-                updateOrderStatus(order.id, nextStatus, user?.name || USUARIO_MOSTRADOR);
-                setShowWhatsAppPrompt(order);
+        if (next.id === 'COMPLETED') {
+            if (order.balanceDue > 0) {
+                setPaymentModalOrder(order);
                 setConfirmingAdvance(null);
                 return;
             }
-
-            // General status update
-            updateOrderStatus(order.id, nextStatus, user?.name || USUARIO_MOSTRADOR);
+            updateOrderStatus(order.id, 'COMPLETED', user?.name || USUARIO_MOSTRADOR);
+            setShowWhatsAppPrompt(order);
             setConfirmingAdvance(null);
+            return;
         }
+
+        if (next.id === 'DELIVERED') {
+            updateOrderStatus(order.id, 'DELIVERED', user?.name || USUARIO_MOSTRADOR);
+            setShowDeliveryPrompt(order);
+            setConfirmingAdvance(null);
+            return;
+        }
+
+        updateOrderStatus(order.id, next.id, user?.name || USUARIO_MOSTRADOR);
+        setConfirmingAdvance(null);
     };
 
     return (
@@ -95,8 +103,8 @@ export default function OrderKanban({ searchTerm }) {
                     onAdvance={handleAdvanceStatus}
                     confirmingAdvance={confirmingAdvance}
                     onCancelAdvance={() => setConfirmingAdvance(null)}
-                    hasNextStatus={hasNextStatus}
-                    nextStatusLabel={nextStatusLabel}
+                    canAdvance={(status) => Boolean(nextStep(status))}
+                    actionLabel={actionLabel}
                 />
             ))}
 

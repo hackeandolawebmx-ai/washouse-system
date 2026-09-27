@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { Clock, Package, CheckCircle, AlertCircle, MessageCircle } from 'lucide-react';
 import { formatCurrency } from '../../../utils/formatCurrency';
 
-export default function OrderCard({ order, onSelect, onAdvance, confirmingAdvance, onCancelAdvance, canAdvance, nextLabel }) {
+export default function OrderCard({ order, onSelect, onAdvance, confirmingAdvance, onCancelAdvance, canAdvance, actionLabel }) {
     const isExpress = order.serviceLevel === 'express';
     const isPaid = order.balanceDue <= 0;
 
@@ -107,7 +107,7 @@ export default function OrderCard({ order, onSelect, onAdvance, confirmingAdvanc
                                 bg-slate-900 text-white hover:bg-washouse-blue hover:shadow-xl hover:shadow-blue-500/30
                             `}
                         >
-                            Pasar a {nextLabel || 'Siguiente'}
+                            {actionLabel}
                         </button>
                     )}
                 </div>
