@@ -5,11 +5,18 @@ import { PRODUCTS_CATALOG } from '../data/catalog';
 
 const InventoryContext = createContext();
 
-const mapProduct = (p) => ({ ...p.metadata, id: p.id, branchId: p.branch_id, name: p.name, category: p.category, stock: p.stock, price: p.price });
+// catalogId links a branch's row back to its entry in PRODUCTS_CATALOG
+// (e.g. 'detergent_liquid'). inventory.id is a global primary key, so a
+// second branch can't reuse the catalog's plain id as its row id — it has
+// to be something like 'detergent_liquid__vista_hermosa'. Order items only
+// ever carry the catalog's plain id (NewOrderWizard reads it straight from
+// PRODUCTS_CATALOG), so stock deduction has to resolve through catalogId,
+// not id. Custom products added by hand (addProduct) have no catalogId.
+const mapProduct = (p) => ({ ...p.metadata, id: p.id, branchId: p.branch_id, catalogId: p.catalog_id, name: p.name, category: p.category, stock: p.stock, price: p.price });
 
 const toRow = (p) => {
-    const { id, branchId, name, category, stock, price, ...metadata } = p;
-    return { id, branch_id: branchId, name, category, stock, price, metadata };
+    const { id, branchId, catalogId, name, category, stock, price, ...metadata } = p;
+    return { id, branch_id: branchId, catalog_id: catalogId || null, name, category, stock, price, metadata };
 };
 
 export function InventoryProvider({ children }) {
@@ -28,7 +35,7 @@ export function InventoryProvider({ children }) {
                 setInventory(data.map(mapProduct));
             } else {
                 // Seed a fresh project with the default catalog for the main branch
-                const seed = PRODUCTS_CATALOG.map(p => ({ ...p, branchId: 'main' }));
+                const seed = PRODUCTS_CATALOG.map(p => ({ ...p, branchId: 'main', catalogId: p.id }));
                 const { error: insertError } = await supabase.from('inventory').upsert(seed.map(toRow));
                 if (insertError) console.error('Inventory seed error:', insertError);
                 setInventory(seed);
@@ -38,13 +45,19 @@ export function InventoryProvider({ children }) {
     }, []);
 
     const updateInventoryStock = useCallback(async (productId, change, branchId = 'main') => {
-        const current = inventory.find(p => p.id === productId && p.branchId === branchId);
+        // productId is usually a catalog id ('detergent_liquid'), matched via
+        // catalogId; it can also be a row's own id for custom products, so
+        // that path stays supported too.
+        const current = inventory.find(p =>
+            p.branchId === branchId && (p.catalogId === productId || p.id === productId));
         if (!current) return;
 
         const newStock = Math.max(0, current.stock + change);
-        setInventory(prev => prev.map(p => (p.id === productId && p.branchId === branchId) ? { ...p, stock: newStock } : p));
+        setInventory(prev => prev.map(p => p.id === current.id ? { ...p, stock: newStock } : p));
 
-        const { error } = await supabase.from('inventory').update({ stock: newStock }).eq('id', productId);
+        // Always key the remote write off the row's real id — productId may
+        // be a catalogId shared by several branches' rows.
+        const { error } = await supabase.from('inventory').update({ stock: newStock }).eq('id', current.id);
         if (error) console.error('Error updating stock remotely:', error);
     }, [inventory]);
 
@@ -126,6 +139,7 @@ export function InventoryProvider({ children }) {
                     newItems.push({
                         ...catalogItem,
                         id: `${catalogItem.id}_${branch.id}_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+                        catalogId: catalogItem.id,
                         branchId: branch.id
                     });
                 }

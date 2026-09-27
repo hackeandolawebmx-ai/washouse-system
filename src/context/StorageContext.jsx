@@ -39,10 +39,14 @@ function CombinedStorageProvider({ children }) {
         }));
         equipment.setMachines(prev => [...prev, ...newMachines]);
 
-        // Initialize default inventory
+        // Initialize default inventory. id carries a suffix because
+        // inventory.id is a global primary key; catalogId is what lets
+        // executeOrder and updateInventoryStock resolve this row back to
+        // the catalog item an order actually references.
         const newInventoryItems = PRODUCTS_CATALOG.map(p => ({
             ...p,
             id: `${p.id}_${newBranch.id}`,
+            catalogId: p.id,
             branchId: newBranch.id
         }));
         inventory.setInventory(prev => [...prev, ...newInventoryItems]);
@@ -55,16 +59,28 @@ function CombinedStorageProvider({ children }) {
         const newOrder = await orders.createOrder(orderData, userLabel);
 
         // 2. Deduct stock for supplies
+        //
+        // item.serviceId is NOT always a catalog id: the "Agregar Insumos" step
+        // adds supplies straight from the branch's inventory rows, so serviceId
+        // there is that row's real id (e.g. 'bag__vista_hermosa' for a branch
+        // whose ids carry a suffix, since inventory.id is a global primary key).
+        // Only the auto-included free supplies (detergent/softener on wash_dry)
+        // carry the catalog's plain id, because those are pulled straight from
+        // PRODUCTS_CATALOG rather than from an inventory row.
+        //
+        // Checking against PRODUCTS_CATALOG alone only matched that second case
+        // and, coincidentally, 'main' (whose rows happen to use plain catalog
+        // ids as their id). Any other branch's suffixed ids never matched, so
+        // stock silently never moved. Matching against the branch's actual
+        // inventory (by real id OR catalogId) works for both cases, and for
+        // custom, non-catalog products too.
         if (orderData.items && Array.isArray(orderData.items)) {
+            const branchId = orderData.branchId || 'main';
             orderData.items.forEach(item => {
-                // We identify items to deduct by their serviceId and check if they are products
-                // In NewOrderWizard, supplies are added with category 'products'
-                // We can also check if the serviceId exists in the catalog but for now 
-                // we'll rely on the metadata passed from the wizard if available, 
-                // or just check if it matches a product ID.
-                const isProduct = PRODUCTS_CATALOG.some(p => p.id === item.serviceId);
-                if (isProduct) {
-                    inventory.updateInventoryStock(item.serviceId, -item.quantity, orderData.branchId || 'main');
+                const stockItem = inventory.inventory.find(p =>
+                    p.branchId === branchId && (p.id === item.serviceId || p.catalogId === item.serviceId));
+                if (stockItem) {
+                    inventory.updateInventoryStock(item.serviceId, -item.quantity, branchId);
                 }
             });
         }
