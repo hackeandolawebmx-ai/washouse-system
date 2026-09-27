@@ -24,6 +24,22 @@ const containerVariants = {
     }
 };
 
+// Estado de un equipo libre. Incluye los campos de la cola de secado para que
+// un equipo liberado no arrastre un secado pendiente ni el aviso de "pasar
+// ropa a…" del ciclo anterior.
+const CLEARED_MACHINE = {
+    status: 'available',
+    timeLeft: 0,
+    clientName: null,
+    total: 0,
+    items: null,
+    startDate: null,
+    orderId: null,
+    pendingDry: null,
+    movedToDryer: null,
+    fromWasherName: null
+};
+
 const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 }
@@ -89,15 +105,15 @@ export default function HostDashboard() {
             setSelectedMachineId(id);
             setIsDetailsModalOpen(true);
         } else if (machine.status === 'finished') {
-            updateMachine(id, {
-                status: 'available',
-                timeLeft: 0,
-                clientName: null,
-                total: 0,
-                items: null,
-                startDate: null,
-                orderId: null
-            });
+            // Una lavadora terminada con pendingDry todavía espera secadora
+            // libre: si se libera ahora, el secado ya no arrancará solo.
+            if (machine.pendingDry && !confirm(
+                `La carga de ${machine.pendingDry.clientName || 'esta lavadora'} todavía espera una secadora libre. ` +
+                'Si liberas la lavadora, el secado ya no arrancará solo. ¿Liberar de todos modos?'
+            )) {
+                return;
+            }
+            updateMachine(id, CLEARED_MACHINE);
         }
     };
 
@@ -143,15 +159,7 @@ export default function HostDashboard() {
         const newStatus = machine.status === 'maintenance' ? 'available' : 'maintenance';
 
         // If coming back from maintenance, ensure it's clean
-        const updates = newStatus === 'available' ? {
-            status: 'available',
-            timeLeft: 0,
-            clientName: null,
-            total: 0,
-            items: null,
-            startDate: null,
-            orderId: null
-        } : { status: 'maintenance' };
+        const updates = newStatus === 'available' ? CLEARED_MACHINE : { status: 'maintenance' };
 
         updateMachine(id, updates);
     };
@@ -222,19 +230,19 @@ export default function HostDashboard() {
                         <div className="hidden md:block h-10 w-px bg-gray-200/50 mx-1"></div>
 
                         <Button
-                            variant="secondary"
+                            variant="outline"
                             onClick={() => setIsInventoryModalOpen(true)}
-                            className="flex-1 md:flex-none justify-center rounded-xl bg-white/50 backdrop-blur-sm border-gray-100 hover:shadow-lg transition-all"
+                            className="flex-1 md:flex-none justify-center rounded-xl hover:shadow-lg transition-all"
                         >
-                            <Package className="w-4 h-4 mr-2" />
+                            <Package className="w-4 h-4 mr-2 inline-block align-[-2px]" />
                             Inventario
                         </Button>
                         <Button
-                            variant="secondary"
+                            variant="outline"
                             onClick={openExpenseModal}
-                            className="flex-1 md:flex-none justify-center rounded-xl bg-white/50 backdrop-blur-sm border-gray-100 hover:shadow-lg transition-all"
+                            className="flex-1 md:flex-none justify-center rounded-xl hover:shadow-lg transition-all"
                         >
-                            <Wallet className="w-4 h-4 mr-2" />
+                            <Wallet className="w-4 h-4 mr-2 inline-block align-[-2px]" />
                             Gasto
                         </Button>
                         <Button
@@ -307,9 +315,19 @@ export default function HostDashboard() {
                     : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
                     }`}
                 variants={containerVariants}
+                // Igual que cada tarjeta: esta cuadrícula se monta DESPUÉS del
+                // padre cuando la primera pintura fue el aviso "Sin equipos"
+                // (tablet sin caché). Heredando, se quedaba en opacidad 0.
+                initial="hidden"
+                animate="visible"
             >
                 {visibleMachines.map((machine) => (
-                    <motion.div key={machine.id} variants={itemVariants} layout className="h-full">
+                    // initial/animate propios, no heredados del contenedor: si la
+                    // lista de equipos llega después del primer render (tablet
+                    // nueva, sin caché local) el padre ya terminó su animación
+                    // de entrada y una tarjeta que dependiera de él se quedaba en
+                    // "hidden" (opacidad 0) — el tablero salía vacío hasta recargar.
+                    <motion.div key={machine.id} variants={itemVariants} initial="hidden" animate="visible" layout className="h-full">
                         <MachineCard
                             {...machine}
                             variant={viewMode}

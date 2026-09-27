@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useApp } from './AppContext';
 import { supabase } from '../lib/supabase';
+import { assignPendingDries } from '../utils/dryerQueue';
 import initialDB from '../data/initialState.json';
 
 const EquipmentContext = createContext();
@@ -156,6 +157,29 @@ export function EquipmentProvider({ children }) {
 
         return () => clearInterval(interval);
     }, []);
+
+    // Cola de secado: cuando una lavadora con "Lavado y secado" termina (por
+    // temporizador o por "Forzar Terminado"), o cuando se libera una secadora,
+    // arranca el secado pendiente en una secadora libre. Vive en un efecto y
+    // no dentro de updateMachine o del temporizador para cubrir todos esos
+    // caminos desde un solo lugar. Después de asignar, las lavadoras ya no
+    // tienen pendingDry, así que la siguiente corrida no encuentra nada y no
+    // hay ciclo.
+    useEffect(() => {
+        const { started } = assignPendingDries(machines);
+        if (started.length === 0) return;
+
+        setMachines(prev => assignPendingDries(prev).machines);
+
+        started.forEach(dryer => {
+            supabase.from('machines')
+                .update({ status: 'running', time_left: dryer.timeLeft })
+                .eq('id', dryer.id)
+                .then(({ error }) => {
+                    if (error) console.error('Error persisting dryer start remotely:', error);
+                });
+        });
+    }, [machines]);
 
     // Save to local storage whenever machines change
     useEffect(() => {

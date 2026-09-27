@@ -4,8 +4,28 @@ import Button from './Button';
 import Tooltip from './Tooltip';
 import { Timer, Power, Droplets, Wind, RotateCcw, Wrench } from 'lucide-react';
 
-export default function MachineCard({ id, name, type, status, timeLeft, onAction, onToggleMaintenance, variant = 'default', ...props }) {
+export default function MachineCard({ id, name, type, status, timeLeft, onAction, onToggleMaintenance, variant = 'default', pendingDry, movedToDryer, fromWasherName, ...props }) {
     const isAvailable = status === 'available';
+
+    // Mensaje de reposo según el punto del proceso. Para "Lavado y secado" la
+    // lavadora terminada es un paso intermedio, no el final: el mostrador
+    // necesita saber si la ropa ya tiene secadora asignada o sigue esperando.
+    const restingNote = (() => {
+        if (status === 'available') return { text: 'Disponible p/ Sucursal', tone: 'available' };
+        if (status === 'maintenance') return { text: 'Fuera de Servicio', tone: 'muted' };
+        if (status === 'finished' && movedToDryer) return { text: `Pasa la ropa a ${movedToDryer}`, tone: 'action' };
+        if (status === 'finished' && pendingDry) return { text: 'Esperando secadora libre', tone: 'waiting' };
+        if (status === 'finished') return { text: 'Ciclo terminado', tone: 'action' };
+        return { text: '', tone: 'muted' };
+    })();
+
+    const noteStyles = {
+        available: { dot: 'bg-emerald-500 ring-emerald-50 shadow-[0_0_12px_rgba(16,185,129,0.3)] animate-pulse', text: 'text-slate-400 opacity-60' },
+        action: { dot: 'bg-orange-500 ring-orange-50 animate-pulse', text: 'text-orange-600' },
+        waiting: { dot: 'bg-amber-400 ring-amber-50 animate-pulse', text: 'text-amber-600' },
+        muted: { dot: 'bg-slate-300 ring-slate-50', text: 'text-slate-400 opacity-60' }
+    };
+    const note = noteStyles[restingNote.tone];
 
     // Status-specific accent colors and glows
     const statusStyles = {
@@ -64,6 +84,8 @@ export default function MachineCard({ id, name, type, status, timeLeft, onAction
                                 <span className="text-[10px] font-bold text-washouse-blue flex items-center whitespace-nowrap font-mono tracking-tighter">
                                     <Timer className="w-3.5 h-3.5 mr-1" /> {timeLeft}m RESTANTES
                                 </span>
+                            ) : status === 'finished' && (movedToDryer || pendingDry) ? (
+                                <span className={`text-[10px] font-black uppercase tracking-widest truncate ${note.text}`}>{restingNote.text}</span>
                             ) : (
                                 <span className="text-[10px] text-slate-400 uppercase font-black tracking-widest opacity-70">{type}</span>
                             )}
@@ -174,11 +196,28 @@ export default function MachineCard({ id, name, type, status, timeLeft, onAction
                                 </p>
                             </div>
                         )}
+
+                        {/* Siguiente paso del proceso, para que no sorprenda */}
+                        {pendingDry && (
+                            <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
+                                <Wind className="w-3.5 h-3.5" /> Al terminar pasa a secadora
+                            </p>
+                        )}
+                        {fromWasherName && (
+                            <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
+                                <Droplets className="w-3.5 h-3.5" /> Secado · viene de {fromWasherName}
+                            </p>
+                        )}
                     </motion.div>
                 ) : (
-                    <div className="flex items-center gap-3 text-slate-400 font-black uppercase tracking-[0.2em] text-[11px] h-full pt-4">
-                        <div className={`w-3 h-3 rounded-full ring-4 ${isAvailable ? 'bg-emerald-500 ring-emerald-50 shadow-[0_0_12px_rgba(16,185,129,0.3)] animate-pulse' : 'bg-slate-300 ring-slate-50'}`} />
-                        <span className="opacity-60">{isAvailable ? 'Disponible p/ Sucursal' : 'Fuera de Servicio'}</span>
+                    <div className="flex flex-col gap-3 h-full pt-4">
+                        <div className="flex items-center gap-3 font-black uppercase tracking-[0.2em] text-[11px]">
+                            <div className={`w-3 h-3 rounded-full ring-4 shrink-0 ${note.dot}`} />
+                            <span className={note.text}>{restingNote.text}</span>
+                        </div>
+                        {status === 'finished' && props.clientName && (
+                            <p className="text-xs font-black text-slate-500 truncate ml-6">{props.clientName}</p>
+                        )}
                     </div>
                 )}
             </div>
