@@ -150,7 +150,7 @@ export default function ManualView({ manual, kicker }) {
     );
 
     return (
-        <div className="pb-16">
+        <div className="pb-16 pt-6 max-w-6xl mx-auto">
             <header className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-8 mb-10 border-b border-gray-100">
                 <div className="space-y-3">
                     <p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] text-washouse-blue">
@@ -178,7 +178,7 @@ export default function ManualView({ manual, kicker }) {
 
             <div className="grid lg:grid-cols-[15rem_1fr] gap-12">
                 <aside className="hidden lg:block print:hidden">
-                    <nav aria-label="Índice del manual" className="sticky top-28">
+                    <nav aria-label="Índice del manual" className="sticky top-[calc(var(--host-header-h,0px)+1.5rem)]">
                         <p className="px-3 mb-3 text-[10px] font-black uppercase tracking-[0.25em] text-gray-400">Índice</p>
                         {indice}
                     </nav>
@@ -186,7 +186,7 @@ export default function ManualView({ manual, kicker }) {
 
                 <div className="min-w-0 flex flex-col gap-16">
                     {manual.sections.map((s, i) => (
-                        <section key={s.id} id={s.id} className="scroll-mt-28 flex flex-col gap-6">
+                        <section key={s.id} id={s.id} className="scroll-mt-[calc(var(--host-header-h,0px)+1.5rem)] flex flex-col gap-6">
                             <h2 className="flex items-baseline gap-3 text-2xl font-black text-washouse-navy tracking-tight font-outfit">
                                 <span className="text-washouse-blue/40 tabular-nums text-lg">{i + 1}</span>
                                 {s.title}

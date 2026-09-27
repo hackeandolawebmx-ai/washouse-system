@@ -5,7 +5,7 @@ export default function KanbanColumn({ column, orders, onSelectOrder, onAdvance,
     const Icon = column.icon;
 
     return (
-        <div className="w-85 flex flex-col h-full bg-slate-100/30 rounded-[2.5rem] border border-slate-200/40 backdrop-blur-md overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-slate-200/20">
+        <div className="min-w-0 flex flex-col h-full bg-slate-100/30 rounded-[2.5rem] border border-slate-200/40 backdrop-blur-md overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-slate-200/20">
             {/* Column Header */}
             <div className={`
                 p-6 border-b border-slate-100/60 flex items-center justify-between 
@@ -32,7 +32,7 @@ export default function KanbanColumn({ column, orders, onSelectOrder, onAdvance,
                 ${orders.length === 0 ? 'flex flex-col items-center justify-center opacity-30 grayscale' : ''}
             `}>
                 {orders.length > 0 ? (
-                    <motion.div layout className="space-y-4">
+                    <motion.div layout className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(17rem,1fr))]">
                         {orders.map(order => (
                             <OrderCard
                                 key={order.id}

@@ -59,16 +59,17 @@ export const manualSucursal = {
             id: 'tablero',
             title: 'El tablero de máquinas',
             blocks: [
-                { type: 'p', text: 'Pestaña **Lavado Asistido**. Las tarjetas se acomodan solas: primero las que necesitan atención, al final las libres.' },
-                { type: 'img', src: img('tablero'), caption: 'Cada tarjeta dice su estado, el cliente y el tiempo que le queda.' },
+                { type: 'p', text: 'Pestaña **Lavado Asistido**. Las máquinas están en dos carriles, **Lavadoras** y **Secadoras**, siempre en el mismo orden que en el piso: una tarjeta nunca cambia de lugar.' },
+                { type: 'p', text: 'Arriba, cada filtro dice **cuántas máquinas hay en ese estado**. Toca uno para ver solo esas. Cuando hay máquinas esperando a que alguien las libere, **Terminado** se pinta de naranja.' },
+                { type: 'img', src: img('tablero'), caption: 'El color de la orilla dice el estado; cada tarjeta tiene un solo botón con la acción que sigue.' },
                 {
                     type: 'table',
                     head: ['Estado', 'Botón', 'Qué hace'],
                     rows: [
-                        ['Disponible', 'Comenzar Ciclo', 'Abre una orden nueva con esa máquina ya seleccionada'],
+                        ['Disponible', 'Comenzar ciclo', 'Abre una orden nueva con esa máquina ya seleccionada'],
                         ['En uso', 'Gestionar', 'Muestra la orden. Ahí está **Forzar Terminado** si el ciclo real acabó antes'],
-                        ['Terminado', 'Liberar Equipo', 'La deja disponible. **Solo cuando el cliente ya sacó su ropa**'],
-                        ['Mantenimiento', 'Llave 🔧', 'Saca la máquina de servicio o la regresa']
+                        ['Terminado', 'Liberar equipo (naranja)', 'La deja disponible. **Solo cuando el cliente ya sacó su ropa**'],
+                        ['Mantenimiento', 'Reactivar', 'La regresa a servicio. Para mandar una máquina a mantenimiento, usa la llave 🔧 de su tarjeta']
                     ]
                 },
                 { type: 'p', text: 'Los tiempos los pone el sistema: **45 minutos** si la orden incluye lavado, **30** si no. No se capturan a mano.' }
@@ -126,7 +127,7 @@ export const manualSucursal = {
                     type: 'steps',
                     items: [
                         { title: 'Mientras lava', text: 'La lavadora dice "Al terminar pasa a secadora". La secadora sigue libre para otros clientes.' },
-                        { title: 'Al terminar el lavado', text: 'Arranca una secadora sola. La lavadora dice "Pasa la ropa a D9" (o la que haya tocado). Pasa la ropa y luego toca Liberar Equipo en la lavadora.' },
+                        { title: 'Al terminar el lavado', text: 'Arranca una secadora sola. La lavadora dice "Pasa la ropa a D9" (o la que haya tocado). Pasa la ropa y luego toca Liberar equipo en la lavadora.' },
                         { title: 'Si no hay secadora libre', text: 'La lavadora dice "Esperando secadora libre". En cuanto liberes una secadora, el secado arranca solo en ella.' }
                     ]
                 },

@@ -177,7 +177,7 @@ async function nuevoContexto(browser, init) {
 }
 
 const tarjeta = (page, name) =>
-    page.locator('div.glass-card', { has: page.getByRole('heading', { name, exact: true }) });
+    page.locator('article', { has: page.getByRole('heading', { name, exact: true }) });
 
 // ============================================================ sucursal
 
@@ -207,7 +207,7 @@ async function manualSucursal(browser) {
     await shot(page, 'apertura-caja');
     await page.getByRole('button', { name: /Abrir Turno y Comenzar/ }).click();
 
-    await page.getByRole('heading', { name: 'Panel de Control' }).waitFor();
+    await page.getByRole('heading', { name: 'Lavadoras' }).waitFor();
     await shot(page, 'tablero');
 
     // --- Orden de mostrador completa
@@ -240,7 +240,7 @@ async function manualSucursal(browser) {
     await page.getByRole('button', { name: /Volver al Tablero/ }).click();
 
     // --- Lavado y secado en una lavadora, hasta que pasa a secadora
-    await tarjeta(page, 'W2').getByRole('button', { name: /Comenzar Ciclo/ }).click();
+    await tarjeta(page, 'W2').getByRole('button', { name: /Comenzar ciclo/i }).click();
     await page.getByText('Datos del Cliente').waitFor();
     await page.locator('input[placeholder="Ej. Juan Pérez"]').fill('Paola Garza');
     await page.locator('input[placeholder="Ej. 811 123 4567"]').fill('8117778899');

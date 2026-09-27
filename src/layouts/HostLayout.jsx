@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import logo from '../assets/WasHouse CYMK.png';
 import { useAuth } from '../context/AuthContext';
@@ -8,55 +8,74 @@ import EndShiftModal from '../components/ui/EndShiftModal';
 import BranchLockout from '../components/BranchLockout';
 import { WashingMachine, ClipboardList, LogOut, BookOpen, Store, AlertTriangle } from 'lucide-react';
 
+const TABS = [
+    { to: '/sucursal', label: 'Lavado Asistido', short: 'Lavado', icon: WashingMachine },
+    { to: '/sucursal/servicios', label: 'Servicios Programados', short: 'Encargos', icon: ClipboardList },
+    { to: '/sucursal/manual', label: 'Manual', short: 'Manual', icon: BookOpen }
+];
+
 export default function HostLayout() {
     const { user, isShiftOpen } = useAuth();
     const { isBranchActive, deviceBranchId, BRANCH_LICENSES, branches } = useStorage();
+    const location = useLocation();
+    const [isEndShiftModalOpen, setIsEndShiftModalOpen] = useState(false);
+    const headerRef = useRef(null);
 
     // Sucursal a la que está vinculado este dispositivo, siempre a la vista en
     // el encabezado. 'main' es el renglón técnico de respaldo (el valor por
     // defecto de un navegador nunca vinculado), así que cuenta como sin vincular.
     const branch = branches?.find(b => b.id === deviceBranchId);
     const sinVincular = !branch || deviceBranchId === 'main';
-    const location = useLocation();
-    const [isEndShiftModalOpen, setIsEndShiftModalOpen] = useState(false);
 
     // El manual se puede leer sin haber abierto turno: la identificación
     // (ShiftModal) tapa toda la pantalla y no dejaría consultarlo antes.
     const isManual = location.pathname === '/sucursal/manual';
+
+    // Publica la altura real del encabezado en --host-header-h para que las
+    // barras fijas de cada página se peguen justo debajo. Cambia según el
+    // ancho (en tablet vertical y celular las pestañas bajan a otra línea).
+    useEffect(() => {
+        const el = headerRef.current;
+        if (!el) return;
+        const publicar = () => document.documentElement.style.setProperty('--host-header-h', `${el.offsetHeight}px`);
+        publicar();
+        const ro = new ResizeObserver(publicar);
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, []);
 
     if (!isBranchActive(deviceBranchId)) {
         return <BranchLockout />;
     }
 
     const license = BRANCH_LICENSES[deviceBranchId];
-    const expires = new Date(license?.expires);
-    const now = new Date();
-    const daysRemaining = Math.ceil((expires - now) / (1000 * 60 * 60 * 24));
+    const daysRemaining = Math.ceil((new Date(license?.expires) - new Date()) / (1000 * 60 * 60 * 24));
 
     return (
         <div className="min-h-screen bg-washouse-subtle font-sans text-gray-800">
-            {/* Professional Clean White Header */}
-            <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm sticky top-0 z-50 transition-all duration-300 print:hidden">
+            <header ref={headerRef} className="bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm sticky top-0 z-50 print:hidden">
                 {daysRemaining <= 7 && (
-                    <div className="bg-amber-500 text-white text-[10px] font-black uppercase tracking-[0.2em] py-2 text-center animate-pulse">
-                        Aviso: La suscripción de esta sucursal vence en {daysRemaining} {daysRemaining === 1 ? 'día' : 'días'}. Contacte a administración.
+                    <div className="bg-amber-500 text-white text-[10px] font-black uppercase tracking-[0.2em] py-1.5 text-center">
+                        La suscripción de esta sucursal vence en {daysRemaining} {daysRemaining === 1 ? 'día' : 'días'}. Contacte a administración.
                     </div>
                 )}
-                <div className="max-w-7xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-4">
-                    <div className="flex items-center group cursor-default min-w-0">
-                        <img src={logo} alt="Washouse" className="h-10 sm:h-14 w-auto object-contain shrink-0 transition-transform duration-500 group-hover:scale-105" />
-                        <div className="ml-4 sm:ml-5 pl-4 sm:pl-5 border-l border-gray-100 min-w-0">
+
+                <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex flex-wrap lg:flex-nowrap items-center gap-x-3 sm:gap-x-6 gap-y-2">
+                    {/* Marca + sucursal */}
+                    <div className="flex items-center min-w-0 shrink-0">
+                        <img src={logo} alt="Washouse" className="h-8 sm:h-11 w-auto object-contain shrink-0" />
+                        <div className="ml-2.5 sm:ml-4 pl-2.5 sm:pl-4 border-l border-gray-100 min-w-0">
                             <p className="text-[9px] font-black uppercase tracking-[0.25em] text-gray-400 leading-none">Sucursal</p>
                             {sinVincular ? (
                                 <p
-                                    className="mt-1.5 flex items-center gap-1.5 text-sm font-black text-amber-600 leading-none"
+                                    className="mt-1 flex items-center gap-1.5 text-sm font-black text-amber-600 leading-none"
                                     title="Este dispositivo no está vinculado a una sucursal. Admin → Configuración → Este Dispositivo."
                                 >
                                     <AlertTriangle size={15} className="shrink-0" /> Sin vincular
                                 </p>
                             ) : (
-                                <p className="mt-1.5 flex items-center gap-1.5 text-base sm:text-lg font-black text-washouse-navy leading-none tracking-tight">
-                                    <Store size={16} className="text-washouse-blue shrink-0" />
+                                <p className="mt-1 flex items-center gap-1.5 text-base font-black text-washouse-navy leading-none tracking-tight">
+                                    <Store size={15} className="text-washouse-blue shrink-0" />
                                     {/* El logo ya dice Washouse; basta con el nombre de la sucursal */}
                                     <span className="truncate">{branch.name.replace(/^Washouse\s+/i, '')}</span>
                                 </p>
@@ -64,74 +83,61 @@ export default function HostLayout() {
                         </div>
                     </div>
 
-                    {/* User Profile / Status Indicator */}
-                    {isShiftOpen ? (
-                        <div className="flex items-center space-x-5">
-                            <div className="flex items-center space-x-4 bg-gray-50/50 px-5 py-2.5 rounded-2xl border border-gray-100 shadow-inner group transition-all hover:bg-white hover:shadow-md cursor-default">
-                                <div className="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_12px_rgba(34,197,94,0.5)] animate-pulse"></div>
-                                <div className="flex flex-col text-left">
-                                    <span className="text-[9px] text-gray-400 font-black uppercase leading-none mb-1 tracking-widest">En turno</span>
-                                    <span className="text-sm font-black text-black leading-none">{user?.name}</span>
+                    {/* Turno — a la derecha; en pantallas angostas se queda en la primera línea */}
+                    <div className="ml-auto lg:order-last flex items-center gap-2 shrink-0">
+                        {isShiftOpen ? (
+                            <>
+                                <div className="flex items-center gap-2 sm:gap-2.5 bg-gray-50 px-2.5 sm:px-3.5 py-2 rounded-xl border border-gray-100">
+                                    <span className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
+                                    <span className="flex flex-col leading-none">
+                                        <span className="text-[9px] text-gray-400 font-black uppercase tracking-widest">En turno</span>
+                                        <span className="text-sm font-black text-black mt-1">{user?.name}</span>
+                                    </span>
                                 </div>
+                                <button
+                                    onClick={() => setIsEndShiftModalOpen(true)}
+                                    className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors"
+                                    title="Finalizar Turno"
+                                    aria-label="Finalizar turno"
+                                >
+                                    <LogOut size={20} />
+                                </button>
+                            </>
+                        ) : (
+                            <div className="flex items-center gap-2 bg-red-50 px-3.5 py-2 rounded-xl border border-red-100">
+                                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                                <span className="text-[10px] font-black text-red-600 uppercase tracking-widest whitespace-nowrap">Turno cerrado</span>
                             </div>
-                            <button
-                                onClick={() => setIsEndShiftModalOpen(true)}
-                                className="p-3 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all border border-transparent hover:border-red-100 active:scale-90"
-                                title="Finalizar Turno"
-                            >
-                                <LogOut size={22} />
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="flex items-center space-x-3 bg-red-50/50 px-5 py-2.5 rounded-full border border-red-100 animate-in fade-in slide-in-from-right-4">
-                            <div className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.4)]"></div>
-                            <span className="text-[10px] font-black text-red-600 uppercase tracking-widest">Acceso Restringido • Turno Cerrado</span>
-                        </div>
-                    )}
+                        )}
+                    </div>
+
+                    {/* Pestañas — en línea en escritorio, segunda fila en tablet vertical y celular */}
+                    <nav aria-label="Secciones del mostrador" className="w-full lg:w-auto lg:flex-1 flex gap-1 overflow-x-auto -mx-1 px-1 lg:mx-0 lg:px-0">
+                        {TABS.map(({ to, label, short, icon }) => {
+                            const Icon = icon;
+                            const active = location.pathname === to;
+                            return (
+                                <Link
+                                    key={to}
+                                    to={to}
+                                    aria-current={active ? 'page' : undefined}
+                                    className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest whitespace-nowrap transition-colors
+                                        ${active ? 'bg-blue-50 text-washouse-blue' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-50'}`}
+                                >
+                                    <Icon size={17} />
+                                    <span className="hidden sm:inline">{label}</span>
+                                    <span className="sm:hidden">{short}</span>
+                                </Link>
+                            );
+                        })}
+                    </nav>
                 </div>
             </header>
 
-            {/* Navigation Tabs */}
-            <div className="max-w-7xl mx-auto px-6 mt-8 mb-6 print:hidden">
-                <nav className="flex flex-wrap gap-3 bg-gray-100/30 p-1.5 rounded-2xl w-fit border border-gray-200/50 shadow-sm backdrop-blur-sm">
-                    <Link
-                        to="/sucursal"
-                        className={`px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-3 transition-all duration-300
-                            ${location.pathname === '/sucursal'
-                                ? 'bg-white shadow-lg shadow-blue-500/10 text-washouse-blue ring-1 ring-gray-100'
-                                : 'text-gray-400 hover:text-gray-600 hover:bg-white/50'}`}
-                    >
-                        <WashingMachine size={18} className={location.pathname === '/sucursal' ? 'animate-bounce' : ''} />
-                        Lavado Asistido
-                    </Link>
-                    <Link
-                        to="/sucursal/servicios"
-                        className={`px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-3 transition-all duration-300
-                            ${location.pathname === '/sucursal/servicios'
-                                ? 'bg-white shadow-lg shadow-blue-500/10 text-washouse-blue ring-1 ring-gray-100'
-                                : 'text-gray-400 hover:text-gray-600 hover:bg-white/50'}`}
-                    >
-                        <ClipboardList size={18} className={location.pathname === '/sucursal/servicios' ? 'animate-pulse' : ''} />
-                        Servicios Programados
-                    </Link>
-                    <Link
-                        to="/sucursal/manual"
-                        className={`px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-3 transition-all duration-300
-                            ${isManual
-                                ? 'bg-white shadow-lg shadow-blue-500/10 text-washouse-blue ring-1 ring-gray-100'
-                                : 'text-gray-400 hover:text-gray-600 hover:bg-white/50'}`}
-                    >
-                        <BookOpen size={18} />
-                        Manual
-                    </Link>
-                </nav>
-            </div>
-
-            <main className="px-6 pb-6 max-w-7xl mx-auto animate-fadeIn min-h-[calc(100vh-200px)]">
+            <main className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 pb-8 min-h-[calc(100vh-200px)]">
                 <Outlet />
             </main>
 
-            {/* Session Modals moved to bottom for proper stacking context */}
             {!isManual && <ShiftModal />}
             <EndShiftModal
                 isOpen={isEndShiftModalOpen}

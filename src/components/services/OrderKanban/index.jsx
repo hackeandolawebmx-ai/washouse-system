@@ -68,7 +68,7 @@ export default function OrderKanban({ searchTerm }) {
     };
 
     return (
-        <div className="flex h-full gap-6 min-w-max p-6 custom-scrollbar overflow-x-auto">
+        <div className="grid gap-6 lg:grid-cols-2 items-start">
             {STATUS_COLUMNS.map(column => (
                 <KanbanColumn
                     key={column.id}

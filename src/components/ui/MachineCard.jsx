@@ -1,249 +1,139 @@
-import { motion } from 'framer-motion';
-import StatusBadge from './StatusBadge';
-import Button from './Button';
-import Tooltip from './Tooltip';
-import { Timer, Power, Droplets, Wind, RotateCcw, Wrench } from 'lucide-react';
+import { Wrench, Wind, Droplets } from 'lucide-react';
 
-export default function MachineCard({ id, name, type, status, timeLeft, onAction, onToggleMaintenance, variant = 'default', pendingDry, movedToDryer, fromWasherName, ...props }) {
-    const isAvailable = status === 'available';
+/**
+ * Tarjeta compacta de una máquina en el tablero del mostrador.
+ *
+ * Pensada para verse de reojo mientras se atiende: el estado se lee por el
+ * color (barra lateral y texto) y cada estado tiene UNA acción principal,
+ * siempre en el mismo lugar. El tipo (lavadora/secadora) no se repite aquí
+ * porque el tablero ya agrupa por carril.
+ */
 
-    // Mensaje de reposo según el punto del proceso. Para "Lavado y secado" la
-    // lavadora terminada es un paso intermedio, no el final: el mostrador
-    // necesita saber si la ropa ya tiene secadora asignada o sigue esperando.
-    const restingNote = (() => {
-        if (status === 'available') return { text: 'Disponible p/ Sucursal', tone: 'available' };
-        if (status === 'maintenance') return { text: 'Fuera de Servicio', tone: 'muted' };
-        if (status === 'finished' && movedToDryer) return { text: `Pasa la ropa a ${movedToDryer}`, tone: 'action' };
-        if (status === 'finished' && pendingDry) return { text: 'Esperando secadora libre', tone: 'waiting' };
-        if (status === 'finished') return { text: 'Ciclo terminado', tone: 'action' };
-        return { text: '', tone: 'muted' };
-    })();
-
-    const noteStyles = {
-        available: { dot: 'bg-emerald-500 ring-emerald-50 shadow-[0_0_12px_rgba(16,185,129,0.3)] animate-pulse', text: 'text-slate-400 opacity-60' },
-        action: { dot: 'bg-orange-500 ring-orange-50 animate-pulse', text: 'text-orange-600' },
-        waiting: { dot: 'bg-amber-400 ring-amber-50 animate-pulse', text: 'text-amber-600' },
-        muted: { dot: 'bg-slate-300 ring-slate-50', text: 'text-slate-400 opacity-60' }
-    };
-    const note = noteStyles[restingNote.tone];
-
-    // Status-specific accent colors and glows
-    const statusStyles = {
-        'available': {
-            accent: 'bg-emerald-500',
-            glow: 'shadow-emerald-500/10',
-            text: 'text-emerald-600',
-            bg: 'bg-emerald-50/50',
-            gradient: 'from-emerald-400 to-emerald-500'
-        },
-        'running': {
-            accent: 'bg-washouse-blue',
-            glow: 'shadow-blue-500/20',
-            text: 'text-washouse-blue',
-            bg: 'bg-blue-50/50',
-            gradient: 'from-blue-400 to-blue-500'
-        },
-        'finished': {
-            accent: 'bg-orange-500',
-            glow: 'shadow-orange-500/20',
-            text: 'text-orange-600',
-            bg: 'bg-orange-50/50',
-            gradient: 'from-orange-400 to-orange-500'
-        },
-        'maintenance': {
-            accent: 'bg-slate-400',
-            glow: 'shadow-slate-400/10',
-            text: 'text-slate-500',
-            bg: 'bg-slate-100/50',
-            gradient: 'from-slate-400 to-slate-500'
-        }
-    };
-
-    const style = statusStyles[status] || statusStyles['available'];
-
-    if (variant === 'compact') {
-        return (
-            <motion.div
-                whileHover={{ scale: 1.01, boxShadow: '0 10px 30px rgba(0,0,0,0.04)' }}
-                className={`
-                    bg-white rounded-3xl p-5 flex items-center justify-between
-                    border border-slate-100 transition-all duration-300 relative overflow-hidden group
-                `}
-            >
-                {/* Accent Bar */}
-                <div className={`absolute left-0 top-0 bottom-0 w-1.5 bg-linear-to-b ${style.gradient}`} />
-
-                <div className="flex items-center gap-4 min-w-0 flex-1 mr-4 ml-2">
-                    <div className={`p-3 rounded-2xl shrink-0 shadow-inner ${type === 'lavadora' ? 'bg-blue-50 text-blue-600' : 'bg-orange-50 text-orange-600'}`}>
-                        {type === 'lavadora' ? <Droplets size={20} strokeWidth={2.5} /> : <Wind size={20} strokeWidth={2.5} />}
-                    </div>
-                    <div className="min-w-0">
-                        <h3 className="font-black text-sm text-washouse-navy font-outfit tracking-tight truncate">{name}</h3>
-                        <div className="flex items-center gap-2 mt-0.5">
-                            {status === 'running' ? (
-                                <span className="text-[10px] font-bold text-washouse-blue flex items-center whitespace-nowrap font-mono tracking-tighter">
-                                    <Timer className="w-3.5 h-3.5 mr-1" /> {timeLeft}m RESTANTES
-                                </span>
-                            ) : status === 'finished' && (movedToDryer || pendingDry) ? (
-                                <span className={`text-[10px] font-black uppercase tracking-widest truncate ${note.text}`}>{restingNote.text}</span>
-                            ) : (
-                                <span className="text-[10px] text-slate-400 uppercase font-black tracking-widest opacity-70">{type}</span>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-3 shrink-0">
-                    <StatusBadge status={status} size="sm" />
-                    <Button
-                        size="sm"
-                        variant={isAvailable ? 'primary' : 'outline'}
-                        onClick={() => onAction(id)}
-                        disabled={status === 'maintenance'}
-                        className="w-10 h-10 p-0 flex items-center justify-center rounded-2xl active:scale-90 shadow-lg shadow-blue-500/10"
-                    >
-                        <Power size={18} />
-                    </Button>
-                </div>
-            </motion.div>
-        );
+const STATES = {
+    available: {
+        label: 'Disponible', bar: 'bg-emerald-500', text: 'text-emerald-600', dot: 'bg-emerald-500',
+        card: 'bg-white', action: 'Comenzar ciclo',
+        button: 'bg-washouse-blue text-white hover:bg-washouse-primary-hover'
+    },
+    running: {
+        label: 'En uso', bar: 'bg-washouse-blue', text: 'text-washouse-blue', dot: 'bg-washouse-blue animate-pulse',
+        card: 'bg-white', action: 'Gestionar',
+        button: 'border-2 border-washouse-blue text-washouse-blue hover:bg-blue-50'
+    },
+    finished: {
+        label: 'Terminado', bar: 'bg-orange-500', text: 'text-orange-600', dot: 'bg-orange-500 animate-pulse',
+        card: 'bg-orange-50/40', action: 'Liberar equipo',
+        button: 'bg-orange-500 text-white hover:bg-orange-600'
+    },
+    maintenance: {
+        label: 'Mantenimiento', bar: 'bg-slate-300', text: 'text-slate-500', dot: 'bg-slate-400',
+        card: 'bg-slate-50', action: 'Reactivar',
+        button: 'border-2 border-slate-300 text-slate-600 hover:bg-white'
     }
+};
+
+// Avance real del ciclo, a partir de la hora de inicio. Sin startDate (p. ej.
+// una máquina que ya corría antes de cargar la página) no se puede calcular,
+// y es mejor no dibujar una barra que una inventada.
+function cycleProgress(startDate, timeLeft) {
+    if (!startDate) return null;
+    const elapsed = (Date.now() - new Date(startDate).getTime()) / 60000;
+    if (!(elapsed >= 0)) return null;
+    const total = elapsed + (timeLeft || 0);
+    return total > 0 ? Math.min(1, Math.max(0, elapsed / total)) : null;
+}
+
+export default function MachineCard({
+    id, name, type, status, timeLeft, startDate, clientName,
+    pendingDry, movedToDryer, fromWasherName,
+    onAction, onToggleMaintenance
+}) {
+    const s = STATES[status] || STATES.available;
+    const progress = status === 'running' ? cycleProgress(startDate, timeLeft) : null;
+    const TypeIcon = type === 'secadora' ? Wind : Droplets;
+
+    const finishedNote = movedToDryer
+        ? { text: `Pasa la ropa a ${movedToDryer}`, cls: 'text-orange-600' }
+        : pendingDry
+            ? { text: 'Esperando secadora libre', cls: 'text-amber-600' }
+            : { text: 'Ciclo terminado', cls: 'text-orange-600' };
+
+    const primary = () => (status === 'maintenance' ? onToggleMaintenance?.(id) : onAction(id));
 
     return (
-        <motion.div
-            layout
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            whileHover={{ y: -6, boxShadow: '0 30px 60px -12px rgba(0,0,0,0.12)' }}
-            className={`
-                glass-card p-8 flex flex-col h-full relative overflow-hidden group border-white/60
-                ${style.glow}
-            `}
+        <article
+            aria-label={`${name}, ${s.label}${clientName ? `, ${clientName}` : ''}`}
+            className={`relative h-full flex flex-col rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-shadow hover:shadow-md ${s.card}`}
         >
-            {/* Background Animation for Running state */}
-            {status === 'running' && (
-                <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="absolute -right-20 -top-20 w-80 h-80 bg-blue-500/5 blur-[100px] rounded-full pointer-events-none"
-                />
-            )}
+            <span className={`absolute inset-y-0 left-0 w-1.5 ${s.bar}`} aria-hidden="true" />
 
-            {/* Background Icon Decoration */}
-            <div className={`absolute -right-8 -bottom-8 opacity-5 pointer-events-none transition-transform duration-700 group-hover:scale-125 group-hover:-rotate-12 ${style.text}`}>
-                {type === 'lavadora' ? <Droplets size={160} strokeWidth={1} /> : <Wind size={160} strokeWidth={1} />}
-            </div>
-
-            {/* Accent Side Bar */}
-            <div className={`absolute left-0 top-0 bottom-0 w-2 bg-linear-to-b ${style.gradient} opacity-80`} />
-
-            <div className="flex justify-between items-start mb-8 relative z-10 gap-2 ml-1">
-                <div className="flex items-center min-w-0">
-                    <Tooltip content={type === 'lavadora' ? 'Lavadora' : 'Secadora'} position="top">
-                        <div className={`p-5 rounded-3xl mr-5 shrink-0 shadow-inner border border-white/50 ${type === 'lavadora' ? 'bg-blue-50 text-blue-600' : 'bg-orange-50 text-orange-600'}`}>
-                            {type === 'lavadora' ? <Droplets size={36} strokeWidth={2.5} /> : <Wind size={36} strokeWidth={2.5} />}
-                        </div>
-                    </Tooltip>
+            <div className="flex-1 flex flex-col gap-3 p-4 pl-5">
+                {/* Nombre y estado */}
+                <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                        <h3 className="font-black text-xl text-washouse-navy font-outfit tracking-tight truncate pr-1" title={name}>{name}</h3>
-                        <p className="text-xs text-slate-400 uppercase font-black tracking-widest mt-1 opacity-70 leading-none">{type}</p>
+                        <h3 className="flex items-center gap-1.5 text-2xl font-black text-washouse-navy font-outfit tracking-tight leading-none">
+                            <TypeIcon size={16} className="text-gray-300 shrink-0" aria-hidden="true" />
+                            <span className="truncate">{name}</span>
+                        </h3>
+                        <p className={`mt-1.5 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest ${s.text}`}>
+                            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${s.dot}`} />
+                            {s.label}
+                        </p>
                     </div>
-                </div>
-                <div className="shrink-0 flex flex-col items-end gap-4">
-                    <StatusBadge status={status} className="shadow-lg shadow-black/5" />
-                    {onToggleMaintenance && (
+                    {status !== 'maintenance' && onToggleMaintenance && (
                         <button
                             onClick={() => onToggleMaintenance(id)}
-                            className={`p-2.5 rounded-2xl transition-all active:scale-95 ${status === 'maintenance' ? 'bg-orange-100 text-orange-600 shadow-md ring-4 ring-orange-50' : 'text-slate-300 hover:text-slate-500 hover:bg-slate-100/80 border border-slate-100 hover:border-slate-200'}`}
-                            title={status === 'maintenance' ? 'Reactivar equipo' : 'Poner en Mantenimiento'}
+                            className="p-1.5 -mr-1 rounded-lg text-gray-300 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                            title="Poner en mantenimiento"
+                            aria-label={`Poner ${name} en mantenimiento`}
                         >
-                            <Wrench size={18} />
+                            <Wrench size={16} />
                         </button>
                     )}
                 </div>
-            </div>
 
-            <div className="mb-10 flex-1 relative z-10 ml-1">
-                {status === 'running' ? (
-                    <motion.div
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="flex flex-col text-washouse-blue"
-                    >
-                        <div className="flex items-baseline gap-2">
-                            <span className="text-5xl font-black tracking-tighter leading-none">{timeLeft}</span>
-                            <div className="flex flex-col">
-                                <span className="text-xs font-black uppercase tracking-[0.2em] opacity-60 leading-none">MINUTOS</span>
-                                <span className="text-[10px] font-black uppercase tracking-widest opacity-40 leading-none mt-1">RESTANTES</span>
-                            </div>
-                        </div>
-
-                        {/* Progress Bar Visual */}
-                        <div className="w-full h-1.5 bg-blue-100 rounded-full mt-6 overflow-hidden">
-                            <motion.div
-                                initial={{ width: "0%" }}
-                                animate={{ width: "100%" }}
-                                transition={{ duration: timeLeft * 60, ease: "linear" }}
-                                className="h-full bg-washouse-blue rounded-full shadow-[0_0_10px_rgba(0,144,215,0.4)]"
-                            />
-                        </div>
-
-                        {props.clientName && (
-                            <div className="flex items-center gap-3 mt-6 px-4 py-2 rounded-2xl bg-blue-50/50 border border-blue-100/30 w-fit group-hover:bg-blue-100/40 transition-colors">
-                                <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(0,144,215,0.6)] animate-pulse" />
-                                <p className="text-xs font-black text-slate-500 truncate max-w-[150px]">
-                                    {props.clientName}
-                                </p>
+                {/* Detalle según estado */}
+                {status === 'running' && (
+                    <div className="flex flex-col gap-2">
+                        <p className="flex items-baseline gap-1.5 text-washouse-blue leading-none">
+                            <span className="text-3xl font-black tabular-nums tracking-tight">{timeLeft}</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest opacity-60">min restantes</span>
+                        </p>
+                        {progress !== null && (
+                            <div className="h-1.5 rounded-full bg-blue-100 overflow-hidden" role="progressbar" aria-valuenow={Math.round(progress * 100)} aria-valuemin={0} aria-valuemax={100}>
+                                <div className="h-full rounded-full bg-washouse-blue transition-[width] duration-700" style={{ width: `${progress * 100}%` }} />
                             </div>
                         )}
-
-                        {/* Siguiente paso del proceso, para que no sorprenda */}
+                        {clientName && <p className="text-sm font-bold text-slate-600 truncate">{clientName}</p>}
                         {pendingDry && (
-                            <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
-                                <Wind className="w-3.5 h-3.5" /> Al terminar pasa a secadora
+                            <p className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                                <Wind size={12} className="shrink-0" /> Al terminar pasa a secadora
                             </p>
                         )}
                         {fromWasherName && (
-                            <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
-                                <Droplets className="w-3.5 h-3.5" /> Secado · viene de {fromWasherName}
+                            <p className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                                <Droplets size={12} className="shrink-0" /> Viene de {fromWasherName}
                             </p>
                         )}
-                    </motion.div>
-                ) : (
-                    <div className="flex flex-col gap-3 h-full pt-4">
-                        <div className="flex items-center gap-3 font-black uppercase tracking-[0.2em] text-[11px]">
-                            <div className={`w-3 h-3 rounded-full ring-4 shrink-0 ${note.dot}`} />
-                            <span className={note.text}>{restingNote.text}</span>
-                        </div>
-                        {status === 'finished' && props.clientName && (
-                            <p className="text-xs font-black text-slate-500 truncate ml-6">{props.clientName}</p>
-                        )}
+                    </div>
+                )}
+
+                {status === 'finished' && (
+                    <div className="flex flex-col gap-1">
+                        <p className={`text-sm font-black leading-snug ${finishedNote.cls}`}>{finishedNote.text}</p>
+                        {clientName && <p className="text-sm font-bold text-slate-600 truncate">{clientName}</p>}
                     </div>
                 )}
             </div>
 
-            <div className="relative z-10 ml-1">
-                <Button
-                    variant={isAvailable ? 'primary' : 'outline'}
-                    onClick={() => onAction(id)}
-                    disabled={status === 'maintenance'}
-                    className={`
-                        w-full py-5 rounded-2xl font-black uppercase tracking-[0.25em] text-[10px]
-                        shadow-2xl transition-all duration-500 active:scale-95
-                        ${isAvailable ? 'shadow-blue-500/25' : 'bg-white/40 backdrop-blur-xl border-slate-100 hover:bg-slate-50 hover:border-slate-200'}
-                    `}
+            <div className="px-4 pl-5 pb-4">
+                <button
+                    onClick={primary}
+                    className={`w-full h-10 rounded-xl text-sm font-bold transition-colors active:scale-[0.98] ${s.button}`}
                 >
-                    {status === 'finished' ? (
-                        <span className="flex items-center gap-3">
-                            <RotateCcw className="w-4 h-4 stroke-[3px]" /> Liberar Equipo
-                        </span>
-                    ) : (
-                        <span className="flex items-center gap-3">
-                            <Power className="w-4 h-4 stroke-[3px]" /> {isAvailable ? 'Comenzar Ciclo' : 'Gestionar'}
-                        </span>
-                    )}
-                </Button>
+                    {s.action}
+                </button>
             </div>
-        </motion.div>
+        </article>
     );
 }
