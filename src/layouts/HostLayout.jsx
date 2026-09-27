@@ -6,13 +6,17 @@ import { useStorage } from '../context/StorageContext';
 import ShiftModal from '../components/ui/ShiftModal';
 import EndShiftModal from '../components/ui/EndShiftModal';
 import BranchLockout from '../components/BranchLockout';
-import { WashingMachine, Power, User, ClipboardList, LogOut } from 'lucide-react';
+import { WashingMachine, ClipboardList, LogOut, BookOpen } from 'lucide-react';
 
 export default function HostLayout() {
     const { user, isShiftOpen } = useAuth();
     const { isBranchActive, deviceBranchId, BRANCH_LICENSES } = useStorage();
     const location = useLocation();
     const [isEndShiftModalOpen, setIsEndShiftModalOpen] = useState(false);
+
+    // El manual se puede leer sin haber abierto turno: la identificación
+    // (ShiftModal) tapa toda la pantalla y no dejaría consultarlo antes.
+    const isManual = location.pathname === '/sucursal/manual';
 
     if (!isBranchActive(deviceBranchId)) {
         return <BranchLockout />;
@@ -26,7 +30,7 @@ export default function HostLayout() {
     return (
         <div className="min-h-screen bg-washouse-subtle font-sans text-gray-800">
             {/* Professional Clean White Header */}
-            <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm sticky top-0 z-50 transition-all duration-300">
+            <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm sticky top-0 z-50 transition-all duration-300 print:hidden">
                 {daysRemaining <= 7 && (
                     <div className="bg-amber-500 text-white text-[10px] font-black uppercase tracking-[0.2em] py-2 text-center animate-pulse">
                         Aviso: La suscripción de esta sucursal vence en {daysRemaining} {daysRemaining === 1 ? 'día' : 'días'}. Contacte a administración.
@@ -69,8 +73,8 @@ export default function HostLayout() {
             </header>
 
             {/* Navigation Tabs */}
-            <div className="max-w-7xl mx-auto px-6 mt-8 mb-6">
-                <nav className="flex space-x-3 bg-gray-100/30 p-1.5 rounded-2xl w-fit border border-gray-200/50 shadow-sm backdrop-blur-sm">
+            <div className="max-w-7xl mx-auto px-6 mt-8 mb-6 print:hidden">
+                <nav className="flex flex-wrap gap-3 bg-gray-100/30 p-1.5 rounded-2xl w-fit border border-gray-200/50 shadow-sm backdrop-blur-sm">
                     <Link
                         to="/sucursal"
                         className={`px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-3 transition-all duration-300
@@ -91,6 +95,16 @@ export default function HostLayout() {
                         <ClipboardList size={18} className={location.pathname === '/sucursal/servicios' ? 'animate-pulse' : ''} />
                         Servicios Programados
                     </Link>
+                    <Link
+                        to="/sucursal/manual"
+                        className={`px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-3 transition-all duration-300
+                            ${isManual
+                                ? 'bg-white shadow-lg shadow-blue-500/10 text-washouse-blue ring-1 ring-gray-100'
+                                : 'text-gray-400 hover:text-gray-600 hover:bg-white/50'}`}
+                    >
+                        <BookOpen size={18} />
+                        Manual
+                    </Link>
                 </nav>
             </div>
 
@@ -99,7 +113,7 @@ export default function HostLayout() {
             </main>
 
             {/* Session Modals moved to bottom for proper stacking context */}
-            <ShiftModal />
+            {!isManual && <ShiftModal />}
             <EndShiftModal
                 isOpen={isEndShiftModalOpen}
                 onClose={() => setIsEndShiftModalOpen(false)}

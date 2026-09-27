@@ -26,6 +26,8 @@ const RequestInvoicePage = lazy(() => import('./pages/RequestInvoicePage'));
 
 const HostDashboard = lazy(() => import('./pages/HostDashboard'));
 const ServiceReception = lazy(() => import('./pages/ServiceReception'));
+const HostManual = lazy(() => import('./pages/HostManual'));
+const AdminManual = lazy(() => import('./pages/AdminManual'));
 
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
@@ -77,6 +79,7 @@ function AppRoutes() {
           <Route path="/sucursal" element={<HostLayout />}>
             <Route index element={<HostDashboard />} />
             <Route path="servicios" element={<ServiceReception />} />
+            <Route path="manual" element={<HostManual />} />
           </Route>
 
           {/* Rutas viejas del mostrador, para no romper accesos directos ya
@@ -101,6 +104,7 @@ function AppRoutes() {
               <Route path="invoices" element={<InvoicesPage />} />
               <Route path="reports" element={<ReportsPage />} />
               <Route path="settings" element={<SettingsPage />} />
+              <Route path="manual" element={<AdminManual />} />
             </Route>
           </Route>
 

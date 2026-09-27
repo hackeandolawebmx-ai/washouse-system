@@ -1,17 +1,43 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { ChevronDown, ChevronRight, LayoutDashboard, Settings, Users, ClipboardList, FileText, Menu, X } from 'lucide-react';
+import { ChevronDown, ChevronRight, LayoutDashboard, Settings, Users, ClipboardList, FileText, Menu, X, BookOpen } from 'lucide-react';
 import { useInvoice } from '../context/InvoiceContext';
 import logo from '../assets/WasHouse CYMK.png';
+
+// Fuera de AdminLayout: declarado adentro, React lo trataba como un componente
+// nuevo en cada render y desmontaba/montaba todos los enlaces del menú.
+const isActivePath = (pathname, path) => pathname === path || pathname.startsWith(path + '/');
+
+function NavLink({ to, label, icon: Icon, isSubItem = false, badge = 0 }) {
+    const { pathname } = useLocation();
+    const active = isActivePath(pathname, to);
+    return (
+        <Link
+            to={to}
+            className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all duration-200
+                ${isSubItem ? 'ml-9 text-sm py-2' : ''}
+                ${active
+                    ? 'bg-white/10 text-white shadow-sm border border-white/10 ring-1 ring-white/20'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
+        >
+            {Icon && <Icon size={isSubItem ? 16 : 20} className={active ? 'text-washouse-sky' : ''} />}
+            <span className="flex-1">{label}</span>
+            {badge > 0 && (
+                <span className="min-w-5 h-5 px-1.5 flex items-center justify-center rounded-full bg-amber-500 text-white text-[10px] font-black">
+                    {badge}
+                </span>
+            )}
+        </Link>
+    );
+}
 
 export default function AdminLayout() {
     const location = useLocation();
     const { invoiceRequests } = useInvoice();
     const pendingInvoiceRequests = invoiceRequests.filter(r => r.status === 'pending').length;
 
-    const isActive = (path) => {
-        return location.pathname === path || location.pathname.startsWith(path + '/');
-    };
+    const isActive = (path) => isActivePath(location.pathname, path);
 
     const [isDashboardOpen, setIsDashboardOpen] = useState(true);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -21,30 +47,10 @@ export default function AdminLayout() {
         setIsSidebarOpen(false);
     }, [location.pathname]);
 
-    const NavLink = ({ to, label, icon: Icon, isSubItem = false, badge = 0 }) => (
-        <Link
-            to={to}
-            className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all duration-200
-                ${isSubItem ? 'ml-9 text-sm py-2' : ''}
-                ${isActive(to)
-                    ? 'bg-white/10 text-white shadow-sm border border-white/10 ring-1 ring-white/20'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
-                }`}
-        >
-            {Icon && <Icon size={isSubItem ? 16 : 20} className={isActive(to) ? 'text-washouse-sky' : ''} />}
-            <span className="flex-1">{label}</span>
-            {badge > 0 && (
-                <span className="min-w-5 h-5 px-1.5 flex items-center justify-center rounded-full bg-amber-500 text-white text-[10px] font-black">
-                    {badge}
-                </span>
-            )}
-        </Link>
-    );
-
     return (
         <div className="min-h-screen flex">
             {/* Mobile top bar */}
-            <div className="md:hidden fixed top-0 inset-x-0 z-30 h-16 bg-washouse-navy flex items-center justify-between px-4 border-b border-white/5">
+            <div className="md:hidden print:hidden fixed top-0 inset-x-0 z-30 h-16 bg-washouse-navy flex items-center justify-between px-4 border-b border-white/5">
                 <img src={logo} alt="Washouse Admin" className="h-9 w-auto object-contain bg-white rounded-lg p-1" />
                 <button
                     onClick={() => setIsSidebarOpen(true)}
@@ -68,7 +74,7 @@ export default function AdminLayout() {
 
             {/* Sidebar - off-canvas drawer on mobile, static on desktop */}
             <aside
-                className={`w-72 bg-washouse-navy flex flex-col border-r border-white/5 fixed inset-y-0 left-0 z-50 overflow-y-auto
+                className={`w-72 bg-washouse-navy flex flex-col border-r border-white/5 fixed inset-y-0 left-0 z-50 overflow-y-auto print:hidden
                     transition-transform duration-300 ease-in-out
                     ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
                     md:translate-x-0 md:static md:z-auto`}
@@ -132,6 +138,11 @@ export default function AdminLayout() {
                     <NavLink to="/admin/invoices" label="Facturación" icon={FileText} badge={pendingInvoiceRequests} />
                     <NavLink to="/admin/reports" label="Reportes" icon={ClipboardList} />
                     <NavLink to="/admin/settings" label="Configuración" icon={Settings} />
+
+                    <div className="text-gray-500/80 text-[9px] uppercase tracking-[0.25em] font-black mt-10 mb-3 px-4">
+                        Ayuda
+                    </div>
+                    <NavLink to="/admin/manual" label="Manual" icon={BookOpen} />
                 </nav>
 
                 <div className="p-6 mt-auto">
@@ -143,7 +154,7 @@ export default function AdminLayout() {
                     </div>
                 </div>
             </aside>
-            <main className="flex-1 bg-white overflow-y-auto pt-16 md:pt-0">
+            <main className="flex-1 bg-white overflow-y-auto pt-16 md:pt-0 print:overflow-visible print:pt-0">
                 <div className="p-6 md:p-12 max-w-7xl mx-auto">
                     <Outlet />
                 </div>
