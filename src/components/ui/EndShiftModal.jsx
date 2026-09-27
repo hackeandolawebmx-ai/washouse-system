@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function EndShiftModal({ isOpen, onClose }) {
     const { currentShift, endShift, user } = useAuth();
-    const { sales, expenses } = useStorage();
+    const { sales, expenses, deviceBranchId } = useStorage();
     const [declaredCash, setDeclaredCash] = useState('');
     const [error, setError] = useState(null);
     const [isConfirming, setIsConfirming] = useState(false);
@@ -19,8 +19,13 @@ export default function EndShiftModal({ isOpen, onClose }) {
 
         const shiftStart = new Date(currentShift.startTime);
 
-        // Filter sales belonging to this shift
-        const shiftSales = sales.filter(sale => new Date(sale.date) >= shiftStart);
+        // Filter sales belonging to this shift AND this branch. 'sales' and
+        // 'expenses' are fetched with no branch filter (they hold every
+        // sucursal's records), so without the branchId check here, the cash
+        // count of one branch would silently absorb another branch's sales
+        // and expenses whenever their shifts overlap in time.
+        const shiftSales = sales.filter(sale =>
+            sale.branchId === deviceBranchId && new Date(sale.date) >= shiftStart);
 
         const summary = {
             totalSales: 0,
@@ -41,7 +46,11 @@ export default function EndShiftModal({ isOpen, onClose }) {
         });
 
         // Calculate Expenses for this shift
-        const shiftExpenses = expenses ? expenses.filter(e => new Date(e.timestamp) >= shiftStart && (!currentShift.endTime || new Date(e.timestamp) <= new Date(currentShift.endTime))) : [];
+        const shiftExpenses = expenses ? expenses.filter(e =>
+            e.branchId === deviceBranchId &&
+            new Date(e.timestamp) >= shiftStart &&
+            (!currentShift.endTime || new Date(e.timestamp) <= new Date(currentShift.endTime))
+        ) : [];
 
         // Sum total, but also split by method if needed
         summary.totalExpenses = shiftExpenses.reduce((acc, e) => acc + e.amount, 0);
@@ -49,7 +58,7 @@ export default function EndShiftModal({ isOpen, onClose }) {
         summary.expectedDrawer = summary.initialCash + summary.cashSales - summary.totalExpenses;
 
         return summary;
-    }, [currentShift, sales, expenses]);
+    }, [currentShift, sales, expenses, deviceBranchId]);
 
     if (!isOpen || !shiftSummary) return null;
 
