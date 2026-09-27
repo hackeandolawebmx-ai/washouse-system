@@ -71,7 +71,7 @@ export default function HostDashboard() {
             });
     }, [branchMachines, typeFilter, statusFilter]);
 
-    const { isShiftOpen } = useAuth(); // Consume shift status
+    const { isShiftOpen, user } = useAuth();
 
     const handleMachineAction = (id) => {
         if (!isShiftOpen) {
@@ -115,6 +115,18 @@ export default function HostDashboard() {
         }
         setSelectedMachineId(null);
         setIsOrderModalOpen(true);
+    };
+
+    const openExpenseModal = () => {
+        if (!isShiftOpen) {
+            alert('Debes iniciar turno para registrar gastos');
+            return;
+        }
+        setIsExpenseModalOpen(true);
+    };
+
+    const handleSaveExpense = (expenseData) => {
+        addExpense({ ...expenseData, branchId: currentBranch }, user?.name || 'Host');
     };
 
     const handleToggleMaintenance = (id) => {
@@ -216,6 +228,14 @@ export default function HostDashboard() {
                         >
                             <Package className="w-4 h-4 mr-2" />
                             Inventario
+                        </Button>
+                        <Button
+                            variant="secondary"
+                            onClick={openExpenseModal}
+                            className="flex-1 md:flex-none justify-center rounded-xl bg-white/50 backdrop-blur-sm border-gray-100 hover:shadow-lg transition-all"
+                        >
+                            <Wallet className="w-4 h-4 mr-2" />
+                            Gasto
                         </Button>
                         <Button
                             onClick={openCleanOrderModal}
@@ -332,6 +352,12 @@ export default function HostDashboard() {
             >
                 <InventoryModal onClose={() => setIsInventoryModalOpen(false)} />
             </Modal>
+
+            <ExpenseModal
+                isOpen={isExpenseModalOpen}
+                onClose={() => setIsExpenseModalOpen(false)}
+                onSave={handleSaveExpense}
+            />
 
         </motion.div>
     );

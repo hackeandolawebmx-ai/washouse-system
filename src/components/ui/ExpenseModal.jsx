@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { X, DollarSign, Tag, FileText } from 'lucide-react';
 
 export default function ExpenseModal({ isOpen, onClose, onSave }) {
+    const [amount, setAmount] = useState('');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('insumos');
 
