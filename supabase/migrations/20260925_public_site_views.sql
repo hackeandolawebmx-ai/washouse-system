@@ -25,7 +25,7 @@ alter table branches add column if not exists maps_url  text;
 update branches
 set
   is_public = true,
-  phone     = '8112345678',
+  phone     = '81 1788 0335',
   hours     = 'Lunes a sábado de 8:00 a 20:00 · Domingo de 9:00 a 15:00',
   maps_url  = 'https://maps.google.com/?q=Washouse+Vista+Hermosa+Monterrey'
 where id = 'vista_hermosa';
