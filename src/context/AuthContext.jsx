@@ -64,9 +64,11 @@ export function AuthProvider({ children }) {
         if (summary) {
             addShift({
                 ...summary,
+                startTime: currentShift.startTime,
                 endedAt: new Date().toISOString(),
                 closedBy: user?.name,
-                id: currentShift.id
+                id: currentShift.id,
+                status: 'closed'
             }, currentShift.branchId);
 
             logActivity('TURNO_CERRADO', `Ventas: ${formatCurrency(summary.totalSales)}`, user?.name, currentShift.branchId);
