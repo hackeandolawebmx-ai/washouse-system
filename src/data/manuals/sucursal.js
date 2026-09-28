@@ -108,11 +108,33 @@ export const manualSucursal = {
                     text: 'Activa el interruptor de factura **solo si el cliente la pide**: ahí se suma el IVA. Si la pide días después, el IVA ya no se cobró y lo resuelve administración.'
                 },
                 { type: 'img', src: img('orden-registrada'), caption: 'Paso 5 · El folio, los dos tickets y el aviso por WhatsApp.' },
+                { type: 'p', text: '**Lavado y secado** cobra por la tabla de tarifas del letrero pegado en la sucursal — no es un precio que suba parejo por kilo:' },
+                {
+                    type: 'table',
+                    head: ['Peso', 'Precio'],
+                    rows: [
+                        ['1 a 4 kg', '$120 (mínimo)'],
+                        ['5 kg', '$160'],
+                        ['6 kg', '$190'],
+                        ['7 kg', '$220'],
+                        ['8 kg', '$250'],
+                        ['8.5 a 10 kg', '$320 · pasa a 2 cargas'],
+                        ['11 kg', '$350'],
+                        ['12 kg', '$380'],
+                        ['13 kg', '$410'],
+                        ['13.5 a 15 kg', '$480'],
+                        ['Arriba de 15 kg', '$480 + $30 por cada kilo extra']
+                    ]
+                },
+                {
+                    type: 'note', tone: 'info', title: 'De 8 a 8.5 kg el precio da un salto',
+                    text: 'No es un error del sistema: de 8.5 kg en adelante la carga pasa de contarse como "1 carga" a "2 cargas", y el letrero redondea todo ese tramo a la tarifa de 10 kg ($320). El sistema lo calcula solo — tú nada más escribe el peso real.'
+                },
                 {
                     type: 'list',
                     items: [
-                        '**Lavadora y lavado estándar:** cada 6 kg cuenta como una carga nueva. Si el promedio por carga pasa de 5 kg, se agrega el cargo extra.',
-                        '**Los demás servicios por kilo:** precio base hasta 5 kg, y después el extra por cada kilo adicional.',
+                        '**Lavadora (autoservicio):** cada 6 kg cuenta como una carga nueva. Si el promedio por carga pasa de 5 kg, se agrega el cargo extra.',
+                        '**Secadora y demás servicios por kilo:** precio base hasta 5 kg, y después el extra por cada kilo adicional.',
                         'Por ahora el peso se captura a mano: pesa la carga en tu báscula de piso y escribe ese número en el recuadro junto al servicio, en el resumen de la derecha (acepta decimales, como 6.4). Los botones **−** y **+** ajustan de 100 en 100 gramos si solo necesitas un ajuste fino.'
                     ]
                 }

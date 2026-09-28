@@ -187,10 +187,13 @@ export default function LandingPage() {
                                             <dt className="text-sm font-bold text-gray-600">
                                                 {s.name}
                                                 {s.type === 'weight' && (
-                                                    <span className="text-gray-300 font-medium"> · hasta {s.baseKg || 5} kg</span>
+                                                    <span className="text-gray-300 font-medium">
+                                                        {' · '}{s.weightBrackets ? 'tarifa por kilo' : `hasta ${s.baseKg || 5} kg`}
+                                                    </span>
                                                 )}
                                             </dt>
                                             <dd className="font-black text-washouse-blue tabular-nums shrink-0">
+                                                {s.weightBrackets && <span className="text-gray-400 font-bold text-xs mr-1">Desde</span>}
                                                 {formatCurrency(s.price)}
                                             </dd>
                                         </div>

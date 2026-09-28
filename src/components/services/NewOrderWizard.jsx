@@ -6,6 +6,7 @@ import { X, Search, ShoppingBag, Store, Truck, DollarSign, User, Phone, Check, W
 import { formatCurrency } from '../../utils/formatCurrency';
 import { useScale } from '../../hooks/useScale';
 import { motion, AnimatePresence } from 'framer-motion';
+import { calculateOrderItemTotal } from '../../utils/orderPricing';
 
 import { USUARIO_MOSTRADOR } from '../../utils/labels';
 export default function NewOrderWizard({ isOpen, onClose, machineId }) {
@@ -107,7 +108,13 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
                 name: service.name,
                 type: service.type,
                 baseKg: service.baseKg,
-                extraPrice: service.extraPrice
+                extraPrice: service.extraPrice,
+                // Tabla de tarifas por kilo (p. ej. Lavado y secado), si el
+                // servicio la trae. Se congela en el renglón de la orden, igual
+                // que baseKg/extraPrice arriba: así un cambio de precio futuro
+                // no altera el total de una orden ya cobrada.
+                weightBrackets: service.weightBrackets,
+                extraPerKg: service.extraPerKg
             }];
 
             // Include free supplies for Lavado y Secado
@@ -152,29 +159,12 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
         });
     };
 
-    const calculateItemTotal = (item) => {
-        if (item.type === 'weight') {
-            const weight = item.quantity;
-
-            // Rule: 6kg is a new charge ($50). Apply this logic for standard washer/dryer loads.
-            if (item.serviceId === 'self_wash' || item.serviceId === 'wash_std') {
-                const numLoads = Math.ceil(weight / 5.999) || 1;
-                const avgWeightPerLoad = weight / numLoads;
-
-                let total = numLoads * item.basePrice;
-                if (avgWeightPerLoad > (item.baseKg || 5)) {
-                    total += numLoads * (item.extraPrice || 10);
-                }
-                return total;
-            }
-
-            // Generic weight pricing for other items
-            if (weight <= (item.baseKg || 5)) return item.basePrice;
-            const extraKg = weight - (item.baseKg || 5);
-            return item.basePrice + (Math.ceil(extraKg) * (item.extraPrice || 10));
-        }
-        return item.basePrice * item.quantity;
-    };
+    // Delegado a orderPricing.js: es el MISMO cálculo que usan el ticket
+    // impreso, el detalle de la orden y la facturación más adelante. Antes
+    // esta función tenía su propia copia de la fórmula (idéntica, pero
+    // separada) — cambiar el precio aquí y no allá habría dejado el total
+    // cobrado en caja desincronizado del que se ve después en esas pantallas.
+    const calculateItemTotal = (item) => calculateOrderItemTotal(item);
 
     const removeItem = (index) => {
         setItems(prev => prev.filter((_, i) => i !== index));

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Button from '../ui/Button';
-import { X, Tag } from 'lucide-react';
+import { X, Tag, Info } from 'lucide-react';
+import { formatCurrency } from '../../utils/formatCurrency';
 
 export default function ServiceModal({ isOpen, onClose, onSave, serviceToEdit = null }) {
     const [formData, setFormData] = useState({
@@ -49,6 +50,14 @@ export default function ServiceModal({ isOpen, onClose, onSave, serviceToEdit = 
     };
 
     if (!isOpen) return null;
+
+    // Un puñado de servicios (hoy solo Lavado y secado) traen una tabla de
+    // tarifas por kilo en vez de la fórmula base+extra: el precio real sale
+    // de weightBrackets/extraPerKg, que este formulario no edita. Mostrar
+    // "Kilos Base"/"Precio Kg Extra" como si funcionaran sería un control
+    // que no hace nada -- se cambian aparte, en el código.
+    const brackets = serviceToEdit?.weightBrackets;
+    const hasBrackets = Array.isArray(brackets) && brackets.length > 0;
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -119,7 +128,25 @@ export default function ServiceModal({ isOpen, onClose, onSave, serviceToEdit = 
                         />
                     </div>
 
-                    {formData.type === 'weight' && (
+                    {formData.type === 'weight' && hasBrackets && (
+                        <div className="bg-blue-50 p-3 rounded-xl border border-blue-100 space-y-2">
+                            <p className="flex items-start gap-2 text-[11px] text-blue-900 font-medium leading-relaxed">
+                                <Info size={14} className="shrink-0 mt-0.5" />
+                                Este servicio usa una tabla de tarifas por kilo, no la fórmula base + extra.
+                                Para cambiar los montos, pide que se actualice en el código (no se edita aquí).
+                            </p>
+                            <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] font-bold text-blue-900 bg-white/60 rounded-lg p-2">
+                                {brackets.map((b, i) => (
+                                    <div key={i} className="flex justify-between">
+                                        <span className="opacity-60">hasta {b.maxKg} kg</span>
+                                        <span>{formatCurrency(b.price)}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {formData.type === 'weight' && !hasBrackets && (
                         <div className="grid grid-cols-2 gap-4 bg-blue-50 p-3 rounded-xl border border-blue-100">
                             <div>
                                 <label className="block text-[10px] font-black text-blue-800 uppercase mb-1">Kilos Base</label>

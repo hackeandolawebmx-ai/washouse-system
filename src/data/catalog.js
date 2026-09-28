@@ -1,8 +1,35 @@
 import { Banknote, CreditCard, ArrowLeftRight } from 'lucide-react';
 
+// Tarifa por kilos de "Lavado y secado", tal como está publicada en la
+// sucursal (letrero físico "TARIFAS POR KILOS"). No es lineal: de 5 a 8 kg
+// sube $30 por kilo dentro de "1 carga", pero de 8 a 8.5 kg salta de golpe
+// a "2 cargas" ($320) — el letrero dice explícitamente que de 8.5 kg en
+// adelante se redondea a 10 kg. 1-4 kg cobran el mínimo de $120. Arriba de
+// 15 kg (lo último que trae el letrero) se sigue sumando $30 por kilo.
+// Ver supabase/migrations/20260928_wash_dry_tarifa_por_kilos.sql.
+const WASH_DRY_BRACKETS = [
+    { maxKg: 2, price: 120 },
+    { maxKg: 4, price: 120 },
+    { maxKg: 5, price: 160 },
+    { maxKg: 6, price: 190 },
+    { maxKg: 7, price: 220 },
+    { maxKg: 8, price: 250 },
+    { maxKg: 10, price: 320 },
+    { maxKg: 11, price: 350 },
+    { maxKg: 12, price: 380 },
+    { maxKg: 13, price: 410 },
+    { maxKg: 15, price: 480 }
+];
+
 export const SERVICES_CATALOG = [
     // Autoservicio
-    { id: 'wash_dry', name: 'Lavado y secado', price: 150, category: 'self_service', type: 'weight', baseKg: 5, extraPrice: 20, icon: '🧺' },
+    {
+        id: 'wash_dry', name: 'Lavado y secado', price: 120, category: 'self_service', type: 'weight',
+        baseKg: 5, // solo el peso que se prellena al agregarlo; no afecta el precio
+        weightBrackets: WASH_DRY_BRACKETS,
+        extraPerKg: 30,
+        icon: '🧺'
+    },
     { id: 'self_wash', name: 'Lavadora', price: 50, category: 'self_service', type: 'weight', baseKg: 5, extraPrice: 10, icon: '🧼' },
     { id: 'self_dry', name: 'Secadora', price: 50, category: 'self_service', type: 'weight', baseKg: 5, extraPrice: 10, icon: '💨' },
 

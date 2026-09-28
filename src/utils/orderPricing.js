@@ -1,7 +1,27 @@
-// Weight-tiered pricing: a flat basePrice covers up to baseKg (default 5kg),
-// extraPrice per kg beyond that. self_wash/wash_std bill per load instead of
-// per kg once the load exceeds ~6kg. Mirrors the logic used when the order
-// was priced in NewOrderWizard.
+// Precio de un servicio por peso con tabla de tarifas (weightBrackets): el
+// peso cae en el primer tramo cuyo maxKg lo cubre y se cobra el precio de
+// ESE tramo completo, no una fórmula lineal — así es como está publicada la
+// tarifa física en la sucursal (ver 20260928_wash_dry_tarifa_por_kilos.sql):
+// de 5 a 8 kg el precio sube por kilo, pero de 8 a 8.5 kg salta de golpe
+// porque pasa de "1 carga" a "2 cargas". Arriba del último tramo, seguir
+// sumando extraPerKg por cada kilo adicional (redondeado hacia arriba).
+// Devuelve null si el item no trae tabla de tarifas, para que el llamador
+// caiga al cálculo genérico.
+function priceFromWeightBrackets(item, weight) {
+    const brackets = item.weightBrackets;
+    if (!Array.isArray(brackets) || brackets.length === 0) return null;
+
+    const hit = brackets.find(b => weight <= b.maxKg);
+    if (hit) return hit.price;
+
+    const last = brackets[brackets.length - 1];
+    const extraKg = Math.ceil(weight - last.maxKg);
+    return last.price + extraKg * (item.extraPerKg || 0);
+}
+
+// Precio de un renglón de orden. weightBrackets (si el servicio la trae, p.
+// ej. Lavado y secado) manda sobre cualquier otra regla; si no la trae, se
+// usan las reglas anteriores tal cual estaban.
 export function calculateOrderItemTotal(item) {
     const isWeight = item.type === 'weight';
     const basePrice = item.price || item.basePrice || 0;
@@ -10,6 +30,11 @@ export function calculateOrderItemTotal(item) {
         return basePrice * item.quantity;
     }
 
+    const bracketPrice = priceFromWeightBrackets(item, item.quantity);
+    if (bracketPrice !== null) return bracketPrice;
+
+    // Carga estándar (Lavadora / Secadora de autoservicio): cada ~6 kg es
+    // una carga nueva, se cobra por carga y no por kilo exacto.
     if (item.serviceId === 'self_wash' || item.serviceId === 'wash_std') {
         const numLoads = Math.ceil(item.quantity / 5.999) || 1;
         const avgWeightPerLoad = item.quantity / numLoads;
@@ -20,6 +45,7 @@ export function calculateOrderItemTotal(item) {
         return total;
     }
 
+    // Genérico: precio base hasta baseKg, después extraPrice por kilo.
     if (item.quantity <= (item.baseKg || 5)) {
         return basePrice;
     }
