@@ -14,7 +14,7 @@ export const manualAdmin = {
             id: 'entrar',
             title: 'Entrar al panel',
             blocks: [
-                { type: 'p', text: 'El panel vive en **washouse.app/admin**. Pide el PIN de administrador; la sesión dura mientras el navegador esté abierto.' },
+                { type: 'p', text: 'El panel vive en **washouse.app/admin**. Pide el PIN de administrador; la sesión dura mientras el navegador esté abierto. Para salir antes, usa **Cerrar sesión** al pie del menú: no afecta el turno del mostrador si comparten equipo.' },
                 { type: 'img', src: img('login'), caption: 'Acceso con PIN de administrador.' },
                 {
                     type: 'note', tone: 'warn', title: 'El PIN de administrador abre todo',

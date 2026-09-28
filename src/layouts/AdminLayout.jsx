@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
-import { ChevronDown, ChevronRight, LayoutDashboard, Settings, Users, ClipboardList, FileText, Menu, X, BookOpen } from 'lucide-react';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { ChevronDown, ChevronRight, LayoutDashboard, Settings, Users, ClipboardList, FileText, Menu, X, BookOpen, LogOut } from 'lucide-react';
 import { useInvoice } from '../context/InvoiceContext';
+import { useAuth } from '../context/AuthContext';
 import logo from '../assets/WasHouse CYMK.png';
 
 // Fuera de AdminLayout: declarado adentro, React lo trataba como un componente
@@ -34,6 +35,8 @@ function NavLink({ to, label, icon: Icon, isSubItem = false, badge = 0 }) {
 
 export default function AdminLayout() {
     const location = useLocation();
+    const navigate = useNavigate();
+    const { logoutAdmin } = useAuth();
     const { invoiceRequests } = useInvoice();
     const pendingInvoiceRequests = invoiceRequests.filter(r => r.status === 'pending').length;
 
@@ -146,11 +149,22 @@ export default function AdminLayout() {
                 </nav>
 
                 <div className="p-6 mt-auto">
-                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5 flex items-center gap-3">
-                        <div className="w-9 h-9 bg-washouse-blue/20 rounded-xl flex items-center justify-center text-washouse-blue font-black text-xs">
-                            AD
+                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5 flex flex-col gap-3">
+                        <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 bg-washouse-blue/20 rounded-xl flex items-center justify-center text-washouse-blue font-black text-xs">
+                                AD
+                            </div>
+                            <div className="text-[10px] font-black text-white uppercase tracking-widest">Administrador</div>
                         </div>
-                        <div className="text-[10px] font-black text-white uppercase tracking-widest">Administrador</div>
+                        <button
+                            onClick={() => {
+                                logoutAdmin();
+                                navigate('/admin/login', { replace: true });
+                            }}
+                            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border border-white/10 text-[10px] font-black uppercase tracking-widest text-gray-300 hover:text-white hover:bg-red-500/80 hover:border-red-500/80 transition-colors"
+                        >
+                            <LogOut size={14} /> Cerrar sesión
+                        </button>
                     </div>
                 </div>
             </aside>

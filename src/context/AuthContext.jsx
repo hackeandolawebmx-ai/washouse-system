@@ -130,6 +130,13 @@ export function AuthProvider({ children }) {
         sessionStorage.removeItem('washouse_admin');
     };
 
+    // No toca user ni el turno: en un equipo compartido con el mostrador,
+    // salir del admin no debe sacar a quien tiene la caja abierta.
+    const logoutAdmin = () => {
+        setAdminUser(false);
+        sessionStorage.removeItem('washouse_admin');
+    };
+
     const value = React.useMemo(() => ({
         user,
         currentShift,
@@ -138,6 +145,7 @@ export function AuthProvider({ children }) {
         loginAdmin,
         loginHost,
         logout,
+        logoutAdmin,
         isAuthenticated: !!user,
         isAdmin: !!adminUser,
         isShiftOpen: !!currentShift,
