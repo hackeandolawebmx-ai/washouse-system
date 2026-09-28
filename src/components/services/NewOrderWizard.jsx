@@ -433,7 +433,10 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
                                     <span className="text-2xl group-hover:scale-110 transition-transform bg-gray-50/50 p-2 rounded-xl border border-gray-100/50">{item.icon}</span>
                                     <div className="leading-tight flex-1 min-w-0 pr-4">
                                         <div className="font-bold text-gray-800 text-xs truncate mb-0.5">{item.name}</div>
-                                        <div className="font-black text-washouse-blue text-[13px]">{formatCurrency(item.price)}</div>
+                                        <div className="font-black text-washouse-blue text-[13px]">
+                                            {item.weightBrackets?.length > 0 && <span className="text-gray-400 text-[10px] mr-1">Desde</span>}
+                                            {formatCurrency(item.price)}
+                                        </div>
                                     </div>
                                     <div className="absolute right-3 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <div className="bg-washouse-blue text-white p-1 rounded-full"><ArrowRight size={10} /></div>

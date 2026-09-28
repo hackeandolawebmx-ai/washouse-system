@@ -28,6 +28,14 @@ const mapService = (s) => ({
     price: s.price
 });
 
+// Postgres no garantiza el orden de las filas (un update puede mandar un
+// servicio al final), así que los más usados se fijan arriba aquí.
+const PINNED_SERVICE_IDS = ['wash_dry', 'self_wash', 'self_dry'];
+const pinMainServicesFirst = (list) => [
+    ...PINNED_SERVICE_IDS.map(id => list.find(s => s.id === id)).filter(Boolean),
+    ...list.filter(s => !PINNED_SERVICE_IDS.includes(s.id))
+];
+
 const mapShift = (s) => ({
     id: s.id,
     branchId: s.branch_id,
@@ -67,7 +75,7 @@ export function SalesProvider({ children }) {
             if (servicesRes.error) {
                 console.error('Error fetching services:', servicesRes.error);
             } else if (servicesRes.data?.length) {
-                setServices(servicesRes.data.map(mapService));
+                setServices(pinMainServicesFirst(servicesRes.data.map(mapService)));
             } else {
                 console.warn('Tabla services vacía; usando el catálogo local como respaldo.');
                 setServices(SERVICES_CATALOG);
