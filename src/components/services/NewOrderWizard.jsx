@@ -26,6 +26,7 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
             setItems([]);
             setPayment({ advance: 0, method: 'cash' });
             setOtherService({ description: '', price: '' });
+            setPayLater(false);
             setCreatedOrder(null);
             setRequiresInvoice(false);
             setSelectedMachineId(machineId);
@@ -47,6 +48,10 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
     const [items, setItems] = useState([]);
     const [payment, setPayment] = useState({ advance: 0, method: 'cash' });
     const [otherService, setOtherService] = useState({ description: '', price: '' });
+    const [payLater, setPayLater] = useState(false);
+    // Solo los encargos de mostrador pueden quedar sin anticipo: con máquina
+    // asignada el equipo no arranca sin el 100%.
+    const isPayLater = payLater && !selectedMachineId;
 
     // Filter & Search State
     const [selectedCategory, setSelectedCategory] = useState('all');
@@ -635,7 +640,11 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
                         <div>
                             <div className="text-[10px] font-black text-washouse-blue uppercase tracking-widest">Pago Requerido</div>
                             <div className="text-sm font-bold text-washouse-navy">
-                                {selectedMachineId ? 'Se requiere el 100% para habilitar el equipo' : 'Se requiere al menos 50% de anticipo'}
+                                {selectedMachineId
+                                    ? 'Se requiere el 100% para habilitar el equipo'
+                                    : isPayLater
+                                        ? 'Sin anticipo: el total se cobra al entregar'
+                                        : 'Se requiere al menos 50% de anticipo'}
                             </div>
                         </div>
                     </div>
@@ -646,6 +655,33 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
                     animate={{ opacity: 1, x: 0 }}
                     className="space-y-6 pl-4 md:border-l-2 md:border-dashed md:border-gray-100"
                 >
+                    {!selectedMachineId && (
+                        <button
+                            type="button"
+                            onClick={() => setPayLater(v => !v)}
+                            className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all text-left ${isPayLater
+                                ? 'bg-amber-50 border-amber-500 ring-4 ring-amber-100'
+                                : 'bg-white border-gray-100 hover:border-gray-200'
+                                }`}
+                        >
+                            <span className="text-xl">⏳</span>
+                            <div className="flex-1 min-w-0">
+                                <div className="text-sm font-black text-washouse-navy leading-tight">Pago pendiente</div>
+                                <div className="text-[11px] font-bold text-gray-400">No deja anticipo; paga todo al recoger</div>
+                            </div>
+                            <div className={`w-12 h-7 rounded-full p-1 shrink-0 transition-colors ${isPayLater ? 'bg-amber-500' : 'bg-gray-200'}`}>
+                                <div className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${isPayLater ? 'translate-x-5' : ''}`} />
+                            </div>
+                        </button>
+                    )}
+
+                    {isPayLater ? (
+                        <div className="p-5 rounded-2xl bg-amber-50/60 border border-amber-100 space-y-1">
+                            <div className="text-[10px] font-black text-amber-700 uppercase tracking-widest">Saldo por cobrar al entregar</div>
+                            <div className="text-3xl font-black text-washouse-navy tracking-tighter">{formatCurrency(totals.total)}</div>
+                            <div className="text-xs font-bold text-gray-500">No se registra ningún cobro ahora. La orden no se puede pasar a Terminado sin liquidar.</div>
+                        </div>
+                    ) : (<>
                     <div className="space-y-2">
                         <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Monto Recibido</label>
                         <div className="relative group">
@@ -703,6 +739,7 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
                             </button>
                         </div>
                     </div>
+                    </>)}
                 </motion.div>
             </div>
         </div>
@@ -712,8 +749,8 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
         if (!customer.name || !customer.phone) return alert('Datos de cliente incompletos');
         if (items.length === 0) return alert('Orden vacía');
 
-        const advance = parseFloat(payment.advance);
-        const minAdvance = selectedMachineId ? totals.total : (totals.total * 0.5);
+        const advance = isPayLater ? 0 : parseFloat(payment.advance);
+        const minAdvance = selectedMachineId ? totals.total : isPayLater ? 0 : (totals.total * 0.5);
 
         if (isNaN(advance) || advance < minAdvance) {
             return alert(`El pago mínimo requerido es de ${formatCurrency(minAdvance)}`);
@@ -727,7 +764,7 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
             totalAmount: totals.total,
             advancePayment: advance,
             balanceDue: Math.max(0, totals.total - advance),
-            paymentMethod: payment.method,
+            paymentMethod: isPayLater ? null : payment.method,
             branchId: deviceBranchId,
             machineId: selectedMachineId,
             requiresInvoice
@@ -740,7 +777,7 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
     const renderSuccessStep = () => {
         if (!createdOrder) return null;
         const branchName = branches.find(b => b.id === deviceBranchId)?.name || 'Washouse';
-        const waLink = `https://wa.me/52${createdOrder.customerPhone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${createdOrder.customerName}, tu orden *${createdOrder.id}* ha sido recibida en *${branchName}*. Pago Total: ${formatCurrency(createdOrder.totalAmount)}. ¡Gracias por tu preferencia!`)}`;
+        const waLink = `https://wa.me/52${createdOrder.customerPhone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${createdOrder.customerName}, tu orden *${createdOrder.id}* ha sido recibida en *${branchName}*. Total: ${formatCurrency(createdOrder.totalAmount)}${createdOrder.balanceDue > 0 ? `, saldo pendiente: ${formatCurrency(createdOrder.balanceDue)}` : ''}. ¡Gracias por tu preferencia!`)}`;
 
         return (
             <div className="flex flex-col items-center justify-center h-full text-center space-y-8 py-10">

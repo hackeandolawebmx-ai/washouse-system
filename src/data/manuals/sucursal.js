@@ -98,7 +98,8 @@ export const manualSucursal = {
                     head: ['Tipo de orden', 'Mínimo que tienes que cobrar'],
                     rows: [
                         ['Con máquina asignada', '**100%** — la máquina no arranca con menos'],
-                        ['De mostrador (encargo)', '**50%** de anticipo']
+                        ['De mostrador (encargo)', '**50%** de anticipo'],
+                        ['De mostrador con **Pago pendiente**', '**Nada** al recibir — el total se cobra antes de pasarla a Terminado']
                     ]
                 },
                 { type: 'img', src: img('orden-pago'), caption: 'Sin factura: el cliente paga el precio de lista.' },
