@@ -127,11 +127,11 @@ export const manualSucursal = {
                     type: 'steps',
                     items: [
                         { title: 'Mientras lava', text: 'La lavadora dice "Al terminar pasa a secadora". La secadora sigue libre para otros clientes.' },
-                        { title: 'Al terminar el lavado', text: 'Arranca una secadora sola. La lavadora dice "Pasa la ropa a D9" (o la que haya tocado). Pasa la ropa y luego toca Liberar equipo en la lavadora.' },
+                        { title: 'Al terminar el lavado', text: 'Arranca una secadora sola. La lavadora dice "Pasa la ropa a S9" (o la que haya tocado). Pasa la ropa y luego toca Liberar equipo en la lavadora.' },
                         { title: 'Si no hay secadora libre', text: 'La lavadora dice "Esperando secadora libre". En cuanto liberes una secadora, el secado arranca solo en ella.' }
                     ]
                 },
-                { type: 'img', src: img('lavado-secado'), caption: 'W2 terminó de lavar: la ropa pasa a D9, que ya está secando.' },
+                { type: 'img', src: img('lavado-secado'), caption: 'L2 terminó de lavar: la ropa pasa a S9, que ya está secando.' },
                 {
                     type: 'note', tone: 'warn', title: 'No liberes una lavadora con secado pendiente',
                     text: 'Si liberas una lavadora que todavía espera secadora, el sistema te lo advierte: el secado ya no arrancaría solo.'

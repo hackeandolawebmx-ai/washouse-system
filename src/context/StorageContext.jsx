@@ -102,7 +102,7 @@ function CombinedStorageProvider({ children }) {
             let pendingDry = null;
             if (targetMachine && targetMachine.type === 'lavadora' && hasDry) {
                 // Las sucursales no comparten un desfase fijo lavadora→secadora
-                // (Mitras/Guadalupe son W1-6/D7-12, Semillero W1-10/D11-20), así que
+                // (Mitras/Guadalupe son L1-6/S7-12, Semillero L1-10/S11-20), así que
                 // se empareja por posición: la N-ésima lavadora con la N-ésima
                 // secadora. Es solo preferencia: si al terminar el lavado esa
                 // secadora está ocupada, la cola toma cualquier otra libre.

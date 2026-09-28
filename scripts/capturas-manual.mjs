@@ -47,10 +47,10 @@ const staff = [
 const mkMachine = (n, type, status = 'available', time_left = 0) =>
     ({ id: `vh_${n.toLowerCase()}`, branch_id: BRANCH, name: n, type, status, time_left });
 const machines = [
-    mkMachine('W1', 'lavadora', 'running', 22), mkMachine('W2', 'lavadora'), mkMachine('W3', 'lavadora'),
-    mkMachine('W4', 'lavadora', 'maintenance'), mkMachine('W5', 'lavadora'), mkMachine('W6', 'lavadora'),
-    mkMachine('D7', 'secadora', 'running', 8), mkMachine('D8', 'secadora', 'finished'), mkMachine('D9', 'secadora'),
-    mkMachine('D10', 'secadora'), mkMachine('D11', 'secadora'), mkMachine('D12', 'secadora')
+    mkMachine('L1', 'lavadora', 'running', 22), mkMachine('L2', 'lavadora'), mkMachine('L3', 'lavadora'),
+    mkMachine('L4', 'lavadora', 'maintenance'), mkMachine('L5', 'lavadora'), mkMachine('L6', 'lavadora'),
+    mkMachine('S7', 'secadora', 'running', 8), mkMachine('S8', 'secadora', 'finished'), mkMachine('S9', 'secadora'),
+    mkMachine('S10', 'secadora'), mkMachine('S11', 'secadora'), mkMachine('S12', 'secadora')
 ];
 const localMachineState = machines.map(m => ({
     id: m.id, branchId: BRANCH, name: m.name, type: m.type, status: m.status, timeLeft: m.time_left,
@@ -240,7 +240,7 @@ async function manualSucursal(browser) {
     await page.getByRole('button', { name: /Volver al Tablero/ }).click();
 
     // --- Lavado y secado en una lavadora, hasta que pasa a secadora
-    await tarjeta(page, 'W2').getByRole('button', { name: /Comenzar ciclo/i }).click();
+    await tarjeta(page, 'L2').getByRole('button', { name: /Comenzar ciclo/i }).click();
     await page.getByText('Datos del Cliente').waitFor();
     await page.locator('input[placeholder="Ej. Juan Pérez"]').fill('Paola Garza');
     await page.locator('input[placeholder="Ej. 811 123 4567"]').fill('8117778899');
@@ -253,7 +253,7 @@ async function manualSucursal(browser) {
     await page.getByRole('button', { name: /Volver al Tablero/ }).click();
     await page.waitForTimeout(600);
 
-    await tarjeta(page, 'W2').getByRole('button', { name: /Gestionar/ }).click();
+    await tarjeta(page, 'L2').getByRole('button', { name: /Gestionar/ }).click();
     await page.getByRole('button', { name: /Forzar Terminado/ }).click();
     await page.waitForTimeout(900);
     const grid = await page.locator('div.grid').first().boundingBox();

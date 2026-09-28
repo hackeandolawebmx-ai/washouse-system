@@ -19,7 +19,7 @@ export const DRY_CYCLE_MINUTES = 30;
 const machineNumber = (m) => parseInt(m.name?.match(/\d+/)?.[0] || '0', 10);
 
 /**
- * Prefiere la secadora emparejada por posición con la lavadora (W1→D7, …) si
+ * Prefiere la secadora emparejada por posición con la lavadora (L1→S7, …) si
  * está libre; si no, la primera secadora libre de la sucursal.
  */
 function pickDryer(machines, washer) {
