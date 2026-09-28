@@ -342,6 +342,10 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
                     </div>
                 ))}
             </div>
+            <div className="mt-3 pt-3 border-t border-gray-200 flex items-baseline justify-between">
+                <span className="text-xs font-black text-gray-500 uppercase tracking-widest">Subtotal</span>
+                <span className="text-xl font-black text-washouse-navy tabular-nums">{formatCurrency(totals.subtotal)}</span>
+            </div>
         </div>
     );
 
