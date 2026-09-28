@@ -58,9 +58,12 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
     const [searchQuery, setSearchQuery] = useState('');
 
     const supplies = useMemo(() => {
-        const branchIds = [deviceBranchId, 'main', ''].filter(Boolean);
-        const baseSupplies = (inventory || [])
-            .filter(p => branchIds.includes(p.branchId))
+        // Cada sucursal tiene sus propias filas de inventario (copias del
+        // catálogo); 'main' es solo el respaldo. Mostrar ambas duplicaba cada
+        // insumo en pantalla.
+        const all = inventory || [];
+        const ownRows = all.filter(p => p.branchId === deviceBranchId);
+        const baseSupplies = (ownRows.length > 0 ? ownRows : all.filter(p => !p.branchId || p.branchId === 'main'))
             .map(p => ({
                 ...p,
                 category: 'products',

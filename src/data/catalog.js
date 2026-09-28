@@ -56,16 +56,16 @@ export const SERVICE_LEVELS = [
 ];
 
 export const PRODUCTS_CATALOG = [
-    { id: 'detergent_powder', name: 'Detergente polvo', price: 10, stock: 50, icon: '🧼' },
-    { id: 'detergent_liquid', name: 'Detergente líquido', price: 18, stock: 30, icon: '🧴' },
-    { id: 'softener', name: 'Suavizante', price: 12, stock: 100, icon: '🌸' },
-    { id: 'bleach', name: 'Cloro', price: 10, stock: 60, icon: '🧴' },
-    { id: 'pino', name: 'Pino', price: 10, stock: 45, icon: '🌲' },
+    { id: 'detergent_powder', name: 'Detergente polvo', price: 15, stock: 50, icon: '🧼' },
+    { id: 'detergent_liquid', name: 'Detergente líquido', price: 15, stock: 30, icon: '🧴' },
+    { id: 'softener', name: 'Suavizante', price: 15, stock: 100, icon: '🌸' },
+    { id: 'bleach', name: 'Cloro', price: 6, stock: 60, icon: '🧴' },
+    { id: 'pino', name: 'Pino', price: 8, stock: 45, icon: '🌲' },
     { id: 'wipe', name: 'Toallita', price: 10, stock: 100, icon: '✨' },
-    { id: 'starch', name: 'Almidón', price: 12, stock: 20, icon: '💨' },
-    { id: 'hanger', name: 'Gancho', price: 8, stock: 200, icon: '🧥' },
+    { id: 'starch', name: 'Almidón', price: 8, stock: 20, icon: '💨' },
+    { id: 'hanger', name: 'Gancho', price: 10, stock: 200, icon: '🧥' },
     { id: 'bag', name: 'Bolsa', price: 10, stock: 300, icon: '🛍️' },
-    { id: 'stain_remover', name: 'Quitamanchas', price: 18, stock: 20, icon: '✨' },
+    { id: 'stain_remover', name: 'Vanish', price: 10, stock: 20, icon: '✨' },
 ];
 
 export const PAYMENT_METHODS = [
