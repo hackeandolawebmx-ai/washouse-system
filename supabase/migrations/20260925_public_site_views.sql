@@ -26,8 +26,8 @@ update branches
 set
   is_public = true,
   phone     = '81 1788 0335',
-  hours     = 'Lunes a sábado de 8:00 a 20:00 · Domingo de 9:00 a 15:00',
-  maps_url  = 'https://maps.google.com/?q=Washouse+Vista+Hermosa+Monterrey'
+  hours     = 'Lunes a sábado de 9:00 a 20:00 · Domingo de 9:00 a 19:00',
+  maps_url  = 'https://maps.app.goo.gl/whkn1zx2Mt3QFnUKA'
 where id = 'vista_hermosa';
 
 -- El renglón de respaldo nunca se publica.
