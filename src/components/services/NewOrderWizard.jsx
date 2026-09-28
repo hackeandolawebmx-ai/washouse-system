@@ -38,7 +38,7 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
     }, [step]);
 
     // Scale Logic
-    const { isSupported, isConnected, weight: scaleWeight, connect: connectScale, error: scaleError, simulateConnection } = useScale();
+    const { isSupported, isConnected, weight: scaleWeight, connect: connectScale, error: scaleError } = useScale();
 
     // Form State
     const [customer, setCustomer] = useState({ name: '', phone: '' });
@@ -130,6 +130,15 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
 
             return newItems;
         });
+    };
+
+    // Paso de los botones +/- junto al campo de peso/cantidad: 100 g para
+    // peso, una pieza para unidades. Redondeado a 1 decimal porque la resta
+    // en punto flotante de JS deja arrastres como 6.4 - 0.1 = 6.300000000000001,
+    // que se vería tal cual en la pantalla del mostrador.
+    const nudgeQuantity = (item, direction) => {
+        const delta = (item.type === 'weight' ? 0.1 : 1) * direction;
+        return Math.round((item.quantity + delta) * 10) / 10;
     };
 
     const updateQuantity = (index, value) => {
@@ -283,9 +292,30 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
                         </div>
                         <div className="flex items-center gap-1">
                             <div className="flex items-center bg-gray-50 rounded-lg p-0.5">
-                                <button onClick={() => updateQuantity(idx, item.quantity - 1)} className="w-6 h-6 flex items-center justify-center font-bold hover:bg-white rounded text-gray-600">-</button>
-                                <span className="w-6 text-center font-bold text-sm text-gray-800">{item.quantity}</span>
-                                <button onClick={() => updateQuantity(idx, item.quantity + 1)} className="w-6 h-6 flex items-center justify-center font-bold hover:bg-white rounded text-gray-600">+</button>
+                                <button
+                                    onClick={() => updateQuantity(idx, nudgeQuantity(item, -1))}
+                                    className="w-6 h-6 flex items-center justify-center font-bold hover:bg-white rounded text-gray-600"
+                                >
+                                    -
+                                </button>
+                                <input
+                                    id={`item-qty-${idx}`}
+                                    type="number"
+                                    inputMode="decimal"
+                                    min="0"
+                                    step={item.type === 'weight' ? '0.1' : '1'}
+                                    value={item.quantity}
+                                    onChange={(e) => updateQuantity(idx, e.target.value)}
+                                    onFocus={(e) => e.target.select()}
+                                    title={item.type === 'weight' ? 'Peso exacto de la báscula, en kg' : 'Cantidad de piezas'}
+                                    className="w-14 text-center font-bold text-sm text-gray-800 bg-white rounded border border-gray-200 focus:outline-none focus:ring-2 focus:ring-washouse-blue/30 focus:border-washouse-blue px-1 py-0.5"
+                                />
+                                <button
+                                    onClick={() => updateQuantity(idx, nudgeQuantity(item, 1))}
+                                    className="w-6 h-6 flex items-center justify-center font-bold hover:bg-white rounded text-gray-600"
+                                >
+                                    +
+                                </button>
                             </div>
                             <div className="font-bold text-washouse-blue w-16 text-right text-sm">
                                 {formatCurrency(calculateItemTotal(item))}
@@ -330,7 +360,6 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
                                 <Usb size={18} /> {isConnected ? 'Báscula Lista' : 'Conectar Báscula'}
                             </button>
                         )}
-                        {!isConnected && <button onClick={simulateConnection} className="text-[10px] font-black uppercase tracking-widest text-blue-500 hover:text-blue-700 bg-blue-50 px-2 py-1 rounded">Demo</button>}
                     </div>
                 </div>
             </div>

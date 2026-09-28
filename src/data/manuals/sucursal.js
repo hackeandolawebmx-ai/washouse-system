@@ -113,7 +113,7 @@ export const manualSucursal = {
                     items: [
                         '**Lavadora y lavado estándar:** cada 6 kg cuenta como una carga nueva. Si el promedio por carga pasa de 5 kg, se agrega el cargo extra.',
                         '**Los demás servicios por kilo:** precio base hasta 5 kg, y después el extra por cada kilo adicional.',
-                        'Si hay báscula conectada, el peso entra solo. Si no, escríbelo en el resumen.'
+                        'Por ahora el peso se captura a mano: pesa la carga en tu báscula de piso y escribe ese número en el recuadro junto al servicio, en el resumen de la derecha (acepta decimales, como 6.4). Los botones **−** y **+** ajustan de 100 en 100 gramos si solo necesitas un ajuste fino.'
                     ]
                 }
             ]
