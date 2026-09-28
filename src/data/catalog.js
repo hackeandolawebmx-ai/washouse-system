@@ -30,8 +30,8 @@ export const SERVICES_CATALOG = [
         extraPerKg: 30,
         icon: '🧺'
     },
-    { id: 'self_wash', name: 'Lavadora', price: 50, category: 'self_service', type: 'weight', baseKg: 5, extraPrice: 10, icon: '🧼' },
-    { id: 'self_dry', name: 'Secadora', price: 50, category: 'self_service', type: 'weight', baseKg: 5, extraPrice: 10, icon: '💨' },
+    { id: 'self_wash', name: 'Lavadora', price: 60, category: 'self_service', type: 'weight', baseKg: 5, extraPrice: 10, icon: '🧼' },
+    { id: 'self_dry', name: 'Secadora', price: 60, category: 'self_service', type: 'weight', baseKg: 5, extraPrice: 10, icon: '💨' },
 
     // Edredones
     { id: 'duvet_s', name: 'Edredón individual', price: 150, category: 'special', type: 'unit', icon: '🛏️' },
@@ -39,8 +39,8 @@ export const SERVICES_CATALOG = [
     { id: 'duvet_l_k', name: 'Edredón King', price: 235, category: 'special', type: 'unit', icon: '👑' },
 
     // Planchado
-    { id: 'iron_piece', name: 'Pieza', price: 18, category: 'iron', type: 'unit', icon: '👕' },
-    { id: 'iron_dozen', name: 'Docena', price: 180, category: 'iron', type: 'unit', icon: '♨️' },
+    { id: 'iron_piece', name: 'Planchado por pieza', price: 20, category: 'iron', type: 'unit', icon: '👕' },
+    { id: 'iron_dozen', name: 'Planchado por docena', price: 180, category: 'iron', type: 'unit', icon: '♨️' },
     { id: 'iron_jeans', name: 'Mezclilla', price: 30, category: 'iron', type: 'unit', icon: '👖' },
 
     // Compostura

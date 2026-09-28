@@ -72,7 +72,7 @@ const clientes = [
     ['Rosa Elena Montoya', '8114445566'], ['Paola Garza', '8117778899'], ['Ricardo Salinas', '8113332211'],
     ['Daniela Villarreal', '8116665544'], ['Héctor Leal', '8118887766']
 ];
-const servicios = [['wash_dry', 'Lavado y secado', 150, 'weight'], ['iron_dozen', 'Docena', 180, 'unit'], ['duvet_m', 'Edredón matrimonial', 190, 'unit'], ['self_wash', 'Lavadora', 50, 'weight'], ['fix_hem', 'Bastilla', 80, 'unit']];
+const servicios = [['wash_dry', 'Lavado y secado', 150, 'weight'], ['iron_dozen', 'Planchado por docena', 180, 'unit'], ['duvet_m', 'Edredón matrimonial', 190, 'unit'], ['self_wash', 'Lavadora', 50, 'weight'], ['fix_hem', 'Bastilla', 80, 'unit']];
 
 const orders = [];
 const sales = [];
@@ -220,7 +220,7 @@ async function manualSucursal(browser) {
     await page.getByRole('button', { name: /Siguiente/ }).click();
     await page.getByText('Seleccionar Servicios').waitFor();
     await page.getByRole('button', { name: /Lavado y secado/ }).first().click();
-    await page.getByRole('button', { name: /Pieza/ }).first().click();
+    await page.getByRole('button', { name: /Planchado por pieza/ }).first().click();
     await shot(page, 'orden-servicios');
 
     await page.getByRole('button', { name: /Siguiente/ }).click();

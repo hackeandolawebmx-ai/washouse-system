@@ -31,8 +31,8 @@ insert into services (id, name, category, price, metadata) values
   ('duvet_l_k',  'Edredón King',         'special',      235, '{"type":"unit","icon":"👑"}'),
 
   -- Planchado
-  ('iron_piece', 'Pieza',                'iron',          18, '{"type":"unit","icon":"👕"}'),
-  ('iron_dozen', 'Docena',               'iron',         180, '{"type":"unit","icon":"♨️"}'),
+  ('iron_piece', 'Planchado por pieza',  'iron',          20, '{"type":"unit","icon":"👕"}'),
+  ('iron_dozen', 'Planchado por docena', 'iron',         180, '{"type":"unit","icon":"♨️"}'),
   ('iron_jeans', 'Mezclilla',            'iron',          30, '{"type":"unit","icon":"👖"}'),
 
   -- Compostura
