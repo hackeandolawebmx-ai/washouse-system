@@ -19,7 +19,7 @@ const CATEGORIAS = [
     },
     {
         id: 'special',
-        titulo: 'Edredones y cubre colchones',
+        titulo: 'Edredones, cubre colchones y almohadas',
         descripcion: 'Lo que no cabe en tu lavadora de casa. Precio por pieza.',
         icono: Wind
     },

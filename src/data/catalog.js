@@ -43,6 +43,12 @@ export const SERVICES_CATALOG = [
     { id: 'mattress_m', name: 'Cubre colchón matrimonial', price: 280, category: 'special', type: 'unit', icon: '🛌' },
     { id: 'mattress_l_k', name: 'Cubre colchón King o Queen', price: 350, category: 'special', type: 'unit', icon: '🛌' },
 
+    // Almohadas
+    { id: 'pillow_s', name: 'Almohada chica', price: 50, category: 'special', type: 'unit', icon: '☁️' },
+    { id: 'pillow_m', name: 'Almohada mediana', price: 75, category: 'special', type: 'unit', icon: '☁️' },
+    { id: 'pillow_l', name: 'Almohada grande', price: 100, category: 'special', type: 'unit', icon: '☁️' },
+    { id: 'pillow_xl', name: 'Almohada extragrande', price: 130, category: 'special', type: 'unit', icon: '☁️' },
+
     // Planchado
     { id: 'iron_piece', name: 'Planchado por pieza', price: 20, category: 'iron', type: 'unit', icon: '👕' },
     { id: 'iron_dozen', name: 'Planchado por docena', price: 180, category: 'iron', type: 'unit', icon: '♨️' },

@@ -35,6 +35,12 @@ insert into services (id, name, category, price, metadata) values
   ('mattress_m',   'Cubre colchón matrimonial',  'special', 280, '{"type":"unit","icon":"🛌"}'),
   ('mattress_l_k', 'Cubre colchón King o Queen', 'special', 350, '{"type":"unit","icon":"🛌"}'),
 
+  -- Almohadas
+  ('pillow_s',  'Almohada chica',       'special',  50, '{"type":"unit","icon":"☁️"}'),
+  ('pillow_m',  'Almohada mediana',     'special',  75, '{"type":"unit","icon":"☁️"}'),
+  ('pillow_l',  'Almohada grande',      'special', 100, '{"type":"unit","icon":"☁️"}'),
+  ('pillow_xl', 'Almohada extragrande', 'special', 130, '{"type":"unit","icon":"☁️"}'),
+
   -- Planchado
   ('iron_piece', 'Planchado por pieza',  'iron',          20, '{"type":"unit","icon":"👕"}'),
   ('iron_dozen', 'Planchado por docena', 'iron',         180, '{"type":"unit","icon":"♨️"}'),
@@ -47,7 +53,7 @@ insert into services (id, name, category, price, metadata) values
   ('fix_express','Servicio express',     'fixing',        40, '{"type":"unit","icon":"✨"}')
 on conflict (id) do nothing;
 
--- Verificación: 16 renglones base, más los personalizados que existan.
+-- Verificación: 20 renglones base, más los personalizados que existan.
 select category, count(*) as servicios, min(price) as desde, max(price) as hasta
 from services
 group by category
