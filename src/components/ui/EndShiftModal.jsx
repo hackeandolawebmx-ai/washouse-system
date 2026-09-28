@@ -216,7 +216,14 @@ export default function EndShiftModal({ isOpen, onClose }) {
                     <Button variant="ghost" onClick={onClose}>
                         {isConfirming ? 'Atrás' : 'Cancelar'}
                     </Button>
-                    <Button variant="secondary" onClick={() => printShiftTicket({ ...shiftSummary, finalCash, difference })}>
+                    <Button variant="secondary" onClick={() => printShiftTicket({
+                        ...shiftSummary,
+                        finalCash,
+                        difference,
+                        startTime: currentShift.startTime,
+                        endedAt: new Date().toISOString(),
+                        closedBy: user?.name
+                    })}>
                         <Printer className="w-4 h-4 mr-2" />
                         Imprimir
                     </Button>

@@ -85,8 +85,8 @@ export const manualSucursal = {
                     items: [
                         { title: 'Cliente: nombre y teléfono, los dos obligatorios.', text: 'El teléfono es el que se usa para avisarle por WhatsApp. Escríbelo completo, a 10 dígitos.' },
                         { title: 'Servicios: búscalos o filtra por categoría, y tócalos para agregarlos.', text: 'En el resumen de la derecha ajustas cantidades o kilos y quitas renglones. Arriba eliges Mostrador o una máquina libre.' },
-                        { title: 'Insumos: productos sueltos que se lleva el cliente.', text: 'Si no lleva nada, pasa de largo. Las existencias se descuentan solas.' },
-                        { title: 'Pago: pregunta si requiere factura, captura el monto y el método.' },
+                        { title: 'Insumos: productos sueltos que se lleva el cliente.', text: 'Si no lleva nada, pasa de largo. Las existencias se descuentan solas. Para algo que no está en el menú, usa **Otros servicios**: escribe qué es y el precio que acordaste, y toca Agregar.' },
+                        { title: 'Pago: pregunta si requiere factura, captura el monto y el método (efectivo, tarjeta o transferencia).', text: 'Con transferencia, confirma que el dinero ya llegó a la cuenta antes de registrar la orden.' },
                         { title: 'Entrega el folio: imprime el ticket del cliente y el del negocio, y manda el WhatsApp.', text: 'El cliente necesita el folio para pedir su factura después.' }
                     ]
                 },
@@ -191,13 +191,13 @@ export const manualSucursal = {
             title: 'Corte de turno',
             blocks: [
                 { type: 'p', text: 'Botón de salida, arriba a la derecha. El sistema calcula cuánto efectivo debería haber:' },
-                { type: 'note', tone: 'info', title: 'Efectivo esperado', text: '**Fondo inicial + Ventas en efectivo − Gastos**. Las ventas con tarjeta se listan aparte y no cuentan.' },
+                { type: 'note', tone: 'info', title: 'Efectivo esperado', text: '**Fondo inicial + Ventas en efectivo − Gastos**. Las ventas con tarjeta y con transferencia se listan aparte y no cuentan.' },
                 {
                     type: 'steps',
                     items: [
                         { title: 'Cuenta el dinero físico y captúralo en "Declarar Efectivo en Caja".' },
                         { title: 'Revisa la diferencia.', text: 'Verde si cuadra, amarillo si no. Si no cuadra, cuenta otra vez antes de cerrar.' },
-                        { title: 'Imprime el comprobante y déjalo con el dinero.' },
+                        { title: 'Imprime el comprobante: salen dos copias.', text: 'La "copia negocio" se queda con el dinero; la "copia responsable" es para quien entregó el turno. Las dos se firman.' },
                         { title: 'Cierra el turno y confirma con "Sí, Cerrar Turno".' }
                     ]
                 },

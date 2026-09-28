@@ -25,6 +25,7 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
             setCustomer({ name: '', phone: '' });
             setItems([]);
             setPayment({ advance: 0, method: 'cash' });
+            setOtherService({ description: '', price: '' });
             setCreatedOrder(null);
             setRequiresInvoice(false);
             setSelectedMachineId(machineId);
@@ -45,6 +46,7 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
     const [customer, setCustomer] = useState({ name: '', phone: '' });
     const [items, setItems] = useState([]);
     const [payment, setPayment] = useState({ advance: 0, method: 'cash' });
+    const [otherService, setOtherService] = useState({ description: '', price: '' });
 
     // Filter & Search State
     const [selectedCategory, setSelectedCategory] = useState('all');
@@ -137,6 +139,23 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
 
             return newItems;
         });
+    };
+
+    // Id fijo (no el de un producto del inventario) para que no descuente
+    // existencias y para que los reportes agrupen todos los "otros servicios".
+    const addOtherService = () => {
+        const description = otherService.description.trim();
+        const price = parseFloat(otherService.price);
+        if (!description) return alert('Escribe el detalle del servicio');
+        if (isNaN(price) || price <= 0) return alert('Escribe un precio mayor a $0');
+        setItems(prev => [...prev, {
+            serviceId: 'otro_servicio',
+            quantity: 1,
+            basePrice: price,
+            name: `Otro servicio: ${description}`,
+            type: 'unit'
+        }]);
+        setOtherService({ description: '', price: '' });
     };
 
     // Paso de los botones +/- junto al campo de peso/cantidad: 100 g para
@@ -455,6 +474,51 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
                             <span>🧴</span> Menú de Insumos
                         </span>
                     </div>
+                    <div
+                        className="mb-4 p-3 border-2 border-dashed border-gray-200 rounded-2xl bg-white flex flex-col sm:flex-row sm:items-end gap-3"
+                        onKeyDown={(e) => {
+                            if (e.key !== 'Enter') return;
+                            e.preventDefault();
+                            e.stopPropagation();
+                            addOtherService();
+                        }}
+                    >
+                        <div className="flex-1 min-w-0">
+                            <label htmlFor="other-service-description" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">🛠️ Otros servicios · detalle</label>
+                            <input
+                                id="other-service-description"
+                                type="text"
+                                value={otherService.description}
+                                onChange={(e) => setOtherService(s => ({ ...s, description: e.target.value }))}
+                                placeholder="Ej. Lavado de tenis, teñido, costura especial"
+                                className="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium outline-none focus:bg-white focus:border-washouse-blue focus:ring-4 ring-washouse-blue/10"
+                            />
+                        </div>
+                        <div className="sm:w-32">
+                            <label htmlFor="other-service-price" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Precio</label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">$</span>
+                                <input
+                                    id="other-service-price"
+                                    type="number"
+                                    inputMode="decimal"
+                                    min="0"
+                                    step="any"
+                                    value={otherService.price}
+                                    onChange={(e) => setOtherService(s => ({ ...s, price: e.target.value }))}
+                                    placeholder="0.00"
+                                    className="w-full pl-7 pr-3 py-2 bg-gray-50 border border-gray-100 rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-washouse-blue focus:ring-4 ring-washouse-blue/10"
+                                />
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={addOtherService}
+                            className="px-4 py-2 rounded-xl bg-washouse-blue text-white text-xs font-black uppercase tracking-widest hover:bg-washouse-navy transition-colors"
+                        >
+                            Agregar
+                        </button>
+                    </div>
                     <div className="flex-1 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 content-start pr-1 custom-scrollbar">
                         <AnimatePresence>
                             {supplies.map(item => (
@@ -629,6 +693,13 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
                             >
                                 <span className="text-xl">💳</span>
                                 <span className="font-black text-[10px] uppercase tracking-widest">Tarjeta</span>
+                            </button>
+                            <button
+                                onClick={() => setPayment({ ...payment, method: 'transfer' })}
+                                className={`flex-1 p-4 rounded-2xl border-2 flex flex-col items-center gap-1.5 transition-all ${payment.method === 'transfer' ? 'bg-purple-50 border-purple-500 text-purple-700 ring-4 ring-purple-100 shadow-md' : 'bg-white border-gray-100 hover:border-gray-300 text-gray-400'}`}
+                            >
+                                <span className="text-xl">🏦</span>
+                                <span className="font-black text-[10px] uppercase tracking-widest text-center leading-tight">Transferencia</span>
                             </button>
                         </div>
                     </div>

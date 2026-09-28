@@ -109,9 +109,9 @@ export async function createCFDI(invoiceData) {
 function mapPaymentMethod(method) {
   const mapping = {
     'cash': '01',      // Efectivo
-    'card': '04',      // Tarjeta de crédito
-    'transfer': '02',  // Cheque
-    'check': '03'      // Efectivo
+    'check': '02',     // Cheque nominativo
+    'transfer': '03',  // Transferencia electrónica de fondos
+    'card': '04'       // Tarjeta de crédito
   };
   return mapping[method] || '01';
 }

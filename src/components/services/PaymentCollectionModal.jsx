@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DollarSign, CreditCard, Banknote, X } from 'lucide-react';
+import { DollarSign, CreditCard, Banknote, ArrowLeftRight, X } from 'lucide-react';
 import { useStorage } from '../../context/StorageContext';
 import { formatCurrency } from '../../utils/formatCurrency';
 
@@ -63,7 +63,7 @@ export default function PaymentCollectionModal({ order, isOpen, onClose, onPayme
 
                         <div>
                             <label className="block text-[10px] font-black text-gray-400 mb-3 uppercase tracking-widest px-1">Método Sugerido</label>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-3 gap-3">
                                 <button
                                     onClick={() => setMethod('cash')}
                                     className={`p-5 rounded-2xl border-2 flex flex-col items-center gap-3 transition-all duration-300 ${method === 'cash' ? 'bg-green-50 border-green-500 text-green-700 ring-8 ring-green-500/10' : 'border-gray-100 hover:border-gray-300 text-gray-400 bg-white'}`}
@@ -77,6 +77,13 @@ export default function PaymentCollectionModal({ order, isOpen, onClose, onPayme
                                 >
                                     <CreditCard size={28} />
                                     <span className="text-[10px] font-black uppercase tracking-widest">Tarjeta</span>
+                                </button>
+                                <button
+                                    onClick={() => setMethod('transfer')}
+                                    className={`p-5 rounded-2xl border-2 flex flex-col items-center gap-3 transition-all duration-300 ${method === 'transfer' ? 'bg-purple-50 border-purple-500 text-purple-700 ring-8 ring-purple-500/10' : 'border-gray-100 hover:border-gray-300 text-gray-400 bg-white'}`}
+                                >
+                                    <ArrowLeftRight size={28} />
+                                    <span className="text-[10px] font-black uppercase tracking-widest">Transferencia</span>
                                 </button>
                             </div>
                         </div>
