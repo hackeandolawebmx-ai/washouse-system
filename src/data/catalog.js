@@ -34,9 +34,14 @@ export const SERVICES_CATALOG = [
     { id: 'self_dry', name: 'Secadora', price: 60, category: 'self_service', type: 'weight', baseKg: 5, extraPrice: 10, icon: '💨' },
 
     // Edredones
-    { id: 'duvet_s', name: 'Edredón individual', price: 150, category: 'special', type: 'unit', icon: '🛏️' },
-    { id: 'duvet_m', name: 'Edredón matrimonial', price: 190, category: 'special', type: 'unit', icon: '🛏️' },
-    { id: 'duvet_l_k', name: 'Edredón King', price: 235, category: 'special', type: 'unit', icon: '👑' },
+    { id: 'duvet_s', name: 'Edredón individual', price: 160, category: 'special', type: 'unit', icon: '🛏️' },
+    { id: 'duvet_m', name: 'Edredón matrimonial', price: 200, category: 'special', type: 'unit', icon: '🛏️' },
+    { id: 'duvet_l_k', name: 'Edredón King o Queen', price: 240, category: 'special', type: 'unit', icon: '👑' },
+
+    // Cubre colchones
+    { id: 'mattress_s', name: 'Cubre colchón individual', price: 250, category: 'special', type: 'unit', icon: '🛌' },
+    { id: 'mattress_m', name: 'Cubre colchón matrimonial', price: 280, category: 'special', type: 'unit', icon: '🛌' },
+    { id: 'mattress_l_k', name: 'Cubre colchón King o Queen', price: 350, category: 'special', type: 'unit', icon: '🛌' },
 
     // Planchado
     { id: 'iron_piece', name: 'Planchado por pieza', price: 20, category: 'iron', type: 'unit', icon: '👕' },

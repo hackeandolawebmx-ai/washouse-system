@@ -14,12 +14,12 @@ const CATEGORIAS = [
     {
         id: 'self_service',
         titulo: 'Lavado y secado',
-        descripcion: 'Déjanos tu ropa y nosotros la lavamos, secamos y doblamos. El precio es por carga de hasta 5 kg.',
+        descripcion: 'Déjanos tu ropa y nosotros la lavamos, secamos y doblamos. El precio depende del peso de tu carga.',
         icono: WashingMachine
     },
     {
         id: 'special',
-        titulo: 'Edredones y cobijas',
+        titulo: 'Edredones y cubre colchones',
         descripcion: 'Lo que no cabe en tu lavadora de casa. Precio por pieza.',
         icono: Wind
     },

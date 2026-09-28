@@ -26,9 +26,14 @@ insert into services (id, name, category, price, metadata) values
   ('self_dry',   'Secadora',             'self_service',  50, '{"type":"weight","baseKg":5,"extraPrice":10,"icon":"💨"}'),
 
   -- Edredones
-  ('duvet_s',    'Edredón individual',   'special',      150, '{"type":"unit","icon":"🛏️"}'),
-  ('duvet_m',    'Edredón matrimonial',  'special',      190, '{"type":"unit","icon":"🛏️"}'),
-  ('duvet_l_k',  'Edredón King',         'special',      235, '{"type":"unit","icon":"👑"}'),
+  ('duvet_s',    'Edredón individual',   'special',      160, '{"type":"unit","icon":"🛏️"}'),
+  ('duvet_m',    'Edredón matrimonial',  'special',      200, '{"type":"unit","icon":"🛏️"}'),
+  ('duvet_l_k',  'Edredón King o Queen', 'special',      240, '{"type":"unit","icon":"👑"}'),
+
+  -- Cubre colchones
+  ('mattress_s',   'Cubre colchón individual',   'special', 250, '{"type":"unit","icon":"🛌"}'),
+  ('mattress_m',   'Cubre colchón matrimonial',  'special', 280, '{"type":"unit","icon":"🛌"}'),
+  ('mattress_l_k', 'Cubre colchón King o Queen', 'special', 350, '{"type":"unit","icon":"🛌"}'),
 
   -- Planchado
   ('iron_piece', 'Planchado por pieza',  'iron',          20, '{"type":"unit","icon":"👕"}'),
@@ -42,7 +47,7 @@ insert into services (id, name, category, price, metadata) values
   ('fix_express','Servicio express',     'fixing',        40, '{"type":"unit","icon":"✨"}')
 on conflict (id) do nothing;
 
--- Verificación: 13 renglones base, más los personalizados que existan.
+-- Verificación: 16 renglones base, más los personalizados que existan.
 select category, count(*) as servicios, min(price) as desde, max(price) as hasta
 from services
 group by category
