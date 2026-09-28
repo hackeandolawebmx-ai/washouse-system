@@ -679,7 +679,7 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
                         <div className="p-5 rounded-2xl bg-amber-50/60 border border-amber-100 space-y-1">
                             <div className="text-[10px] font-black text-amber-700 uppercase tracking-widest">Saldo por cobrar al entregar</div>
                             <div className="text-3xl font-black text-washouse-navy tracking-tighter">{formatCurrency(totals.total)}</div>
-                            <div className="text-xs font-bold text-gray-500">No se registra ningún cobro ahora. La orden no se puede pasar a Terminado sin liquidar.</div>
+                            <div className="text-xs font-bold text-gray-500">No se registra ningún cobro ahora. La orden no se puede entregar sin liquidar.</div>
                         </div>
                     ) : (<>
                     <div className="space-y-2">

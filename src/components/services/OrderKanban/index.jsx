@@ -70,18 +70,21 @@ export default function OrderKanban({ searchTerm }) {
         }
 
         if (next.id === 'COMPLETED') {
-            if (order.balanceDue > 0) {
-                setPaymentModalOrder(order);
-                setConfirmingAdvance(null);
-                return;
-            }
             updateOrderStatus(order.id, 'COMPLETED', user?.name || USUARIO_MOSTRADOR);
             setShowWhatsAppPrompt(order);
             setConfirmingAdvance(null);
             return;
         }
 
+        // El saldo se cobra al entregar (el cliente paga al recoger), no al
+        // terminar: una orden sin anticipo tiene que poder marcarse lista y
+        // avisarse por WhatsApp antes de que el cliente llegue.
         if (next.id === 'DELIVERED') {
+            if (order.balanceDue > 0) {
+                setPaymentModalOrder(order);
+                setConfirmingAdvance(null);
+                return;
+            }
             updateOrderStatus(order.id, 'DELIVERED', user?.name || USUARIO_MOSTRADOR);
             setShowDeliveryPrompt(order);
             setConfirmingAdvance(null);
@@ -126,8 +129,8 @@ export default function OrderKanban({ searchTerm }) {
                         onPaymentComplete={(amount) => {
                             const remaining = paymentModalOrder.balanceDue - amount;
                             if (remaining <= 0) {
-                                updateOrderStatus(paymentModalOrder.id, 'COMPLETED', user?.name || USUARIO_MOSTRADOR);
-                                setShowWhatsAppPrompt(paymentModalOrder);
+                                updateOrderStatus(paymentModalOrder.id, 'DELIVERED', user?.name || USUARIO_MOSTRADOR);
+                                setShowDeliveryPrompt(paymentModalOrder);
                                 setPaymentModalOrder(null);
                             }
                         }}

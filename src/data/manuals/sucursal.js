@@ -99,7 +99,7 @@ export const manualSucursal = {
                     rows: [
                         ['Con máquina asignada', '**100%** — la máquina no arranca con menos'],
                         ['De mostrador (encargo)', '**50%** de anticipo'],
-                        ['De mostrador con **Pago pendiente**', '**Nada** al recibir — el total se cobra antes de pasarla a Terminado']
+                        ['De mostrador con **Pago pendiente**', '**Nada** al recibir — el total se cobra al entregar']
                     ]
                 },
                 { type: 'img', src: img('orden-pago'), caption: 'Sin factura: el cliente paga el precio de lista.' },
@@ -171,8 +171,9 @@ export const manualSucursal = {
                     type: 'list',
                     items: [
                         'Busca por nombre del cliente o por folio.',
-                        'Para pasar una orden a Terminado, el sistema pide confirmación.',
-                        '**Si queda saldo, se abre el cobro antes de dejarla pasar.** Ninguna orden se termina sin liquidar.',
+                        'Cada tarjeta dice **"Pagado"** (barra verde) o **"Saldo: $…"** (barra ámbar) según lo que falte cobrar.',
+                        'Cuando la ropa está lista, pásala a **Terminado** con confirmación. No pide cobro todavía.',
+                        'Cuando el cliente la recoge, toca **Marcar como Entregado**. **Si queda saldo, se abre el cobro y no se entrega hasta liquidar.** Ninguna orden se entrega sin liquidar.',
                         'Al terminar, ofrece mandar el WhatsApp de "tu ropa ya está lista".'
                     ]
                 }
@@ -232,7 +233,7 @@ export const manualSucursal = {
             blocks: [
                 { type: 'p', text: '**Al abrir:** revisa que diga tu sucursal, abre turno con el fondo contado, y revisa que ninguna máquina haya quedado en Terminado o Mantenimiento del día anterior.' },
                 { type: 'p', text: '**Durante el día:** toda venta entra por el asistente, pregunta siempre si requiere factura, registra cada salida de efectivo como gasto, y libera las máquinas solo cuando el cliente ya sacó la ropa.' },
-                { type: 'p', text: '**Al cerrar:** pasa a Terminado los encargos entregados, cuenta el efectivo, haz el corte e imprime el comprobante.' }
+                { type: 'p', text: '**Al cerrar:** marca como Entregado los encargos que ya se llevaron, cuenta el efectivo, haz el corte e imprime el comprobante.' }
             ]
         }
     ]
