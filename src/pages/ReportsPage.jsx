@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useStorage } from '../context/StorageContext';
 import { useMetrics } from '../hooks/useMetrics';
-import { Calendar, DollarSign, TrendingUp, TrendingDown, Download, PieChart as PieIcon, BarChart as BarIcon, Activity } from 'lucide-react';
+import { Calendar, DollarSign, TrendingUp, TrendingDown, Download, PieChart as PieIcon, BarChart as BarIcon, Activity, ClipboardList, CheckCircle2, Clock } from 'lucide-react';
 import KpiCard from '../components/ui/KpiCard';
 import Button from '../components/ui/Button';
 import { formatCurrency } from '../utils/formatCurrency';
@@ -14,7 +14,7 @@ import {
 } from 'recharts';
 
 export default function ReportsPage() {
-    const { sales, expenses, branches, machines, selectedBranch } = useStorage();
+    const { sales, expenses, orders, branches, machines, selectedBranch } = useStorage();
     const metrics = useMetrics();
     const [dateRange, setDateRange] = useState('thisMonth'); // thisMonth, lastMonth, custom
     const [customStart, setCustomStart] = useState('');
@@ -66,6 +66,24 @@ export default function ReportsPage() {
 
         const totalIncome = filteredSales.reduce((acc, s) => acc + (s.amount || 0), 0);
         const totalExpenses = filteredExpenses.reduce((acc, e) => acc + (e.amount || 0), 0);
+
+        // Órdenes registradas en el periodo. Lo cobrado de ellas (pagos completos
+        // y anticipos) ya está en totalIncome vía sales; balanceDue es lo que falta.
+        const periodOrders = orders.filter(o => {
+            const date = new Date(o.createdAt);
+            return date >= start && date <= end && (selectedBranch === 'all' || o.branchId === selectedBranch);
+        });
+        const paidOrders = periodOrders.filter(o => (o.balanceDue || 0) <= 0);
+        const pendingOrders = periodOrders.filter(o => (o.balanceDue || 0) > 0);
+        const orderSummary = {
+            total: periodOrders.length,
+            totalAmount: periodOrders.reduce((acc, o) => acc + (o.totalAmount || 0), 0),
+            paid: paidOrders.length,
+            paidAmount: paidOrders.reduce((acc, o) => acc + (o.totalAmount || 0), 0),
+            pending: pendingOrders.length,
+            pendingBalance: pendingOrders.reduce((acc, o) => acc + (o.balanceDue || 0), 0),
+            pendingAdvances: pendingOrders.reduce((acc, o) => acc + (o.advancePayment || 0), 0)
+        };
 
         // --- 1. Daily Trends ---
         // Group by the raw ISO day (sortable as a plain string) and only convert
@@ -147,9 +165,10 @@ export default function ReportsPage() {
             productivity,
             hourlyTraffic,
             topMachines,
-            daysInPeriod
+            daysInPeriod,
+            orderSummary
         };
-    }, [sales, expenses, filterDates, selectedBranch, machines, utilityEstimates]);
+    }, [sales, expenses, orders, filterDates, selectedBranch, machines, utilityEstimates]);
 
     return (
         <div className="max-w-7xl mx-auto space-y-6 pb-12">
@@ -269,6 +288,39 @@ export default function ReportsPage() {
                     changeType="neutral"
                     description="Ventana de tiempo seleccionada para este reporte."
                 />
+            </div>
+
+            {/* Órdenes del periodo */}
+            <div className="glass-card p-8 border-white/60 shadow-lg">
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2 bg-blue-50 rounded-lg text-washouse-blue">
+                        <ClipboardList size={18} strokeWidth={2.5} />
+                    </div>
+                    <h3 className="text-xl font-black text-washouse-navy font-outfit">Órdenes del periodo</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="rounded-2xl border border-gray-100 bg-gray-50/60 p-5">
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Órdenes registradas</p>
+                        <p className="text-4xl font-black text-washouse-navy font-outfit tracking-tighter tabular-nums mt-2">{reportData.orderSummary.total}</p>
+                        <p className="text-sm font-bold text-gray-500 mt-1 tabular-nums">Valor total {formatCurrency(reportData.orderSummary.totalAmount)}</p>
+                    </div>
+                    <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-5">
+                        <p className="text-[10px] font-black text-emerald-700 uppercase tracking-[0.2em] flex items-center gap-1.5"><CheckCircle2 size={12} /> Pagadas</p>
+                        <p className="text-4xl font-black text-washouse-navy font-outfit tracking-tighter tabular-nums mt-2">{reportData.orderSummary.paid}</p>
+                        <p className="text-sm font-bold text-emerald-700 mt-1 tabular-nums">{formatCurrency(reportData.orderSummary.paidAmount)} cobrados</p>
+                        <p className="text-[11px] font-medium text-gray-500 mt-2">Ya incluido en Ingresos Brutos.</p>
+                    </div>
+                    <div className="rounded-2xl border border-amber-100 bg-amber-50/60 p-5">
+                        <p className="text-[10px] font-black text-amber-700 uppercase tracking-[0.2em] flex items-center gap-1.5"><Clock size={12} /> Pendientes de pago</p>
+                        <p className="text-4xl font-black text-washouse-navy font-outfit tracking-tighter tabular-nums mt-2">{reportData.orderSummary.pending}</p>
+                        <p className="text-sm font-bold text-amber-700 mt-1 tabular-nums">{formatCurrency(reportData.orderSummary.pendingBalance)} por cobrar</p>
+                        <p className="text-[11px] font-medium text-gray-500 mt-2">
+                            {reportData.orderSummary.pendingAdvances > 0
+                                ? `Sus anticipos (${formatCurrency(reportData.orderSummary.pendingAdvances)}) ya están en Ingresos Brutos; el saldo aún no.`
+                                : 'Este saldo no está en Ingresos Brutos hasta que se cobre.'}
+                        </p>
+                    </div>
+                </div>
             </div>
 
             {/* Charts Section */}
