@@ -175,6 +175,23 @@ export function OrderProvider({ children }) {
         return updatedOrder;
     }, [orders, logActivity]);
 
+    const updateOrderCustomer = useCallback(async (orderId, { customerName, customerPhone }, user = USUARIO_MOSTRADOR) => {
+        const current = orders.find(o => o.id === orderId);
+        if (!current) return;
+
+        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, customerName, customerPhone } : o));
+
+        const { error } = await supabase.from('orders')
+            .update({ customer_name: customerName, customer_phone: customerPhone })
+            .eq('id', orderId);
+        if (error) console.error('Error updating order customer remotely:', error);
+
+        const changes = [];
+        if (current.customerName !== customerName) changes.push(`nombre "${current.customerName}" → "${customerName}"`);
+        if (current.customerPhone !== customerPhone) changes.push(`teléfono ${current.customerPhone || '—'} → ${customerPhone}`);
+        logActivity('ORDEN_ACTUALIZADA', `Orden ${orderId}: ${changes.join(', ')}`, user, current.branchId);
+    }, [orders, logActivity]);
+
     const addOrderPayment = useCallback(async (orderId, amount, method, user = USUARIO_MOSTRADOR) => {
         const order = orders.find(o => o.id === orderId);
         if (!order) return;
@@ -206,6 +223,7 @@ export function OrderProvider({ children }) {
         createOrder,
         updateOrderStatus,
         assignOrderMachine,
+        updateOrderCustomer,
         addOrderPayment,
         customerOverrides,
         updateCustomerOverride

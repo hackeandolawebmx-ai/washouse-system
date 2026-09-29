@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Phone, Clock, DollarSign, Package, Check } from 'lucide-react';
+import { X, Phone, Clock, DollarSign, Package, Check, Pencil } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import { printServiceTicket } from '../../utils/printServiceTicket';
 import { useStorage } from '../../context/StorageContext';
@@ -8,13 +8,33 @@ import { formatCurrency } from '../../utils/formatCurrency';
 import { calculateOrderItemTotal, orderItemsToInvoiceItems } from '../../utils/orderPricing';
 import Modal from './Modal';
 import NewInvoiceModal from '../admin/NewInvoiceModal';
+import { useAuth } from '../../context/AuthContext';
+import { USUARIO_MOSTRADOR } from '../../utils/labels';
 
-export default function OrderDetailsModal({ order, isOpen, onClose, extraActions }) {
-    const { selectedBranch, deviceBranchId } = useStorage();
+export default function OrderDetailsModal({ order: orderProp, isOpen, onClose, extraActions }) {
+    const { selectedBranch, deviceBranchId, orders, updateOrderCustomer } = useStorage();
+    const { user } = useAuth();
     const { getInvoicesByOrderId } = useInvoice();
     const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+    const [editingCustomer, setEditingCustomer] = useState(null);
 
-    if (!order) return null;
+    if (!orderProp) return null;
+
+    // La versión viva de la orden, para que una edición se vea al instante.
+    // Desde Autolavado puede llegar una orden armada desde la máquina que no
+    // existe en la lista: esa no se puede editar.
+    const liveOrder = orders.find(o => o.id === orderProp.id);
+    const order = liveOrder ? { ...orderProp, ...liveOrder } : orderProp;
+
+    const startEditCustomer = () => setEditingCustomer({ name: order.customerName || '', phone: order.customerPhone || '' });
+    const saveCustomer = async () => {
+        const name = editingCustomer.name.trim();
+        const phone = editingCustomer.phone.replace(/\D/g, '');
+        if (!name) return alert('Escribe el nombre del cliente');
+        if (phone.length !== 10) return alert('El teléfono debe tener 10 dígitos');
+        await updateOrderCustomer(order.id, { customerName: name, customerPhone: phone }, user?.name || USUARIO_MOSTRADOR);
+        setEditingCustomer(null);
+    };
 
     // Check if order already has invoice
     const existingInvoices = getInvoicesByOrderId(order.id);
@@ -32,18 +52,60 @@ export default function OrderDetailsModal({ order, isOpen, onClose, extraActions
                 </div>
 
                 {/* Customer Info */}
-                <div className="flex items-center gap-5 glass-surface p-5 rounded-3xl border-white/60">
-                    <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-washouse-blue shadow-sm border border-gray-50 group-hover:scale-105 transition-transform">
-                        <Phone size={24} />
+                {editingCustomer ? (
+                    <form
+                        className="glass-surface p-5 rounded-3xl border-white/60 space-y-3"
+                        onSubmit={(e) => { e.preventDefault(); saveCustomer(); }}
+                    >
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <label className="block">
+                                <span className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Nombre</span>
+                                <input
+                                    autoFocus
+                                    value={editingCustomer.name}
+                                    onChange={(e) => setEditingCustomer(c => ({ ...c, name: e.target.value }))}
+                                    className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:border-washouse-blue focus:ring-4 ring-washouse-blue/10"
+                                />
+                            </label>
+                            <label className="block">
+                                <span className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Teléfono (10 dígitos)</span>
+                                <input
+                                    type="tel"
+                                    inputMode="numeric"
+                                    value={editingCustomer.phone}
+                                    onChange={(e) => setEditingCustomer(c => ({ ...c, phone: e.target.value }))}
+                                    className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:border-washouse-blue focus:ring-4 ring-washouse-blue/10"
+                                />
+                            </label>
+                        </div>
+                        <div className="flex justify-end gap-2">
+                            <button type="button" onClick={() => setEditingCustomer(null)} className="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest text-gray-500 hover:bg-gray-100">Cancelar</button>
+                            <button type="submit" className="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest bg-washouse-blue text-white hover:bg-washouse-navy">Guardar</button>
+                        </div>
+                    </form>
+                ) : (
+                    <div className="flex items-center gap-5 glass-surface p-5 rounded-3xl border-white/60">
+                        <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-washouse-blue shadow-sm border border-gray-50 shrink-0">
+                            <Phone size={24} />
+                        </div>
+                        <div className="min-w-0">
+                            <h4 className="text-xl font-black text-washouse-navy leading-none">{order.customerName}</h4>
+                            <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-2">{order.customerPhone || 'Sin teléfono asociado'}</div>
+                        </div>
+                        <div className="ml-auto flex items-center gap-3">
+                            {liveOrder && (
+                                <button
+                                    type="button"
+                                    onClick={startEditCustomer}
+                                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-washouse-blue bg-white border border-blue-100 hover:bg-blue-50"
+                                >
+                                    <Pencil size={12} /> Editar
+                                </button>
+                            )}
+                            <StatusBadge status={order.status} className="shadow-lg shadow-blue-500/10" />
+                        </div>
                     </div>
-                    <div>
-                        <h4 className="text-xl font-black text-washouse-navy leading-none">{order.customerName}</h4>
-                        <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-2">{order.customerPhone || 'Sin teléfono asociado'}</div>
-                    </div>
-                    <div className="ml-auto">
-                        <StatusBadge status={order.status} className="shadow-lg shadow-blue-500/10" />
-                    </div>
-                </div>
+                )}
 
                 {/* Items */}
                 <div className="space-y-4">

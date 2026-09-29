@@ -74,6 +74,7 @@ export const manualSucursal = {
                     type: 'list',
                     items: [
                         'Busca por nombre del cliente o por folio.',
+                        'Toca una tarjeta para ver el detalle. Si el nombre o el teléfono del cliente quedaron mal, corrígelos con **Editar**: el cambio queda en la bitácora.',
                         'Cada tarjeta dice **"Pagado"** (barra verde) o **"Saldo: $…"** (barra ámbar) según lo que falte cobrar.',
                         'Asignar lavadora **no pide pago**: un encargo con pago pendiente puede lavarse y cobrarse al entregar.'
                     ]
