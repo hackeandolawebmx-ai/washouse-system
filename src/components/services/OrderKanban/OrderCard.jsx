@@ -1,8 +1,14 @@
 import { motion } from 'framer-motion';
-import { Clock, Package, CheckCircle, AlertCircle, MessageCircle } from 'lucide-react';
+import { Clock, Package, CheckCircle, AlertCircle, MessageCircle, WashingMachine } from 'lucide-react';
 import { formatCurrency } from '../../../utils/formatCurrency';
 
-export default function OrderCard({ order, onSelect, onAdvance, confirmingAdvance, onCancelAdvance, canAdvance, actionLabel }) {
+const MACHINE_TONES = {
+    blue: 'bg-blue-50 text-washouse-blue border-blue-100',
+    amber: 'bg-amber-50 text-amber-700 border-amber-100',
+    green: 'bg-emerald-50 text-emerald-700 border-emerald-100'
+};
+
+export default function OrderCard({ order, onSelect, onAdvance, confirmingAdvance, onCancelAdvance, canAdvance, actionLabel, secondaryAction, machineInfo }) {
     const isExpress = order.serviceLevel === 'express';
     const isPaid = order.balanceDue <= 0;
 
@@ -79,6 +85,12 @@ export default function OrderCard({ order, onSelect, onAdvance, confirmingAdvanc
                 </div>
             )}
 
+            {machineInfo && (
+                <div className={`mb-4 px-3 py-2 rounded-xl border text-[11px] font-black uppercase tracking-wide flex items-center gap-2 ${MACHINE_TONES[machineInfo.tone]}`}>
+                    <WashingMachine size={14} className="shrink-0" /> {machineInfo.text}
+                </div>
+            )}
+
             {/* Action Buttons: solo si de verdad hay una columna siguiente */}
             {canAdvance && (
                 <div className="mt-2">
@@ -108,6 +120,14 @@ export default function OrderCard({ order, onSelect, onAdvance, confirmingAdvanc
                             `}
                         >
                             {actionLabel}
+                        </button>
+                    )}
+                    {secondaryAction && confirmingAdvance?.id !== order.id && (
+                        <button
+                            onClick={(e) => { e.stopPropagation(); secondaryAction.onClick(); }}
+                            className="w-full mt-2 py-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-washouse-blue transition-all duration-500 opacity-100 md:opacity-0 group-hover:opacity-100"
+                        >
+                            {secondaryAction.label}
                         </button>
                     )}
                 </div>

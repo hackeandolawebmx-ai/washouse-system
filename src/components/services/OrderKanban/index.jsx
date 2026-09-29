@@ -1,21 +1,23 @@
 import { useMemo, useState } from 'react';
 import { useStorage } from '../../../context/StorageContext';
 import { useAuth } from '../../../context/AuthContext';
-import { Clock, CheckCircle, Package, Truck, MessageCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle, Package, Truck, MessageCircle, WashingMachine } from 'lucide-react';
 import { formatCurrency } from '../../../utils/formatCurrency';
 import OrderDetailsModal from '../../ui/OrderDetailsModal';
 import PaymentCollectionModal from '../PaymentCollectionModal';
 import KanbanColumn from './KanbanColumn';
+import AssignWasherModal from './AssignWasherModal';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { USUARIO_MOSTRADOR } from '../../../utils/labels';
 const STATUS_COLUMNS = [
     { id: 'RECEIVED', label: 'Recibido', icon: Package, color: 'bg-slate-100 border-slate-200 text-slate-500' },
+    { id: 'WASHING', label: 'En máquina', icon: WashingMachine, color: 'bg-blue-100 border-blue-200 text-blue-500' },
     { id: 'COMPLETED', label: 'Terminado', icon: CheckCircle, color: 'bg-emerald-100 border-emerald-200 text-emerald-500' }
 ];
 
 export default function OrderKanban({ searchTerm }) {
-    const { orders, deviceBranchId, updateOrderStatus, branches } = useStorage();
+    const { orders, machines, deviceBranchId, updateOrderStatus, assignWasherToOrder, branches } = useStorage();
     const { user } = useAuth();
 
     const [selectedOrder, setSelectedOrder] = useState(null);
@@ -23,6 +25,7 @@ export default function OrderKanban({ searchTerm }) {
     const [paymentModalOrder, setPaymentModalOrder] = useState(null);
     const [showWhatsAppPrompt, setShowWhatsAppPrompt] = useState(null);
     const [showDeliveryPrompt, setShowDeliveryPrompt] = useState(null);
+    const [assigningOrder, setAssigningOrder] = useState(null);
 
     const filteredOrders = useMemo(() => {
         return orders.filter(o =>
@@ -48,6 +51,7 @@ export default function OrderKanban({ searchTerm }) {
     // origen -- next.label / actionLabel muestran el destino de la transicion.
     const ORDER_FLOW = [
         { id: 'RECEIVED', label: 'Recibido' },
+        { id: 'WASHING', label: 'En máquina' },
         { id: 'COMPLETED', label: 'Terminado' },
         { id: 'DELIVERED', label: 'Entregado' }
     ];
@@ -57,12 +61,49 @@ export default function OrderKanban({ searchTerm }) {
     };
     // Texto del boton en reposo: para las demas columnas es "Pasar a X"; para
     // marcar la entrega se lee mejor como una accion propia.
-    const actionLabel = (status) =>
-        status === 'COMPLETED' ? 'Marcar como Entregado' : `Pasar a ${nextStep(status)?.label || ''}`;
+    const actionLabel = (status) => {
+        if (status === 'RECEIVED') return 'Asignar lavadora';
+        if (status === 'COMPLETED') return 'Marcar como Entregado';
+        return `Pasar a ${nextStep(status)?.label || ''}`;
+    };
+
+    // Planchado, compostura y otros encargos que no pasan por lavadora.
+    const secondaryAction = (order) => order.status === 'RECEIVED'
+        ? { label: 'Terminado sin lavadora', onClick: () => setConfirmingAdvance({ id: order.id, nextStatus: 'COMPLETED', label: 'Terminado' }) }
+        : null;
+
+    // Dónde va la ropa: la lavadora asignada o, en Lavado y secado, la
+    // secadora a la que pasó sola (dryerQueue le copia el orderId).
+    const machineInfo = (order) => {
+        if (order.status !== 'WASHING') return null;
+        const withOrder = machines.filter(m => m.orderId === order.id);
+        const running = withOrder.find(m => m.status === 'running');
+        if (running) {
+            const verb = running.type === 'secadora' ? 'secando' : 'lavando';
+            return { tone: 'blue', text: `${running.name} · ${verb}${running.timeLeft > 0 ? ` · ${running.timeLeft} min` : ''}` };
+        }
+        const waitingDryer = withOrder.find(m => m.status === 'finished' && m.pendingDry);
+        if (waitingDryer) return { tone: 'amber', text: `${waitingDryer.name} terminó · esperando secadora` };
+        const finished = withOrder.find(m => m.status === 'finished');
+        if (finished) return { tone: 'green', text: `Listo en ${finished.name} · sácala y libera el equipo` };
+        const assigned = machines.find(m => m.id === order.machineId);
+        return { tone: 'green', text: assigned ? `Salió de ${assigned.name}` : 'Máquina liberada' };
+    };
 
     const handleAdvanceStatus = (e, order, isConfirmed = false) => {
-        const next = nextStep(order.status);
+        let next = nextStep(order.status);
         if (!next) return; // ya esta Entregado, no hay mas pasos
+
+        // La confirmación puede venir de la acción secundaria (Terminado sin
+        // lavadora), que salta un paso: manda lo que se confirmó.
+        if (isConfirmed && confirmingAdvance?.id === order.id) {
+            next = ORDER_FLOW.find(s => s.id === confirmingAdvance.nextStatus) || next;
+        }
+
+        if (next.id === 'WASHING') {
+            setAssigningOrder(order);
+            return;
+        }
 
         if (!isConfirmed) {
             setConfirmingAdvance({ id: order.id, nextStatus: next.id, label: next.label });
@@ -96,7 +137,7 @@ export default function OrderKanban({ searchTerm }) {
     };
 
     return (
-        <div className="grid gap-6 lg:grid-cols-2 items-start">
+        <div className="grid gap-6 lg:grid-cols-3 items-start">
             {STATUS_COLUMNS.map(column => (
                 <KanbanColumn
                     key={column.id}
@@ -108,8 +149,22 @@ export default function OrderKanban({ searchTerm }) {
                     onCancelAdvance={() => setConfirmingAdvance(null)}
                     canAdvance={(status) => Boolean(nextStep(status))}
                     actionLabel={actionLabel}
+                    secondaryAction={secondaryAction}
+                    machineInfo={machineInfo}
                 />
             ))}
+
+            {assigningOrder && (
+                <AssignWasherModal
+                    order={assigningOrder}
+                    onClose={() => setAssigningOrder(null)}
+                    onAssign={async (machine) => {
+                        const ok = await assignWasherToOrder(assigningOrder.id, machine.id, user?.name || USUARIO_MOSTRADOR);
+                        if (ok) setAssigningOrder(null);
+                        return ok;
+                    }}
+                />
+            )}
 
             {/* Modals & Prompts */}
             <AnimatePresence>

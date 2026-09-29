@@ -55,6 +55,72 @@ function CombinedStorageProvider({ children }) {
         return newBranch;
     }, [app, equipment, inventory]);
 
+    // Pone la máquina a trabajar con una orden: al registrarla (autolavado) o
+    // después, desde Por encargo, al asignarle lavadora.
+    const startMachineForOrder = useCallback((order, machineId) => {
+        const hasWash = order.items.some(i => i.serviceId?.includes('wash') || i.serviceId?.includes('duvet'));
+        const time = hasWash ? 45 : 30;
+
+        const targetMachine = equipment.machines?.find(m => m.id === machineId);
+        const hasDry = order.items.some(i => i.serviceId?.includes('dry'));
+
+        // Lavado y secado es secuencial: la secadora NO arranca aquí, arranca
+        // cuando esta lavadora termina (ver assignPendingDries en
+        // utils/dryerQueue.js, que corre desde EquipmentContext). Aquí solo se
+        // deja apuntado qué secar y en qué secadora conviene hacerlo.
+        let pendingDry = null;
+        if (targetMachine && targetMachine.type === 'lavadora' && hasDry) {
+            // Las sucursales no comparten un desfase fijo lavadora→secadora
+            // (Mitras/Guadalupe son L1-6/S7-12, Semillero L1-10/S11-20), así que
+            // se empareja por posición: la N-ésima lavadora con la N-ésima
+            // secadora. Es solo preferencia: si al terminar el lavado esa
+            // secadora está ocupada, la cola toma cualquier otra libre.
+            const sortByNumber = (a, b) => {
+                const na = parseInt(a.name.match(/\d+/)?.[0] || '0', 10);
+                const nb = parseInt(b.name.match(/\d+/)?.[0] || '0', 10);
+                return na - nb;
+            };
+            const branchWashers = (equipment.machines || [])
+                .filter(m => m.branchId === targetMachine.branchId && m.type === 'lavadora')
+                .sort(sortByNumber);
+            const branchDryers = (equipment.machines || [])
+                .filter(m => m.branchId === targetMachine.branchId && m.type === 'secadora')
+                .sort(sortByNumber);
+            const washerIndex = branchWashers.findIndex(m => m.id === targetMachine.id);
+
+            pendingDry = {
+                preferredDryerId: branchDryers[washerIndex]?.id || null,
+                clientName: order.customerName,
+                items: order.items.filter(i => i.serviceId?.includes('dry')),
+                orderId: order.id,
+                queuedAt: new Date().toISOString()
+            };
+        }
+
+        equipment.updateMachine(machineId, {
+            status: 'running',
+            timeLeft: time,
+            clientName: order.customerName,
+            total: order.totalAmount,
+            items: order.items,
+            startDate: new Date().toISOString(),
+            orderId: order.id,
+            pendingDry,
+            movedToDryer: null
+        });
+    }, [equipment]);
+
+    const assignWasherToOrder = useCallback(async (orderId, machineId, userLabel = USUARIO_MOSTRADOR) => {
+        const order = orders.orders.find(o => o.id === orderId);
+        const machine = equipment.machines?.find(m => m.id === machineId);
+        if (!order || !machine) return false;
+        if (machine.status !== 'available') return false;
+
+        startMachineForOrder(order, machineId);
+        await orders.assignOrderMachine(orderId, machine, userLabel);
+        return true;
+    }, [orders, equipment, startMachineForOrder]);
+
     const executeOrder = useCallback(async (orderData, userLabel = USUARIO_MOSTRADOR) => {
         // 1. Create the order
         const newOrder = await orders.createOrder(orderData, userLabel);
@@ -87,62 +153,10 @@ function CombinedStorageProvider({ children }) {
         }
 
         // 3. Update machine status if applicable
-        if (orderData.machineId) {
-            // Determine time based on items (heuristic from HostDashboard)
-            const hasWash = orderData.items.some(i => i.serviceId?.includes('wash') || i.serviceId?.includes('duvet'));
-            const time = hasWash ? 45 : 30;
-
-            const targetMachine = equipment.machines?.find(m => m.id === orderData.machineId);
-            const hasDry = orderData.items.some(i => i.serviceId?.includes('dry'));
-
-            // Lavado y secado es secuencial: la secadora NO arranca aquí, arranca
-            // cuando esta lavadora termina (ver assignPendingDries en
-            // utils/dryerQueue.js, que corre desde EquipmentContext). Aquí solo se
-            // deja apuntado qué secar y en qué secadora conviene hacerlo.
-            let pendingDry = null;
-            if (targetMachine && targetMachine.type === 'lavadora' && hasDry) {
-                // Las sucursales no comparten un desfase fijo lavadora→secadora
-                // (Mitras/Guadalupe son L1-6/S7-12, Semillero L1-10/S11-20), así que
-                // se empareja por posición: la N-ésima lavadora con la N-ésima
-                // secadora. Es solo preferencia: si al terminar el lavado esa
-                // secadora está ocupada, la cola toma cualquier otra libre.
-                const sortByNumber = (a, b) => {
-                    const na = parseInt(a.name.match(/\d+/)?.[0] || '0', 10);
-                    const nb = parseInt(b.name.match(/\d+/)?.[0] || '0', 10);
-                    return na - nb;
-                };
-                const branchWashers = (equipment.machines || [])
-                    .filter(m => m.branchId === targetMachine.branchId && m.type === 'lavadora')
-                    .sort(sortByNumber);
-                const branchDryers = (equipment.machines || [])
-                    .filter(m => m.branchId === targetMachine.branchId && m.type === 'secadora')
-                    .sort(sortByNumber);
-                const washerIndex = branchWashers.findIndex(m => m.id === targetMachine.id);
-
-                pendingDry = {
-                    preferredDryerId: branchDryers[washerIndex]?.id || null,
-                    clientName: orderData.customerName,
-                    items: orderData.items.filter(i => i.serviceId?.includes('dry')),
-                    orderId: newOrder.id,
-                    queuedAt: new Date().toISOString()
-                };
-            }
-
-            equipment.updateMachine(orderData.machineId, {
-                status: 'running',
-                timeLeft: time,
-                clientName: orderData.customerName,
-                total: orderData.totalAmount,
-                items: orderData.items,
-                startDate: new Date().toISOString(),
-                orderId: newOrder.id,
-                pendingDry,
-                movedToDryer: null
-            });
-        }
+        if (orderData.machineId) startMachineForOrder(newOrder, orderData.machineId);
 
         return newOrder;
-    }, [orders, inventory, equipment, app]);
+    }, [orders, inventory, equipment, startMachineForOrder]);
 
     const deleteBranch = useCallback((branchId) => {
         if (branchId === 'main') {
@@ -173,6 +187,7 @@ function CombinedStorageProvider({ children }) {
         ...expenses,
         addBranch,
         executeOrder,
+        assignWasherToOrder,
         deleteBranch,
         syncData: () => {
             // Placeholder for legacy syncData calls

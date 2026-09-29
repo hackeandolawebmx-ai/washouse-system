@@ -30,7 +30,7 @@ export const machineStatusLabel = (status) => ESTADOS_MAQUINA[status] || status 
 
 const ESTADOS_ORDEN = {
     RECEIVED: 'Recibido',
-    WASHING: 'Lavando',
+    WASHING: 'En máquina',
     DRYING: 'Secando',
     IRONING: 'Planchando',
     COMPLETED: 'Terminado',

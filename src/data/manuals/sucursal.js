@@ -59,16 +59,23 @@ export const manualSucursal = {
             id: 'encargos',
             title: 'Por encargo',
             blocks: [
-                { type: 'p', text: 'Es la primera pestaña y donde se trabaja casi todo el día: las órdenes que el cliente deja y recoge después (lavado por kilo, planchado, edredones, compostura). Un tablero de dos columnas: **Recibido** y **Terminado**. Desde aquí también se registra una **Nueva Orden** o un **Gasto**.' },
-                { type: 'img', src: img('servicios-programados'), caption: 'Cada tarjeta muestra el folio, el cliente, si está pagada y quién la recibió.' },
+                { type: 'p', text: 'Es la primera pestaña y donde se trabaja casi todo el día: las órdenes que el cliente deja y recoge después (lavado por kilo, planchado, edredones, compostura). Desde aquí también se registra una **Nueva Orden** o un **Gasto**.' },
+                { type: 'img', src: img('servicios-programados'), caption: 'Tres columnas: Recibido, En máquina y Terminado. Cada tarjeta dice si está pagada y quién la recibió.' },
+                {
+                    type: 'steps',
+                    items: [
+                        { title: 'Recibido: la orden recién registrada.', text: 'Toca **Asignar lavadora** y elige una libre (las ocupadas salen en gris). Si el encargo no se lava —planchado, compostura— usa **Terminado sin lavadora**.' },
+                        { title: 'En máquina: la lavadora ya está trabajando.', text: 'Arranca en Autolavado con el nombre del cliente. La tarjeta dice dónde va la ropa: "L2 · lavando", y en Lavado y secado, "S9 · secando" cuando pasa sola a secadora. Cuando dice "Listo", saca la ropa y libera el equipo en Autolavado.' },
+                        { title: 'Terminado: la ropa está lista para entregar.', text: 'Pásala a Terminado cuando esté doblada. No pide cobro todavía y ofrece mandar el WhatsApp de "tu ropa ya está lista".' },
+                        { title: 'Entregado: el cliente se la llevó.', text: 'Toca **Marcar como Entregado**. **Si queda saldo, se abre el cobro y no se entrega hasta liquidar.** Ninguna orden se entrega sin liquidar.' }
+                    ]
+                },
                 {
                     type: 'list',
                     items: [
                         'Busca por nombre del cliente o por folio.',
                         'Cada tarjeta dice **"Pagado"** (barra verde) o **"Saldo: $…"** (barra ámbar) según lo que falte cobrar.',
-                        'Cuando la ropa está lista, pásala a **Terminado** con confirmación. No pide cobro todavía.',
-                        'Cuando el cliente la recoge, toca **Marcar como Entregado**. **Si queda saldo, se abre el cobro y no se entrega hasta liquidar.** Ninguna orden se entrega sin liquidar.',
-                        'Al terminar, ofrece mandar el WhatsApp de "tu ropa ya está lista".'
+                        'Asignar lavadora **no pide pago**: un encargo con pago pendiente puede lavarse y cobrarse al entregar.'
                     ]
                 }
             ]

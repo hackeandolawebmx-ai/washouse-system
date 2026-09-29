@@ -89,16 +89,16 @@ export function OrderProvider({ children }) {
     }, [logActivity, customerOverrides]);
 
     const createOrder = useCallback(async (orderData, user = USUARIO_MOSTRADOR) => {
+        const now = new Date().toISOString();
+        // Una orden que se registra ya con máquina (autolavado) arranca en ella.
+        const statusHistory = [{ status: 'RECEIVED', timestamp: now, user }];
+        if (orderData.machineId) statusHistory.push({ status: 'WASHING', timestamp: now, user, machineId: orderData.machineId });
         const newOrder = {
             ...orderData,
             id: `ORD-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 100)}`,
-            status: 'RECEIVED',
-            createdAt: new Date().toISOString(),
-            statusHistory: [{
-                status: 'RECEIVED',
-                timestamp: new Date().toISOString(),
-                user
-            }]
+            status: orderData.machineId ? 'WASHING' : 'RECEIVED',
+            createdAt: now,
+            statusHistory
         };
 
         setOrders(prev => [newOrder, ...prev]);
@@ -151,6 +151,30 @@ export function OrderProvider({ children }) {
         logActivity('ORDEN_ACTUALIZADA', `Orden ${orderId} a ${orderStatusLabel(newStatus)}`, user);
     }, [orders, logActivity]);
 
+    const assignOrderMachine = useCallback(async (orderId, machine, user = USUARIO_MOSTRADOR) => {
+        const current = orders.find(o => o.id === orderId);
+        if (!current) return;
+
+        const updatedOrder = {
+            ...current,
+            machineId: machine.id,
+            status: 'WASHING',
+            statusHistory: [
+                ...current.statusHistory,
+                { status: 'WASHING', timestamp: new Date().toISOString(), user, machineId: machine.id, machineName: machine.name }
+            ]
+        };
+        setOrders(prev => prev.map(o => o.id === orderId ? updatedOrder : o));
+
+        const { error } = await supabase.from('orders')
+            .update({ machine_id: machine.id, status: 'WASHING', status_history: updatedOrder.statusHistory })
+            .eq('id', orderId);
+        if (error) console.error('Error assigning machine to order remotely:', error);
+
+        logActivity('ORDEN_ACTUALIZADA', `Orden ${orderId} asignada a ${machine.name}`, user, current.branchId);
+        return updatedOrder;
+    }, [orders, logActivity]);
+
     const addOrderPayment = useCallback(async (orderId, amount, method, user = USUARIO_MOSTRADOR) => {
         const order = orders.find(o => o.id === orderId);
         if (!order) return;
@@ -181,6 +205,7 @@ export function OrderProvider({ children }) {
         setOrders,
         createOrder,
         updateOrderStatus,
+        assignOrderMachine,
         addOrderPayment,
         customerOverrides,
         updateCustomerOverride
