@@ -89,7 +89,7 @@ export const manualSucursal = {
                     type: 'steps',
                     items: [
                         { title: 'Cliente: nombre y teléfono, los dos obligatorios.', text: 'El teléfono es el que se usa para avisarle por WhatsApp. Escríbelo completo, a 10 dígitos.' },
-                        { title: 'Servicios: búscalos o filtra por categoría, y tócalos para agregarlos.', text: 'En el resumen de la derecha ajustas cantidades o kilos y quitas renglones. Arriba eliges Mostrador o una máquina libre.' },
+                        { title: 'Servicios: búscalos o filtra por categoría, y tócalos para agregarlos.', text: 'En el resumen de la derecha ajustas cantidades o kilos y quitas renglones. Desde Autolavado, arriba eliges la máquina; desde Por encargo no se elige: la lavadora se asigna después, en el tablero.' },
                         { title: 'Insumos: productos sueltos que se lleva el cliente.', text: 'Si no lleva nada, pasa de largo. Las existencias se descuentan solas. Para algo que no está en el menú, usa **Otros servicios**: escribe qué es y el precio que acordaste, y toca Agregar.' },
                         { title: 'Pago: pregunta si requiere factura, captura el monto y el método (efectivo, tarjeta o transferencia).', text: 'Con transferencia, confirma que el dinero ya llegó a la cuenta antes de registrar la orden.' },
                         { title: 'Entrega el folio: imprime el ticket del cliente y el del negocio, y manda el WhatsApp.', text: 'El cliente necesita el folio para pedir su factura después.' }

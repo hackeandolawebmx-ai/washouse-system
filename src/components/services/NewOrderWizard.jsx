@@ -9,7 +9,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { calculateOrderItemTotal } from '../../utils/orderPricing';
 
 import { USUARIO_MOSTRADOR } from '../../utils/labels';
-export default function NewOrderWizard({ isOpen, onClose, machineId }) {
+// allowMachine=false: desde Por encargo la lavadora se asigna después, en el
+// tablero, así que el registro no ofrece máquina (ni exige el 100%).
+export default function NewOrderWizard({ isOpen, onClose, machineId, allowMachine = true }) {
     const { executeOrder, deviceBranchId, branches, machines, inventory, services, taxConfig } = useStorage();
     const { user } = useAuth();
     const [step, setStep] = useState(1);
@@ -406,7 +408,7 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
                                 </button>
                             ))}
                         </div>
-                        <div className="bg-blue-50/50 p-1.5 rounded-xl border border-blue-100 flex items-center gap-2 min-w-[180px]">
+                        {allowMachine && <div className="bg-blue-50/50 p-1.5 rounded-xl border border-blue-100 flex items-center gap-2 min-w-[180px]">
                             <Truck size={14} className="text-washouse-blue ml-2" />
                             <select
                                 value={selectedMachineId || ''}
@@ -419,7 +421,7 @@ export default function NewOrderWizard({ isOpen, onClose, machineId }) {
                                     <option key={m.id} value={m.id}>{m.name}</option>
                                 ))}
                             </select>
-                        </div>
+                        </div>}
                     </div>
 
                     <div className="flex-1 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-2 pb-2 content-start pr-1 custom-scrollbar">

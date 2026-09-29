@@ -69,6 +69,7 @@ export default function ServiceReception() {
                 <NewOrderWizard
                     isOpen={isWizardOpen}
                     onClose={() => setIsWizardOpen(false)}
+                    allowMachine={false}
                 />
             )}
 
