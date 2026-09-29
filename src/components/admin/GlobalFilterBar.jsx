@@ -1,42 +1,57 @@
-import React from 'react';
 import { Filter, Calendar } from 'lucide-react';
 import { useStorage } from '../../context/StorageContext';
+import { PERIOD_OPTIONS } from '../../utils/periods';
 
-export default function GlobalFilterBar() {
+// El selector de periodo solo aparece cuando la pantalla lo usa (pasa
+// period/onPeriodChange); la sucursal es global a todo el admin.
+export default function GlobalFilterBar({ period, onPeriodChange, customStart, customEnd, onCustomChange, children }) {
     const { branches, selectedBranch, setSelectedBranch, isBranchActive } = useStorage();
 
     return (
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 glass-card p-6 border-white/60 shadow-md mb-8">
-            <div className="flex items-center gap-4">
-                <div className="p-3 bg-white/50 rounded-2xl border border-white shadow-sm signature-glow text-washouse-blue">
-                    <Filter size={22} strokeWidth={2.5} />
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 glass-card p-5 border-white/60 shadow-md mb-8">
+            <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-white/50 rounded-2xl border border-white shadow-sm text-washouse-blue">
+                    <Filter size={20} strokeWidth={2.5} />
                 </div>
-                <div>
-                    <h3 className="text-lg font-black text-washouse-navy font-outfit tracking-tight">Filtro Inteligente</h3>
-                    <p className="text-[10px] text-gray-400 uppercase tracking-[0.2em] font-black opacity-60">Consolidado en tiempo real</p>
-                </div>
+                <h3 className="text-lg font-black text-washouse-navy font-outfit tracking-tight">Filtros</h3>
             </div>
 
-            <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
-                {/* Branch Selector */}
-                <div className="flex items-center gap-3 bg-white p-1.5 px-4 rounded-2xl border border-gray-100 flex-1 lg:flex-none transition-all hover:shadow-lg focus-within:ring-4 ring-gray-100 group shadow-sm">
-                    <select
-                        value={selectedBranch}
-                        onChange={(e) => setSelectedBranch(e.target.value)}
-                        className="bg-transparent border-none text-xs font-black uppercase tracking-widest text-washouse-navy focus:ring-0 cursor-pointer min-w-[200px] py-2"
-                    >
-                        <option value="all">Todas las Sucursales</option>
-                        {branches.filter(b => isBranchActive(b.id)).map(b => (
-                            <option key={b.id} value={b.id}>{b.name}</option>
-                        ))}
-                    </select>
-                </div>
+            <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                <select
+                    value={selectedBranch}
+                    onChange={(e) => setSelectedBranch(e.target.value)}
+                    aria-label="Sucursal"
+                    className="bg-white border border-gray-100 rounded-2xl text-xs font-black uppercase tracking-widest text-washouse-navy cursor-pointer px-4 py-3 shadow-sm w-full sm:w-auto"
+                >
+                    <option value="all">Todas las sucursales</option>
+                    {branches.filter(b => isBranchActive(b.id)).map(b => (
+                        <option key={b.id} value={b.id}>{b.name}</option>
+                    ))}
+                </select>
 
-                {/* Period Display */}
-                <div className="flex items-center gap-3 bg-gray-50/50 p-2.5 px-5 rounded-2xl border border-gray-100 text-gray-400 group/period transition-colors hover:text-gray-500">
-                    <Calendar size={16} strokeWidth={2.5} />
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">Periodo: Este Mes</span>
-                </div>
+                {onPeriodChange && (
+                    <label className="flex items-center gap-2 bg-white border border-gray-100 rounded-2xl px-4 py-1 shadow-sm w-full sm:w-auto">
+                        <Calendar size={16} className="text-washouse-blue shrink-0" strokeWidth={2.5} />
+                        <select
+                            value={period}
+                            onChange={(e) => onPeriodChange(e.target.value)}
+                            aria-label="Periodo"
+                            className="bg-transparent border-none text-xs font-black uppercase tracking-widest text-washouse-navy cursor-pointer py-2 flex-1 min-w-0"
+                        >
+                            {PERIOD_OPTIONS.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
+                        </select>
+                    </label>
+                )}
+
+                {onPeriodChange && period === 'custom' && (
+                    <div className="flex items-center gap-2 bg-white border border-gray-100 rounded-2xl px-4 py-2 shadow-sm">
+                        <input type="date" aria-label="Desde" value={customStart} onChange={(e) => onCustomChange(e.target.value, customEnd)} className="text-xs font-bold bg-transparent" />
+                        <span className="text-gray-300 font-black">–</span>
+                        <input type="date" aria-label="Hasta" value={customEnd} onChange={(e) => onCustomChange(customStart, e.target.value)} className="text-xs font-bold bg-transparent" />
+                    </div>
+                )}
+
+                {children}
             </div>
         </div>
     );

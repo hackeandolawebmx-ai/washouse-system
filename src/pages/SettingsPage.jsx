@@ -1,21 +1,20 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useStorage } from '../context/StorageContext';
 import {
-    Building, Package, Smartphone, Database, Receipt,
+    Building, Smartphone, Database, Receipt, ClipboardList,
     Plus, Edit2, Trash2, Download, RefreshCcw,
-    ShieldCheck, MapPin, CheckCircle2, Zap
+    ShieldCheck, MapPin, CheckCircle2
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import BranchModal from '../components/admin/BranchModal';
-import ProductModal from '../components/admin/ProductModal';
-import ServiceModal from '../components/admin/ServiceModal';
+import ActivityLogTable from '../components/admin/ActivityLogTable';
 
-import { USUARIO_ADMIN } from '../utils/labels';
+const TAB_IDS = ['branches', 'tax', 'logs', 'device', 'system'];
 export default function SettingsPage() {
     const {
         branches, addBranch, updateBranch, deleteBranch,
-        inventory, addProduct, updateProduct, deleteProduct, loadStandardInventoryInAllBranches,
-        services, addService, updateService, deleteService,
+        inventory,
         deviceBranchId, setDeviceBranch,
         taxConfig, updateTaxConfig,
         syncData, logActivity, BRANCH_LICENSES, isBranchActive,
@@ -23,13 +22,10 @@ export default function SettingsPage() {
     } = useStorage();
 
     const [isBranchModalOpen, setIsBranchModalOpen] = useState(false);
-    const [isProductModalOpen, setIsProductModalOpen] = useState(false);
-    const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
     const [editingBranch, setEditingBranch] = useState(null);
-    const [editingProduct, setEditingProduct] = useState(null);
-    const [editingService, setEditingService] = useState(null);
-    const [activeTab, setActiveTab] = useState('branches'); // branches, services, inventory, device, system
-    const [selectedInventoryBranch, setSelectedInventoryBranch] = useState('all');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const activeTab = TAB_IDS.includes(searchParams.get('tab')) ? searchParams.get('tab') : 'branches';
+    const setActiveTab = (tab) => setSearchParams(tab === 'branches' ? {} : { tab }, { replace: true });
 
     const handleExportBackup = () => {
         // Data now lives in Supabase; export straight from context state
@@ -74,7 +70,7 @@ export default function SettingsPage() {
             {/* Header */}
             <div className="mb-8">
                 <h1 className="text-3xl font-black text-washouse-navy mb-2">Configuración del Sistema</h1>
-                <p className="text-gray-500">Administra sucursales, inventario y herramientas de mantenimiento</p>
+                <p className="text-gray-500">Sucursales, IVA, bitácora y herramientas de este equipo</p>
             </div>
 
             <div className="flex flex-col lg:flex-row gap-8">
@@ -88,25 +84,18 @@ export default function SettingsPage() {
                         desc="Gestionar sedes"
                     />
                     <TabButton
-                        active={activeTab === 'services'}
-                        onClick={() => setActiveTab('services')}
-                        icon={Package}
-                        label="Servicios"
-                        desc="Catálogo Maestro"
-                    />
-                    <TabButton
-                        active={activeTab === 'inventory'}
-                        onClick={() => setActiveTab('inventory')}
-                        icon={Package}
-                        label="Insumos"
-                        desc="Stock por Sucursal"
-                    />
-                    <TabButton
                         active={activeTab === 'tax'}
                         onClick={() => setActiveTab('tax')}
                         icon={Receipt}
-                        label="Facturación"
-                        desc="Modelo de IVA"
+                        label="IVA"
+                        desc="Cómo se cobra"
+                    />
+                    <TabButton
+                        active={activeTab === 'logs'}
+                        onClick={() => setActiveTab('logs')}
+                        icon={ClipboardList}
+                        label="Bitácora"
+                        desc="Actividad del sistema"
                     />
                     <TabButton
                         active={activeTab === 'device'}
@@ -205,152 +194,6 @@ export default function SettingsPage() {
                         </div>
                     )}
 
-                    {activeTab === 'services' && (
-                        <div className="space-y-6">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <h2 className="text-xl font-bold text-washouse-navy">Catálogo de Servicios</h2>
-                                    <p className="text-sm text-gray-400">Servicios operativos globales del sistema</p>
-                                </div>
-                                <Button onClick={() => { setEditingService(null); setIsServiceModalOpen(true); }}>
-                                    <Plus size={18} className="mr-2" /> Nuevo Servicio
-                                </Button>
-                            </div>
-
-                            <div className="border rounded-2xl overflow-hidden shadow-xs">
-                                <table className="w-full text-left text-sm">
-                                    <thead className="bg-gray-50 text-gray-400 font-bold uppercase tracking-wider text-[10px]">
-                                        <tr>
-                                            <th className="px-6 py-4">Servicio</th>
-                                            <th className="px-6 py-4">Categoría</th>
-                                            <th className="px-6 py-4">Precio Base</th>
-                                            <th className="px-6 py-4">Tipo</th>
-                                            <th className="px-6 py-4 text-right">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-50">
-                                        {services.map(item => (
-                                            <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                                                <td className="px-6 py-4 flex items-center gap-3">
-                                                    <span className="text-xl">{item.icon}</span>
-                                                    <span className="font-bold text-washouse-navy">{item.name}</span>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-blue-100 text-blue-700">
-                                                        {item.category}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-4 font-mono font-bold text-washouse-blue">${item.price}</td>
-                                                <td className="px-6 py-4 uppercase text-[10px] font-black text-gray-300 tracking-tighter">
-                                                    {item.type}
-                                                </td>
-                                                <td className="px-6 py-4 text-right">
-                                                    <div className="flex gap-1 justify-end">
-                                                        <button
-                                                            onClick={() => { setEditingService(item); setIsServiceModalOpen(true); }}
-                                                            className="p-1.5 text-gray-400 hover:text-washouse-blue"
-                                                        >
-                                                            <Edit2 size={16} />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => { if (confirm('¿Eliminar servicio?')) deleteService(item.id); }}
-                                                            className="p-1.5 text-gray-400 hover:text-red-600"
-                                                        >
-                                                            <Trash2 size={16} />
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    )}
-
-                    {activeTab === 'inventory' && (
-                        <div className="space-y-6">
-                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                                <div>
-                                    <h2 className="text-xl font-bold text-washouse-navy">Catálogo de Insumos</h2>
-                                    <p className="text-sm text-gray-400">Control de stock y precios por sucursal</p>
-                                </div>
-                                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                                    <select
-                                        value={selectedInventoryBranch}
-                                        onChange={(e) => setSelectedInventoryBranch(e.target.value)}
-                                        className="text-xs font-bold bg-gray-100 border-none rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-washouse-blue outline-none text-gray-600"
-                                    >
-                                        <option value="all">Todas las Sucursales</option>
-                                        {branches.filter(b => isBranchActive(b.id)).map(b => (
-                                            <option key={b.id} value={b.id}>{b.name}</option>
-                                        ))}
-                                    </select>
-                                    <Button variant="secondary" onClick={() => loadStandardInventoryInAllBranches()}>
-                                        <Zap size={18} className="mr-2" /> Cargar en Todas
-                                    </Button>
-                                    <Button onClick={() => {
-                                        setEditingProduct(null);
-                                        setIsProductModalOpen(true);
-                                    }}>
-                                        <Plus size={18} className="mr-2" /> Agregar Item
-                                    </Button>
-                                </div>
-                            </div>
-
-                            <div className="border rounded-2xl overflow-hidden shadow-xs">
-                                <table className="w-full text-left text-sm">
-                                    <thead className="bg-gray-50 text-gray-400 font-bold uppercase tracking-wider text-[10px]">
-                                        <tr>
-                                            <th className="px-6 py-4">Insumo</th>
-                                            {selectedInventoryBranch === 'all' && <th className="px-6 py-4">Sucursal</th>}
-                                            <th className="px-6 py-4">Stock</th>
-                                            <th className="px-6 py-4">Costo</th>
-                                            <th className="px-6 py-4">Precio</th>
-                                            <th className="px-6 py-4 text-right">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-50">
-                                        {inventory
-                                            .filter(p => selectedInventoryBranch === 'all' || p.branchId === selectedInventoryBranch)
-                                            .map(item => (
-                                                <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                                                    <td className="px-6 py-4 flex items-center gap-3">
-                                                        <span className="text-xl">{item.icon}</span>
-                                                        <span className="font-bold text-washouse-navy">{item.name}</span>
-                                                    </td>
-                                                    {selectedInventoryBranch === 'all' && (
-                                                        <td className="px-6 py-4">
-                                                            <span className="text-[10px] font-black uppercase text-gray-400">
-                                                                {branches.find(b => b.id === item.branchId)?.name || 'N/A'}
-                                                            </span>
-                                                        </td>
-                                                    )}
-                                                    <td className="px-6 py-4">
-                                                        <span className={`font-mono font-bold ${item.stock <= 5 ? 'text-red-500' : 'text-gray-600'}`}>
-                                                            {item.stock} unidades
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-6 py-4 font-mono text-gray-400">
-                                                        ${item.cost || 0}
-                                                    </td>
-                                                    <td className="px-6 py-4 font-mono font-bold text-washouse-blue">${item.price}</td>
-                                                    <td className="px-6 py-4 text-right">
-                                                        <button
-                                                            onClick={() => { setEditingProduct(item); setIsProductModalOpen(true); }}
-                                                            className="p-1.5 text-gray-400 hover:text-washouse-blue"
-                                                        >
-                                                            <Edit2 size={16} />
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    )}
-
                     {activeTab === 'tax' && (
                         <div className="max-w-2xl py-2">
                             <h2 className="text-2xl font-black text-washouse-navy mb-1">Modelo de IVA</h2>
@@ -416,6 +259,16 @@ export default function SettingsPage() {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'logs' && (
+                        <div className="space-y-4">
+                            <div>
+                                <h2 className="text-xl font-bold text-washouse-navy">Bitácora de actividad</h2>
+                                <p className="text-sm text-gray-400">Aperturas y cierres de turno, accesos de administrador y cambios importantes.</p>
+                            </div>
+                            <ActivityLogTable logs={activityLogs} />
                         </div>
                     )}
 
@@ -507,19 +360,6 @@ export default function SettingsPage() {
                 onClose={() => setIsBranchModalOpen(false)}
                 onSave={editingBranch ? (data) => updateBranch(editingBranch.id, data) : addBranch}
                 branchToEdit={editingBranch}
-            />
-            <ProductModal
-                isOpen={isProductModalOpen}
-                onClose={() => setIsProductModalOpen(false)}
-                onSave={editingProduct ? (data) => updateProduct(editingProduct.id, data) : (data) => addProduct(data, USUARIO_ADMIN, selectedInventoryBranch === 'all' ? 'main' : selectedInventoryBranch)}
-                productToEdit={editingProduct}
-                branchId={selectedInventoryBranch === 'all' ? (editingProduct?.branchId || 'main') : selectedInventoryBranch}
-            />
-            <ServiceModal
-                isOpen={isServiceModalOpen}
-                onClose={() => setIsServiceModalOpen(false)}
-                onSave={editingService ? (data) => updateService(editingService.id, data) : addService}
-                serviceToEdit={editingService}
             />
         </div>
     );

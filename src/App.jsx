@@ -34,7 +34,9 @@ const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const StaffManagement = lazy(() => import('./pages/StaffManagement'));
 const ClientsPage = lazy(() => import('./pages/ClientsPage'));
 const InvoicesPage = lazy(() => import('./pages/InvoicesPage'));
-const ReportsPage = lazy(() => import('./pages/ReportsPage'));
+const EquipmentPage = lazy(() => import('./pages/EquipmentPage'));
+const ShiftsPage = lazy(() => import('./pages/ShiftsPage'));
+const CatalogPage = lazy(() => import('./pages/CatalogPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 
 function RouteLoader() {
@@ -93,16 +95,18 @@ function AppRoutes() {
           <Route path="/admin" element={<ProtectedRoute />}>
             <Route element={<AdminLayout />}>
               <Route index element={<Navigate to="/admin/dashboard" replace />} />
-              <Route path="dashboard">
-                <Route index element={<AdminDashboard />} />
-                <Route path="equipment" element={<AdminDashboard />} />
-                <Route path="shifts" element={<AdminDashboard />} />
-                <Route path="logs" element={<AdminDashboard />} />
-              </Route>
+              <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="equipment" element={<EquipmentPage />} />
+              <Route path="shifts" element={<ShiftsPage />} />
+              <Route path="catalog" element={<CatalogPage />} />
+              {/* Direcciones anteriores a la reorganización del menú */}
+              <Route path="dashboard/equipment" element={<Navigate to="/admin/equipment" replace />} />
+              <Route path="dashboard/shifts" element={<Navigate to="/admin/shifts" replace />} />
+              <Route path="dashboard/logs" element={<Navigate to="/admin/settings?tab=logs" replace />} />
+              <Route path="reports" element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="staff" element={<StaffManagement />} />
               <Route path="clients" element={<ClientsPage />} />
               <Route path="invoices" element={<InvoicesPage />} />
-              <Route path="reports" element={<ReportsPage />} />
               <Route path="settings" element={<SettingsPage />} />
               <Route path="manual" element={<AdminManual />} />
             </Route>

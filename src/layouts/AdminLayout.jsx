@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { ChevronDown, ChevronRight, LayoutDashboard, Settings, Users, ClipboardList, FileText, Menu, X, BookOpen, LogOut } from 'lucide-react';
+import { LayoutDashboard, Settings, Users, UserCog, FileText, Menu, X, BookOpen, LogOut, WashingMachine, History, Tags } from 'lucide-react';
 import { useInvoice } from '../context/InvoiceContext';
 import { useAuth } from '../context/AuthContext';
 import logo from '../assets/WasHouse CYMK.png';
@@ -33,6 +33,14 @@ function NavLink({ to, label, icon: Icon, isSubItem = false, badge = 0 }) {
     );
 }
 
+function SectionLabel({ children }) {
+    return (
+        <div className="text-gray-500/80 text-[9px] uppercase tracking-[0.25em] font-black pt-6 pb-2 px-4 first:pt-2">
+            {children}
+        </div>
+    );
+}
+
 export default function AdminLayout() {
     const location = useLocation();
     const navigate = useNavigate();
@@ -40,9 +48,6 @@ export default function AdminLayout() {
     const { invoiceRequests } = useInvoice();
     const pendingInvoiceRequests = invoiceRequests.filter(r => r.status === 'pending').length;
 
-    const isActive = (path) => isActivePath(location.pathname, path);
-
-    const [isDashboardOpen, setIsDashboardOpen] = useState(true);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     // Close mobile sidebar on route change
@@ -102,49 +107,20 @@ export default function AdminLayout() {
                     </div>
                 </div>
 
-                <nav className="space-y-1.5 flex-1 px-4 overflow-y-auto">
-                    <div className="text-gray-500/80 text-[9px] uppercase tracking-[0.25em] font-black mt-4 mb-3 px-4">
-                        General
-                    </div>
+                <nav className="space-y-1 flex-1 px-4 overflow-y-auto" aria-label="Menú de administración">
+                    <SectionLabel>Operación</SectionLabel>
+                    <NavLink to="/admin/dashboard" label="Inicio" icon={LayoutDashboard} />
+                    <NavLink to="/admin/equipment" label="Equipos" icon={WashingMachine} />
+                    <NavLink to="/admin/shifts" label="Cortes de caja" icon={History} />
 
-                    <div className="space-y-1">
-                        <button
-                            onClick={() => setIsDashboardOpen(!isDashboardOpen)}
-                            className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all
-                                ${isActive('/admin/dashboard')
-                                    ? 'bg-white/10 text-white'
-                                    : 'text-gray-500 hover:text-white hover:bg-white/5'}`}
-                        >
-                            <div className="flex items-center gap-3">
-                                <LayoutDashboard size={18} />
-                                <span className="font-outfit font-bold">Panel</span>
-                            </div>
-                            <ChevronDown size={14} className={`transition-transform ${isDashboardOpen ? 'rotate-180' : ''}`} />
-                        </button>
-
-                        {isDashboardOpen && (
-                            <div className="space-y-1 mt-1 pl-4 ml-6 border-l border-white/5">
-                                <NavLink to="/admin/dashboard" label="Resumen" isSubItem />
-                                <NavLink to="/admin/dashboard/equipment" label="Equipos" isSubItem />
-                                <NavLink to="/admin/dashboard/shifts" label="Historial de Turnos" isSubItem />
-                                <NavLink to="/admin/dashboard/logs" label="Registro de Actividad" isSubItem />
-                            </div>
-                        )}
-                    </div>
-
-                    <NavLink to="/admin/staff" label="Personal" icon={Users} />
-                    <NavLink to="/admin/clients" label="Base de Clientes" icon={Users} />
-
-                    <div className="text-gray-500/80 text-[9px] uppercase tracking-[0.25em] font-black mt-10 mb-3 px-4">
-                        Sistema
-                    </div>
+                    <SectionLabel>Negocio</SectionLabel>
+                    <NavLink to="/admin/clients" label="Clientes" icon={Users} />
                     <NavLink to="/admin/invoices" label="Facturación" icon={FileText} badge={pendingInvoiceRequests} />
-                    <NavLink to="/admin/reports" label="Reportes" icon={ClipboardList} />
-                    <NavLink to="/admin/settings" label="Configuración" icon={Settings} />
+                    <NavLink to="/admin/catalog" label="Precios y catálogo" icon={Tags} />
+                    <NavLink to="/admin/staff" label="Personal" icon={UserCog} />
 
-                    <div className="text-gray-500/80 text-[9px] uppercase tracking-[0.25em] font-black mt-10 mb-3 px-4">
-                        Ayuda
-                    </div>
+                    <SectionLabel>Sistema</SectionLabel>
+                    <NavLink to="/admin/settings" label="Configuración" icon={Settings} />
                     <NavLink to="/admin/manual" label="Manual" icon={BookOpen} />
                 </nav>
 

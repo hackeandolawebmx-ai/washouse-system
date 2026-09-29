@@ -306,25 +306,22 @@ async function manualAdmin(browser) {
         await shot(page, nombre);
     };
 
-    await ir('/admin/dashboard', 'resumen', 'Flujo de Ingresos');
-    await ir('/admin/dashboard/equipment', 'equipos', 'Monitor de Equipamiento');
-    await ir('/admin/dashboard/shifts', 'turnos', 'Historial de Turnos');
-    await ir('/admin/dashboard/logs', 'bitacora', 'Bitácora de Actividad');
+    await ir('/admin/dashboard', 'inicio', 'Ingresos por día');
+    await ir('/admin/equipment', 'equipos', 'Estado en tiempo real');
+    await ir('/admin/shifts', 'cortes', 'Cortes de caja');
     await ir('/admin/staff', 'personal', 'Administra accesos');
     await ir('/admin/clients', 'clientes', 'Directorio de Clientes');
     await ir('/admin/invoices', 'facturacion', 'Solicitudes de Factura Pendientes');
-    await ir('/admin/reports', 'reportes', 'Inteligencia de Negocio');
+
+    await ir('/admin/catalog', 'catalogo-servicios', 'Iguales en todas las sucursales');
+    await page.getByRole('tab', { name: 'Insumos' }).click();
+    await page.getByText('Existencias y precio de venta').first().waitFor({ timeout: 10_000 });
+    await shot(page, 'catalogo-insumos');
 
     await ir('/admin/settings', 'config-sucursales', 'Gestión de Sucursales');
-    const pestaña = async (label, nombre, espera) => {
-        await page.getByRole('button', { name: new RegExp(label) }).first().click();
-        await page.getByText(espera).first().waitFor({ timeout: 10_000 });
-        await shot(page, nombre);
-    };
-    await pestaña('Servicios', 'config-servicios', 'Catálogo de Servicios');
-    await pestaña('Insumos', 'config-insumos', 'Catálogo de Insumos');
-    await pestaña('Facturación', 'config-iva', 'Modelo de IVA');
-    await pestaña('Este Dispositivo', 'config-dispositivo', 'Vinculación de Dispositivo');
+    await ir('/admin/settings?tab=tax', 'config-iva', 'Modelo de IVA');
+    await ir('/admin/settings?tab=logs', 'bitacora', 'Bitácora de actividad');
+    await ir('/admin/settings?tab=device', 'config-dispositivo', 'Vinculación de Dispositivo');
 
     await ctx.close();
 }

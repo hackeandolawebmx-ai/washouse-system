@@ -23,29 +23,47 @@ export const manualAdmin = {
             ]
         },
         {
-            id: 'dashboard',
-            title: 'Panel',
+            id: 'inicio',
+            title: 'Inicio',
             blocks: [
-                { type: 'p', text: 'Arriba eliges **qué sucursal** ver (o todas) y el periodo. Todo el panel responde a ese filtro. Tiene cuatro vistas.' },
-                { type: 'img', src: img('resumen'), caption: 'Resumen: indicadores y gráficas de los últimos días.' },
+                { type: 'p', text: 'Arriba eliges **qué sucursal** ver (o todas) y el **periodo**: Hoy, Esta semana, Este mes, Mes pasado o un rango personalizado. Toda la pantalla responde a ese filtro, salvo **Por cobrar**.' },
+                { type: 'img', src: img('inicio'), caption: 'Inicio: cómo va el negocio en el periodo elegido.' },
                 {
                     type: 'table',
                     head: ['Indicador', 'Qué significa'],
                     rows: [
-                        ['Ingresos', 'Lo cobrado en el periodo, comparado con el periodo anterior'],
-                        ['Ingreso por máquina al día', 'Cuánto genera en promedio cada máquina por día'],
-                        ['Ticket promedio', 'Cuánto paga en promedio cada orden'],
-                        ['Utilización', 'Qué porcentaje del tiempo están trabajando las máquinas. Bajo 20% es poca demanda; sobre 80%, conviene crecer'],
-                        ['Tiempo de respuesta', 'Horas promedio desde que se recibe un encargo hasta que se termina. Meta: menos de 24 h'],
-                        ['Tasa de retención', 'Porcentaje de clientes que regresan'],
-                        ['Margen operativo', 'Ingresos contra los costos por ciclo (agua, luz, gas) configurados en cada sucursal']
+                        ['Ingresos', 'Todo lo cobrado en el periodo: pagos completos, anticipos y saldos liquidados'],
+                        ['Órdenes', 'Cuántas órdenes se registraron, cuántas ya están pagadas y cuántas tienen saldo'],
+                        ['Por cobrar', 'Lo que los clientes deben **hoy**, sin importar cuándo dejaron la orden. No está en Ingresos hasta que se cobra'],
+                        ['Gastos', 'Los gastos que el mostrador registró en caja'],
+                        ['Utilidad', 'Ingresos menos gastos registrados. No incluye renta, sueldos ni servicios si no se registraron como gasto']
                     ]
                 },
-                { type: 'img', src: img('equipos'), caption: 'Equipos: el estado de cada máquina en tiempo real, por sucursal.' },
-                { type: 'p', text: 'Desde **Equipos** puedes ver quién está usando cada máquina y detener un ciclo con el **Paro de Emergencia** si hace falta.' },
-                { type: 'img', src: img('turnos'), caption: 'Turnos: cada corte de caja, quién lo cerró y con cuánto.' },
-                { type: 'img', src: img('bitacora'), caption: 'Bitácora: registro de acciones importantes — órdenes, cortes, gastos, accesos.' },
-                { type: 'p', text: 'La **Bitácora** es el primer lugar para revisar cuando algo no cuadra: dice qué pasó, cuándo y quién lo hizo.' }
+                {
+                    type: 'list',
+                    items: [
+                        '**Por método de pago:** cuánto entró en efectivo, tarjeta y transferencia. Solo el efectivo va al cajón; tarjeta y transferencia se cuadran contra el banco.',
+                        '**Por cobrar:** la lista de órdenes con saldo, de la más vieja a la más nueva. Los días en rojo llevan una semana o más. El botón de WhatsApp manda el recordatorio con el saldo.',
+                        '**Equipos y último corte:** un vistazo rápido; toca el título para ir al detalle.',
+                        '**Exportar:** descarga en Excel (CSV) los ingresos y gastos del periodo.'
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'equipos',
+            title: 'Equipos',
+            blocks: [
+                { type: 'img', src: img('equipos'), caption: 'El estado de cada máquina en tiempo real.' },
+                { type: 'p', text: 'Aquí ves quién está usando cada máquina, la pones en **mantenimiento** o detienes un ciclo con el **Paro de Emergencia** si hace falta.' }
+            ]
+        },
+        {
+            id: 'cortes',
+            title: 'Cortes de caja',
+            blocks: [
+                { type: 'img', src: img('cortes'), caption: 'Cada turno cerrado: cuándo, quién, cuánto duró, con qué fondo abrió y cuánto vendió.' },
+                { type: 'p', text: 'Si un corte no cuadró, revisa también la **Bitácora** de ese día en Configuración: dice qué pasó, cuándo y quién lo hizo.' }
             ]
         },
         {
@@ -111,34 +129,22 @@ export const manualAdmin = {
             ]
         },
         {
-            id: 'reportes',
-            title: 'Reportes',
+            id: 'catalogo',
+            title: 'Precios y catálogo',
             blocks: [
-                { type: 'p', text: 'Rentabilidad del periodo: **Este mes**, **Mes pasado** o un rango personalizado.' },
-                { type: 'img', src: img('reportes'), caption: 'Ingresos, costos, utilidad y rendimiento por máquina.' },
-                {
-                    type: 'list',
-                    items: [
-                        '**Tendencia de ingresos y Mix de ingresos:** qué días y qué servicios dejan más.',
-                        '**Tráfico por hora:** a qué hora llega la gente — útil para planear turnos.',
-                        '**Simulador financiero:** captura renta, sueldos y otros costos fijos para ver la utilidad real.',
-                        '**Top 5 máquinas rentables:** cuáles trabajan más y cuáles casi no se usan.',
-                        '**Exportar informe:** descarga el reporte del periodo.'
-                    ]
-                }
+                { type: 'img', src: img('catalogo-servicios'), caption: 'Servicios: el catálogo y los precios, iguales en todas las sucursales.' },
+                { type: 'note', tone: 'info', title: 'Un precio, en todos lados', text: 'El precio que cambies aquí es el que cobra el mostrador y el que ve el cliente en washouse.app. Aplica a las órdenes nuevas: las ya registradas conservan su precio.' },
+                { type: 'p', text: '**Lavado y secado** se cobra con la tabla de tarifas por kilo del letrero; esa tabla no se edita desde aquí. Si cambia, pide a soporte que la actualice.' },
+                { type: 'img', src: img('catalogo-insumos'), caption: 'Insumos: existencias y precio de venta por sucursal.' },
+                { type: 'p', text: 'Las existencias bajan solas cuando el mostrador vende un insumo o registra un lavado con detergente incluido. Cuando llegue mercancía, súmala aquí.' }
             ]
         },
         {
             id: 'configuracion',
             title: 'Configuración',
             blocks: [
-                { type: 'img', src: img('config-sucursales'), caption: 'Sucursales: dirección y costo por ciclo de agua, luz y gas.' },
-                { type: 'p', text: 'Los **costos por ciclo** alimentan el margen operativo del panel y los reportes. Ajústalos a lo que de verdad cuesta cada ciclo en esa sucursal.' },
-                { type: 'img', src: img('config-servicios'), caption: 'Servicios: el catálogo y los precios.' },
-                { type: 'note', tone: 'info', title: 'Un precio, en todos lados', text: 'El precio que cambies aquí es el que cobra el mostrador y el que ve el cliente en washouse.app. No hay que cambiarlo en otro lado.' },
-                { type: 'img', src: img('config-insumos'), caption: 'Insumos: existencias y precios por sucursal.' },
-                { type: 'p', text: 'Las existencias bajan solas cuando el mostrador vende un insumo o registra un lavado con detergente incluido. Cuando llegue mercancía, súmala aquí.' },
-                { type: 'img', src: img('config-iva'), caption: 'Facturación: cómo se cobra el IVA.' },
+                { type: 'img', src: img('config-sucursales'), caption: 'Sucursales: dirección y datos de cada sede.' },
+                { type: 'img', src: img('config-iva'), caption: 'IVA: cómo se cobra en el mostrador.' },
                 {
                     type: 'table',
                     head: ['Modo', 'Cómo funciona'],
@@ -147,6 +153,8 @@ export const manualAdmin = {
                         ['IVA incluido en los precios', 'Un solo precio para todos. La factura desglosa el IVA sin cambiar el monto']
                     ]
                 },
+                { type: 'img', src: img('bitacora'), caption: 'Bitácora: registro de acciones importantes — turnos, accesos, cambios.' },
+                { type: 'p', text: 'La **Bitácora** es el primer lugar para revisar cuando algo no cuadra: dice qué pasó, cuándo y quién lo hizo.' },
                 { type: 'img', src: img('config-dispositivo'), caption: 'Este Dispositivo: a qué sucursal pertenece este navegador.' },
                 {
                     type: 'note', tone: 'warn', title: 'Vincular una tablet',
@@ -165,9 +173,11 @@ export const manualAdmin = {
                     rows: [
                         ['Dar de alta a alguien nuevo', 'Personal → Nuevo Empleado, con su sucursal y un PIN propio'],
                         ['Cambiar un PIN', 'Personal → editar a la persona'],
-                        ['Cambiar un precio', 'Configuración → Servicios'],
-                        ['Registrar mercancía que llegó', 'Configuración → Insumos'],
-                        ['Revisar un corte que no cuadró', 'Panel → Turnos, y la Bitácora de ese día'],
+                        ['Ver cuánto se vendió hoy o este mes', 'Inicio, eligiendo el periodo'],
+                        ['Saber quién debe y cobrarle', 'Inicio → Por cobrar → botón de WhatsApp'],
+                        ['Cambiar un precio', 'Precios y catálogo → Servicios'],
+                        ['Registrar mercancía que llegó', 'Precios y catálogo → Insumos'],
+                        ['Revisar un corte que no cuadró', 'Cortes de caja, y Configuración → Bitácora de ese día'],
                         ['Una tablet muestra otra sucursal', 'En esa tablet: Configuración → Este Dispositivo'],
                         ['Atender una solicitud de factura', 'Facturación → Generar Factura → Emitir']
                     ]

@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
 import { useStorage } from '../context/StorageContext';
-import { useMetrics } from '../hooks/useMetrics';
 import { Search, User, Phone, DollarSign, Calendar, MessageCircle, Edit2, Save, X, Clock } from 'lucide-react';
 import PageTransition from '../components/PageTransition';
 import ClientHistoryModal from '../components/clients/ClientHistoryModal';

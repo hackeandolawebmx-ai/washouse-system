@@ -39,7 +39,7 @@ export default function OrderKanban({ searchTerm }) {
     // Pero el FLUJO real tiene un paso mas alla de Terminado: que el cliente
     // recogio su ropa. Ese tercer estado (DELIVERED) ya existia en todo el
     // resto del sistema -- StatusBadge, el historial de OrderDetailsModal,
-    // el directorio de clientes, useMetrics -- menos aqui: nada lo disparaba.
+    // el directorio de clientes -- menos aqui: nada lo disparaba.
     // Antes, una orden Terminada mostraba un boton que no hacia nada porque
     // handleAdvanceStatus solo conocia RECEIVED/COMPLETED. ORDER_FLOW es el
     // flujo completo (a diferencia de STATUS_COLUMNS, que es solo lo que se

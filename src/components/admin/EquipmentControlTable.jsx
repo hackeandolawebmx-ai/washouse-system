@@ -5,10 +5,9 @@ import StatusBadge from '../ui/StatusBadge';
 import { useStorage } from '../../context/StorageContext';
 
 export default function EquipmentControlTable({ onToggleMaintenance, onForceStop, onViewDetails }) {
-    const { machines, branches, syncData } = useStorage();
+    const { machines, branches, syncData, selectedBranch: branchFilter, setSelectedBranch: setBranchFilter } = useStorage();
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
-    const [branchFilter, setBranchFilter] = useState('all');
     const [isRefreshing, setIsRefreshing] = useState(false);
 
     const handleManualRefresh = () => {

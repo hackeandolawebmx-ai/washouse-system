@@ -13,7 +13,7 @@ export function InvoiceProvider({ children }) {
   const [invoiceRequests, setInvoiceRequests] = useState([]);
 
   // Fetch invoices — 'all' means every branch, matching the convention
-  // used across ClientsPage/ReportsPage/AdminDashboard/useMetrics.
+  // used across the admin pages (selectedBranch).
   const fetchInvoices = useCallback(async () => {
     setLoading(true);
     setError(null);
