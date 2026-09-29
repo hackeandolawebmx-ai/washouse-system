@@ -197,7 +197,7 @@ export default function HostDashboard() {
 
     return (
         <div className="pb-8">
-            <h1 className="sr-only">Lavado asistido</h1>
+            <h1 className="sr-only">Autolavado</h1>
 
             {/* Barra fija: resumen/filtro por estado y acciones del turno */}
             <div

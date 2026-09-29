@@ -1,15 +1,30 @@
 import { useState } from 'react';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, Wallet } from 'lucide-react';
 import NewOrderWizard from '../components/services/NewOrderWizard';
 import OrderKanban from '../components/services/OrderKanban';
+import ExpenseModal from '../components/ui/ExpenseModal';
+import { useAuth } from '../context/AuthContext';
+import { useStorage } from '../context/StorageContext';
+import { USUARIO_MOSTRADOR } from '../utils/labels';
 
 export default function ServiceReception() {
+    const { isShiftOpen, user } = useAuth();
+    const { deviceBranchId, addExpense } = useStorage();
     const [isWizardOpen, setIsWizardOpen] = useState(false);
+    const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+
+    const openExpenseModal = () => {
+        if (!isShiftOpen) {
+            alert('Debes iniciar turno para registrar gastos');
+            return;
+        }
+        setIsExpenseModalOpen(true);
+    };
 
     return (
         <div className="pb-8">
-            <h1 className="sr-only">Servicios programados</h1>
+            <h1 className="sr-only">Por encargo</h1>
 
             {/* Misma barra fija que el tablero de máquinas: búsqueda y acción principal */}
             <div
@@ -29,12 +44,20 @@ export default function ServiceReception() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </label>
-                    <button
-                        onClick={() => setIsWizardOpen(true)}
-                        className="ml-auto h-10 px-4 rounded-xl text-sm font-bold flex items-center gap-2 whitespace-nowrap bg-washouse-blue text-white hover:bg-washouse-primary-hover shadow-[0_6px_16px_rgba(0,144,215,0.25)] transition-colors"
-                    >
-                        <Plus size={16} strokeWidth={3} /> Nueva Orden
-                    </button>
+                    <div className="flex gap-2 ml-auto">
+                        <button
+                            onClick={openExpenseModal}
+                            className="h-10 px-4 rounded-xl text-sm font-bold flex items-center gap-2 whitespace-nowrap border border-gray-200 bg-white text-slate-700 hover:border-washouse-blue/40 hover:text-washouse-blue transition-colors"
+                        >
+                            <Wallet size={16} /> Gasto
+                        </button>
+                        <button
+                            onClick={() => setIsWizardOpen(true)}
+                            className="h-10 px-4 rounded-xl text-sm font-bold flex items-center gap-2 whitespace-nowrap bg-washouse-blue text-white hover:bg-washouse-primary-hover shadow-[0_6px_16px_rgba(0,144,215,0.25)] transition-colors"
+                        >
+                            <Plus size={16} strokeWidth={3} /> Nueva Orden
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -48,6 +71,12 @@ export default function ServiceReception() {
                     onClose={() => setIsWizardOpen(false)}
                 />
             )}
+
+            <ExpenseModal
+                isOpen={isExpenseModalOpen}
+                onClose={() => setIsExpenseModalOpen(false)}
+                onSave={(expenseData) => addExpense({ ...expenseData, branchId: deviceBranchId || 'main' }, user?.name || USUARIO_MOSTRADOR)}
+            />
         </div>
     );
 }

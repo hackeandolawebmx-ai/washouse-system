@@ -9,8 +9,8 @@ import BranchLockout from '../components/BranchLockout';
 import { WashingMachine, ClipboardList, LogOut, BookOpen, Store, AlertTriangle } from 'lucide-react';
 
 const TABS = [
-    { to: '/sucursal', label: 'Lavado Asistido', short: 'Lavado', icon: WashingMachine },
-    { to: '/sucursal/servicios', label: 'Servicios Programados', short: 'Encargos', icon: ClipboardList },
+    { to: '/sucursal', label: 'Por encargo', short: 'Encargo', icon: ClipboardList },
+    { to: '/sucursal/autolavado', label: 'Autolavado', short: 'Autolavado', icon: WashingMachine },
     { to: '/sucursal/manual', label: 'Manual', short: 'Manual', icon: BookOpen }
 ];
 

@@ -79,8 +79,10 @@ function AppRoutes() {
         {/* ---------- Operación: mostrador y administración ---------- */}
         <Route element={<OperationalProviders />}>
           <Route path="/sucursal" element={<HostLayout />}>
-            <Route index element={<HostDashboard />} />
-            <Route path="servicios" element={<ServiceReception />} />
+            <Route index element={<ServiceReception />} />
+            <Route path="autolavado" element={<HostDashboard />} />
+            {/* Antes "Servicios Programados" vivía aquí y el índice era el tablero de máquinas */}
+            <Route path="servicios" element={<Navigate to="/sucursal" replace />} />
             <Route path="manual" element={<HostManual />} />
           </Route>
 
@@ -88,7 +90,7 @@ function AppRoutes() {
               creados en las tablets. Se pueden quitar cuando todas estén
               apuntando a /sucursal. */}
           <Route path="/host" element={<Navigate to="/sucursal" replace />} />
-          <Route path="/services" element={<Navigate to="/sucursal/servicios" replace />} />
+          <Route path="/services" element={<Navigate to="/sucursal" replace />} />
 
           <Route path="/admin/login" element={<AdminLogin />} />
 

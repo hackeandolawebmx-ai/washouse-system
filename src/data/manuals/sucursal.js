@@ -56,23 +56,21 @@ export const manualSucursal = {
             ]
         },
         {
-            id: 'tablero',
-            title: 'El tablero de máquinas',
+            id: 'encargos',
+            title: 'Por encargo',
             blocks: [
-                { type: 'p', text: 'Pestaña **Lavado Asistido**. Las máquinas están en dos carriles, **Lavadoras** y **Secadoras**, siempre en el mismo orden que en el piso: una tarjeta nunca cambia de lugar.' },
-                { type: 'p', text: 'Arriba, cada filtro dice **cuántas máquinas hay en ese estado**. Toca uno para ver solo esas. Cuando hay máquinas esperando a que alguien las libere, **Terminado** se pinta de naranja.' },
-                { type: 'img', src: img('tablero'), caption: 'El color de la orilla dice el estado; cada tarjeta tiene un solo botón con la acción que sigue.' },
+                { type: 'p', text: 'Es la primera pestaña y donde se trabaja casi todo el día: las órdenes que el cliente deja y recoge después (lavado por kilo, planchado, edredones, compostura). Un tablero de dos columnas: **Recibido** y **Terminado**. Desde aquí también se registra una **Nueva Orden** o un **Gasto**.' },
+                { type: 'img', src: img('servicios-programados'), caption: 'Cada tarjeta muestra el folio, el cliente, si está pagada y quién la recibió.' },
                 {
-                    type: 'table',
-                    head: ['Estado', 'Botón', 'Qué hace'],
-                    rows: [
-                        ['Disponible', 'Comenzar ciclo', 'Abre una orden nueva con esa máquina ya seleccionada'],
-                        ['En uso', 'Gestionar', 'Muestra la orden. Ahí está **Forzar Terminado** si el ciclo real acabó antes'],
-                        ['Terminado', 'Liberar equipo (naranja)', 'La deja disponible. **Solo cuando el cliente ya sacó su ropa**'],
-                        ['Mantenimiento', 'Reactivar', 'La regresa a servicio. Para mandar una máquina a mantenimiento, usa la llave 🔧 de su tarjeta']
+                    type: 'list',
+                    items: [
+                        'Busca por nombre del cliente o por folio.',
+                        'Cada tarjeta dice **"Pagado"** (barra verde) o **"Saldo: $…"** (barra ámbar) según lo que falte cobrar.',
+                        'Cuando la ropa está lista, pásala a **Terminado** con confirmación. No pide cobro todavía.',
+                        'Cuando el cliente la recoge, toca **Marcar como Entregado**. **Si queda saldo, se abre el cobro y no se entrega hasta liquidar.** Ninguna orden se entrega sin liquidar.',
+                        'Al terminar, ofrece mandar el WhatsApp de "tu ropa ya está lista".'
                     ]
-                },
-                { type: 'p', text: 'Los tiempos los pone el sistema: **45 minutos** si la orden incluye lavado, **30** si no. No se capturan a mano.' }
+                }
             ]
         },
         {
@@ -142,6 +140,26 @@ export const manualSucursal = {
             ]
         },
         {
+            id: 'tablero',
+            title: 'Autolavado',
+            blocks: [
+                { type: 'p', text: 'Segunda pestaña. Las lavadoras y secadoras que usa el cliente o el personal por ciclo. Las máquinas están en dos carriles, **Lavadoras** y **Secadoras**, siempre en el mismo orden que en el piso: una tarjeta nunca cambia de lugar.' },
+                { type: 'p', text: 'Arriba, cada filtro dice **cuántas máquinas hay en ese estado**. Toca uno para ver solo esas. Cuando hay máquinas esperando a que alguien las libere, **Terminado** se pinta de naranja.' },
+                { type: 'img', src: img('tablero'), caption: 'El color de la orilla dice el estado; cada tarjeta tiene un solo botón con la acción que sigue.' },
+                {
+                    type: 'table',
+                    head: ['Estado', 'Botón', 'Qué hace'],
+                    rows: [
+                        ['Disponible', 'Comenzar ciclo', 'Abre una orden nueva con esa máquina ya seleccionada'],
+                        ['En uso', 'Gestionar', 'Muestra la orden. Ahí está **Forzar Terminado** si el ciclo real acabó antes'],
+                        ['Terminado', 'Liberar equipo (naranja)', 'La deja disponible. **Solo cuando el cliente ya sacó su ropa**'],
+                        ['Mantenimiento', 'Reactivar', 'La regresa a servicio. Para mandar una máquina a mantenimiento, usa la llave 🔧 de su tarjeta']
+                    ]
+                },
+                { type: 'p', text: 'Los tiempos los pone el sistema: **45 minutos** si la orden incluye lavado, **30** si no. No se capturan a mano.' }
+            ]
+        },
+        {
             id: 'lavado-secado',
             title: 'Lavado y secado',
             blocks: [
@@ -162,28 +180,10 @@ export const manualSucursal = {
             ]
         },
         {
-            id: 'encargos',
-            title: 'Encargos (Servicios Programados)',
-            blocks: [
-                { type: 'p', text: 'Órdenes que el cliente deja y recoge después: planchado, edredones, compostura. Un tablero de dos columnas: **Recibido** y **Terminado**.' },
-                { type: 'img', src: img('servicios-programados'), caption: 'Cada tarjeta muestra el folio, el cliente, si está pagada y quién la recibió.' },
-                {
-                    type: 'list',
-                    items: [
-                        'Busca por nombre del cliente o por folio.',
-                        'Cada tarjeta dice **"Pagado"** (barra verde) o **"Saldo: $…"** (barra ámbar) según lo que falte cobrar.',
-                        'Cuando la ropa está lista, pásala a **Terminado** con confirmación. No pide cobro todavía.',
-                        'Cuando el cliente la recoge, toca **Marcar como Entregado**. **Si queda saldo, se abre el cobro y no se entrega hasta liquidar.** Ninguna orden se entrega sin liquidar.',
-                        'Al terminar, ofrece mandar el WhatsApp de "tu ropa ya está lista".'
-                    ]
-                }
-            ]
-        },
-        {
             id: 'gastos',
             title: 'Gastos de caja',
             blocks: [
-                { type: 'p', text: 'Cualquier dinero que sale del cajón durante el turno —una compra urgente de insumos, un pago en efectivo— se registra con el botón **Gasto** del tablero.' },
+                { type: 'p', text: 'Cualquier dinero que sale del cajón durante el turno —una compra urgente de insumos, un pago en efectivo— se registra con el botón **Gasto**, en Por encargo o en Autolavado.' },
                 { type: 'img', src: img('gasto'), caption: 'Monto, descripción y categoría.' },
                 { type: 'note', tone: 'warn', title: 'Si no lo registras, sale como faltante', text: 'El corte resta los gastos registrados del efectivo esperado. Un gasto sin registrar aparece como dinero que falta.' }
             ]

@@ -207,6 +207,7 @@ async function manualSucursal(browser) {
     await shot(page, 'apertura-caja');
     await page.getByRole('button', { name: /Abrir Turno y Comenzar/ }).click();
 
+    await page.getByRole('link', { name: /Autolavado/ }).click();
     await page.getByRole('heading', { name: 'Lavadoras' }).waitFor();
     await shot(page, 'tablero');
 
@@ -267,9 +268,10 @@ async function manualSucursal(browser) {
     await shot(page, 'gasto');
     await page.getByRole('button', { name: 'Guardar Gasto' }).click();
 
-    // --- Encargos
-    await page.getByRole('link', { name: /Servicios Programados/ }).click();
-    await page.getByRole('heading', { name: 'Servicios Programados' }).waitFor();
+    // --- Por encargo
+    await page.getByRole('link', { name: /Por encargo/ }).click();
+    await page.getByText('Recibido').first().waitFor();
+    await page.waitForTimeout(600);
     await shot(page, 'servicios-programados');
 
     // --- Corte
