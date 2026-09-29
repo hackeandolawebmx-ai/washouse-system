@@ -62,7 +62,8 @@ export const manualAdmin = {
             id: 'cortes',
             title: 'Cortes de caja',
             blocks: [
-                { type: 'img', src: img('cortes'), caption: 'Cada turno cerrado: cuándo, quién, cuánto duró, con qué fondo abrió y cuánto vendió.' },
+                { type: 'img', src: img('cortes'), caption: 'Cada turno cerrado: quién, cuánto vendió por método de pago y si el efectivo cuadró.' },
+                { type: 'p', text: '**Efectivo esperado** = fondo inicial + ventas en efectivo − gastos. **Contado** es lo que el mostrador declaró al cerrar. La **diferencia** sale en rojo si faltó dinero y en ámbar si sobró.' },
                 { type: 'p', text: 'Si un corte no cuadró, revisa también la **Bitácora** de ese día en Configuración: dice qué pasó, cuándo y quién lo hizo.' }
             ]
         },

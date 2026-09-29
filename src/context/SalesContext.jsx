@@ -47,7 +47,14 @@ const mapShift = (s) => ({
     initialCash: s.initial_cash,
     totalSales: s.total_sales,
     status: s.status,
-    closedBy: s.closed_by
+    closedBy: s.closed_by,
+    cashSales: s.cash_sales,
+    cardSales: s.card_sales,
+    transferSales: s.transfer_sales,
+    totalExpenses: s.total_expenses,
+    expectedDrawer: s.expected_cash,
+    finalCash: s.counted_cash,
+    difference: s.difference
 });
 
 export function SalesProvider({ children }) {
@@ -124,9 +131,16 @@ export function SalesProvider({ children }) {
             start_time: newShift.startTime,
             ended_at: newShift.endedAt || null,
             initial_cash: newShift.initialCash,
-            total_sales: newShift.totalSales ?? newShift.totalSales?.total ?? 0,
+            total_sales: newShift.totalSales ?? 0,
             status: newShift.status || 'closed',
-            closed_by: newShift.closedBy || null
+            closed_by: newShift.closedBy || null,
+            cash_sales: newShift.cashSales ?? 0,
+            card_sales: newShift.cardSales ?? 0,
+            transfer_sales: newShift.transferSales ?? 0,
+            total_expenses: newShift.totalExpenses ?? 0,
+            expected_cash: newShift.expectedDrawer ?? null,
+            counted_cash: newShift.finalCash ?? null,
+            difference: newShift.difference ?? null
         }]);
         if (error) console.error('Error saving shift remotely:', error);
     }, []);

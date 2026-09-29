@@ -11,6 +11,7 @@ import { exportToCSV } from '../utils/exportUtils';
 import { periodRange, inRange, daysInRange, localDayKey, PERIOD_OPTIONS } from '../utils/periods';
 import GlobalFilterBar from '../components/admin/GlobalFilterBar';
 import BranchLockout from '../components/BranchLockout';
+import { DifferenceBadge } from './ShiftsPage';
 
 const METHODS = [
     { id: 'cash', label: 'Efectivo', icon: Banknote, color: 'bg-emerald-500' },
@@ -310,7 +311,10 @@ export default function AdminDashboard() {
                                             <span className="font-bold text-washouse-navy">{s.closedBy || 'Sin nombre'}</span>
                                             <span className="font-black tabular-nums">{formatCurrency(s.totalSales || 0)}</span>
                                         </div>
-                                        <div className="text-xs text-gray-400">{new Date(s.endedAt).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' })}</div>
+                                        <div className="flex items-center justify-between text-xs">
+                                            <span className="text-gray-400">{new Date(s.endedAt).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                                            <DifferenceBadge value={s.difference} />
+                                        </div>
                                     </div>
                                 ))}
                             </div>
